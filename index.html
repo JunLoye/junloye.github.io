@@ -1,0 +1,59 @@
+{% extends 'base/main.html' %}
+
+{% block head %}
+    <title>Loye's Blog - 主页</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/base/main">
+    <link rel="stylesheet" type="text/css" href="/css/home/home-blog">
+{% endblock %}
+
+{% block container %}
+    <h2 class="no-select">
+        {% if user.is_authenticated %}
+            <p>欢迎, {{ user.username }}!</p>
+        {% endif %}
+    </h2>
+
+    <div>
+        <h2 class="no-select">ℹ️欢迎访问我的博客🫠</h2>
+        <p>这里会分享我的数字资产：如📌小工具、🎮游戏、💡idea、📚开源、💻科技、🔗个人主页等</p>
+    </div>
+
+    <footer class="footer">
+        <p>{{ copyright }}</p>
+    </footer>
+{% endblock %}
+
+{% block home_blog %}
+    <div id='home-blog' style='user-select: none;'>
+        {% for blog in home_blog %}
+            <div class="container" id='{{ blog.title }}'>
+                <a id='{{ blog.title }}' href='/blogs/?id={{ blog.id }}'>
+                    <div style="text-align:center;">
+                        <img src="/media/image/blog_{{ blog.id }}_cover.avif" style="width:95%; height:32%; border-radius:8px;" id='{{ blog.title }}' alt='{{ blog.title }}' onerror="handleImageError(this)">
+                    </div>
+                    <p style="color:#bbbbbb;margin-left:4%;font-size:19px;">{{ blog.title }}</p>
+                    <div style="margin-left:5%; width:90%;">{{ blog.description|safe }}</div>
+
+                    <p></p>
+
+                    <div class="home-blog_info">
+                        <div style="display: table-cell; vertical-align: middle; width:30%;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            {{ blog.author }}
+                        </div>
+                        <div style="display: table-cell; vertical-align: middle; width:45%;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            {{ blog.date|date:"Y-m-d" }}
+                        </div>
+                        <div style="display: table-cell; vertical-align: middle;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            {{ blog.comment }}条评论
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <p></p>
+        {% endfor %}
+    </div>
+{% endblock %}
