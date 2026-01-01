@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jun Loye | Digital Garden</title>
+    <title>Blog | Jun Loye</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -31,15 +32,17 @@
             --shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
 
-        /* 全局平滑滚动与文本选择 */
         html { scroll-behavior: smooth; }
         ::selection { background-color: var(--selection-bg); color: var(--selection-color); }
 
-        /* 极简滚动条 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
 
-        * { box-sizing: border-box; transition: background 0.4s ease, color 0.4s ease, border 0.4s ease, transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.4s ease, box-shadow 0.4s ease; }
+        * { box-sizing: border-box; }
+
+        body, nav, .post-card, .music-player, .playlist-menu, footer, .markdown-body {
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
 
         body {
             font-family: "Inter", "PingFang SC", sans-serif;
@@ -48,7 +51,6 @@
             overflow-x: hidden;
         }
 
-        /* 导航栏 - 毛玻璃效果 */
         nav { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 20px 0; border-bottom: 1px solid var(--line); 
@@ -57,66 +59,64 @@
             z-index: 100; margin-bottom: 30px;
         }
         .brand { font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; cursor: pointer; }
-        #search-input { padding: 8px 18px; border-radius: 30px; border: 1px solid var(--line); outline: none; font-size: 0.85rem; width: 180px; background: var(--bg); color: var(--text); }
+        #search-input { padding: 8px 18px; border-radius: 30px; border: 1px solid var(--line); outline: none; font-size: 0.85rem; width: 180px; background: var(--bg); color: var(--text); transition: width 0.3s ease; }
         #search-input:focus { width: 220px; border-color: var(--accent); }
 
-        /* 首页网格 - 卡片动画 */
         .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; }
-        .post-card { cursor: pointer; position: relative; }
-        .post-card:hover { transform: translateY(-8px); }
+        
+        .post-card { cursor: pointer; position: relative; transition: transform 0.3s ease; }
+        .post-card:hover { transform: translateY(-5px); }
         .post-cover { width: 100%; height: 180px; background-color: var(--line); border-radius: 16px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--line); }
-        .post-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-        .post-card:hover .post-cover img { transform: scale(1.08); }
+        .post-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .post-card:hover .post-cover img { transform: scale(1.05); }
         .post-card-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 8px 0; }
         .post-card-summary { font-size: 0.9rem; color: var(--text-soft); }
 
-        /* 文章详情页遮罩 */
         #post-detail-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); z-index: 500; display: none; overflow-y: auto; }
-        .detail-container { max-width: var(--container-width); margin: 0 auto; padding: 60px 25px 100px; opacity: 0; transform: translateY(30px); }
+        .detail-container { max-width: var(--container-width); margin: 0 auto; padding: 60px 25px 100px; opacity: 0; transform: translateY(20px); transition: transform 0.35s ease-out, opacity 0.3s ease; }
         .detail-container.show { opacity: 1; transform: translateY(0); }
         .detail-hero-img { width: 100%; height: 320px; border-radius: 20px; object-fit: cover; margin-bottom: 30px; box-shadow: var(--shadow); }
         
-        /* 交互按钮 */
-        .close-btn { position: fixed; top: 25px; left: 25px; background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 30px; cursor: pointer; font-size: 0.8rem; z-index: 600; font-weight: 600; border: none; }
-        .close-btn:hover { transform: scale(1.05); letter-spacing: 1px; }
+        .close-btn { position: fixed; top: 25px; left: 25px; background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 30px; cursor: pointer; font-size: 0.8rem; z-index: 600; font-weight: 600; border: none; transition: transform 0.2s ease, opacity 0.2s ease; }
+        .close-btn:hover { transform: scale(1.05); }
 
         #theme-toggle-btn {
             position: fixed; bottom: 25px; left: 25px; width: 48px; height: 48px;
             background: var(--text); color: var(--bg); border-radius: 50%;
             display: none; align-items: center; justify-content: center;
             cursor: pointer; z-index: 600; border: none; box-shadow: var(--shadow);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #theme-toggle-btn:hover { transform: rotate(15deg) scale(1.1); }
+        #theme-toggle-btn:hover { transform: scale(1.1); }
         #theme-icon svg { width: 22px; height: 22px; fill: currentColor; }
 
-        /* 红色通知样式 */
         #notification-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
-        .error-toast { background: #ff4d4f; color: white; padding: 12px 24px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 10px 20px rgba(255, 77, 79, 0.2); margin-bottom: 10px; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .error-toast { background: #ff4d4f; color: white; padding: 12px 24px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 10px 20px rgba(255, 77, 79, 0.2); margin-bottom: 10px; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* Markdown 正文 */
-        .markdown-body { font-size: 1.1rem; line-height: 1.8; color: var(--text); }
-        .markdown-body h1, .markdown-body h2 { margin-top: 2em; }
-        .markdown-body img { max-width: 100%; border-radius: 12px; margin: 20px 0; }
+        .markdown-body { background: transparent !important; color: var(--text) !important; font-family: inherit; font-size: 1.05rem; line-height: 1.8; }
+        .markdown-body table { display: block; width: 100%; overflow: auto; color: var(--text) !important; margin: 20px 0; }
+        .markdown-body table tr { background-color: var(--bg) !important; border-top: 1px solid var(--line); }
+        .markdown-body table th, .markdown-body table td { border: 1px solid var(--line) !important; padding: 8px 13px; }
+        .markdown-body table tr:nth-child(2n) { background-color: var(--line) !important; }
+        .markdown-body blockquote { border-left: 4px solid var(--accent) !important; color: var(--text-soft) !important; background: var(--line); padding: 1px 20px; margin: 20px 0; }
+        .markdown-body pre { background-color: var(--line) !important; border-radius: 8px; border: 1px solid var(--line); }
+        .markdown-body code { background-color: var(--selection-bg) !important; color: var(--accent) !important; padding: 2px 5px; border-radius: 4px; }
+        .markdown-body ul, .markdown-body ol { padding-left: 2em; color: var(--text); }
 
-        /* 🎵 播放器动效升级 */
+        /* 🎵 播放器样式 */
         .music-player-container { position: fixed; bottom: 25px; right: 25px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; }
-        .playlist-menu { background: var(--bg); border: 1px solid var(--line); border-radius: 20px; width: 240px; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--shadow); transform: translateY(15px); pointer-events: none; }
-        .playlist-menu.active { max-height: 300px; opacity: 1; margin-bottom: 15px; transform: translateY(0); pointer-events: auto; padding: 10px 0; overflow-y: auto; }
+        .playlist-menu { background: var(--bg); border: 1px solid var(--line); border-radius: 20px; width: 240px; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--shadow); transition: 0.3s ease; }
+        .playlist-menu.active { max-height: 300px; opacity: 1; margin-bottom: 15px; padding: 10px 0; overflow-y: auto; }
         .playlist-item { padding: 10px 20px; font-size: 0.85rem; cursor: pointer; color: var(--text-soft); }
         .playlist-item:hover { color: var(--accent); background: var(--line); }
         .playlist-item.playing { color: var(--accent); font-weight: 700; background: var(--selection-bg); }
 
         .music-player { background: var(--bg); padding: 6px; border-radius: 50px; box-shadow: var(--shadow); display: flex; align-items: center; border: 1px solid var(--line); }
-        .music-info { max-width: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; white-space: nowrap; cursor: pointer; transform: translateX(10px); }
-        .music-player.is-playing .music-info { max-width: 200px; opacity: 1; padding: 0 15px 0 20px; transform: translateX(0); }
+        .music-info { max-width: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; white-space: nowrap; cursor: pointer; transition: max-width 0.4s ease, opacity 0.3s ease; }
+        .music-player.is-playing .music-info { max-width: 200px; opacity: 1; padding: 0 15px 0 20px; }
         
-        .disc { 
-            width: 36px; height: 36px; background: var(--text); border-radius: 50%; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; 
-            animation: rotate 6s linear infinite paused; flex-shrink: 0; 
-            position: relative;
-        }
+        .disc { width: 36px; height: 36px; background: var(--text); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; animation: rotate 6s linear infinite paused; flex-shrink: 0; position: relative; }
         .disc.playing { animation-play-state: running; box-shadow: 0 0 15px var(--accent); }
         .disc svg { width: 16px; height: 16px; fill: var(--bg); }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -150,7 +150,7 @@
         </div>
     </div>
 
-    <footer><p>© <span id="year"></span> JUN LOYE | 精心灌溉的数字花园</p></footer>
+    <footer><p>© <span id="year"></span> JUN LOYE</p></footer>
 
     <script>
         const CONFIG = { username: 'JunLoye', repo: 'junloye.github.io', branch: 'main', musicFolder: 'music' };
@@ -209,9 +209,11 @@
             area.innerHTML = `<img src="${cover}" class="detail-hero-img"><div><div style="color:var(--text-soft); font-size:0.85rem; letter-spacing:1px;">${date}</div><h1 style="font-size:2.8rem; margin:15px 0; font-weight:900;">${issue.title}</h1><div style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; margin-bottom:40px; background:var(--selection-bg); display:inline-block; padding:2px 10px; border-radius:4px;">${issue.labels[0]?.name || 'MEMO'}</div></div><div class="markdown-body">${marked.parse(cleanBody)}</div>`;
             
             document.getElementById('post-detail-overlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = '6px';
+            
             setTimeout(() => area.classList.add('show'), 50);
             document.getElementById('theme-toggle-btn').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
         }
 
         function closePost() { 
@@ -220,14 +222,23 @@
             setTimeout(() => {
                 document.getElementById('post-detail-overlay').style.display = 'none'; 
                 document.getElementById('theme-toggle-btn').style.display = 'none';
-                document.body.style.overflow = 'auto'; 
-            }, 400);
+                document.body.style.overflow = ''; 
+                document.body.style.paddingRight = '';
+            }, 300);
         }
 
         const audio = document.getElementById('bg-audio'), musicBtn = document.getElementById('music-btn'), 
               playerBar = document.getElementById('player-bar'), trackName = document.getElementById('track-name'),
               iconPath = document.getElementById('btn-icon-path'), playlistMenu = document.getElementById('playlist-menu');
         let playlist = [], currentIdx = 0;
+
+        // 随机洗牌算法
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
 
         async function loadMusic() {
             try {
@@ -237,22 +248,56 @@
                     name: f.name.replace('.mp3', ''),
                     url: `https://raw.githubusercontent.com/${CONFIG.username}/${CONFIG.repo}/${CONFIG.branch}/${f.path}`
                 }));
-                if (playlist.length) { audio.src = playlist[0].url; trackName.textContent = playlist[0].name; renderPlaylist(); }
+                
+                if (playlist.length) {
+                    shuffleArray(playlist); // 加载后立即打乱顺序
+                    audio.src = playlist[0].url; 
+                    trackName.textContent = playlist[0].name; 
+                    renderPlaylist(); 
+                }
             } catch (e) {}
         }
 
-        function renderPlaylist() { playlistMenu.innerHTML = playlist.map((s, i) => `<div class="playlist-item ${i === currentIdx ? 'playing' : ''}" onclick="selectTrack(${i})">${s.name}</div>`).join(''); }
-        function selectTrack(i) { currentIdx = i; audio.src = playlist[i].url; trackName.textContent = playlist[i].name; renderPlaylist(); playMusic(); playlistMenu.classList.remove('active'); }
+        function renderPlaylist() { 
+            playlistMenu.innerHTML = playlist.map((s, i) => 
+                `<div class="playlist-item ${i === currentIdx ? 'playing' : ''}" onclick="selectTrack(${i})">${s.name}</div>`
+            ).join(''); 
+        }
+
+        function selectTrack(i) { 
+            currentIdx = i; 
+            audio.src = playlist[i].url; 
+            trackName.textContent = playlist[i].name; 
+            renderPlaylist(); 
+            playMusic(); 
+            playlistMenu.classList.remove('active'); 
+        }
+
         function togglePlaylist() { playlistMenu.classList.toggle('active'); }
         function playMusic() { audio.play().catch(e => {}); musicBtn.classList.add('playing'); playerBar.classList.add('is-playing'); iconPath.setAttribute('d', ICON_PAUSE); }
         function pauseMusic() { audio.pause(); musicBtn.classList.remove('playing'); playerBar.classList.remove('is-playing'); iconPath.setAttribute('d', ICON_PLAY); playlistMenu.classList.remove('active'); }
 
         musicBtn.onclick = (e) => { e.stopPropagation(); audio.paused ? playMusic() : pauseMusic(); };
-        musicBtn.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); currentIdx = (currentIdx + 1) % playlist.length; selectTrack(currentIdx); };
-        audio.onended = () => { currentIdx = (currentIdx + 1) % playlist.length; selectTrack(currentIdx); };
+        
+        // 右键或长按：手动切歌
+        musicBtn.oncontextmenu = (e) => { 
+            e.preventDefault(); 
+            e.stopPropagation(); 
+            nextTrack();
+        };
+
+        // 自动播放下一首（因为列表已随机，所以按索引顺序播放即是随机播放）
+        function nextTrack() {
+            currentIdx = (currentIdx + 1) % playlist.length;
+            selectTrack(currentIdx);
+        }
+
+        audio.onended = () => { nextTrack(); };
 
         document.getElementById('year').textContent = new Date().getFullYear();
-        fetchPosts(); loadMusic();
+        fetchPosts(); 
+        loadMusic();
+
         document.getElementById('search-input').oninput = (e) => {
             const filtered = allIssues.filter(i => i.title.toLowerCase().includes(e.target.value.toLowerCase()));
             renderPosts(filtered);
