@@ -9,17 +9,39 @@
     <link rel="icon" href="image/favicon.ico" type="image/x-icon">
 </head>
 <body data-theme="light">
-
     <div id="notification-container"></div>
     <button id="theme-toggle-btn" onclick="toggleDarkMode()"><svg id="theme-icon" viewBox="0 0 24 24"></svg></button>
 
     <nav>
         <div class="brand" onclick="location.reload()">JUN LOYE</div>
-        <div class="nav-right"><input type="text" id="search-input" placeholder="搜索文章..."></div>
+        <div class="nav-right" style="display: flex; align-items: center; gap: 20px;">
+            <span class="about-trigger" onclick="openAbout()" style="cursor: pointer; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px;">ABOUT</span>
+            <input type="text" id="search-input" placeholder="搜索文章...">
+        </div>
     </nav>
 
-    <div id="post-detail-overlay">
-        <button class="close-btn" onclick="closePost()">← CLOSE (Esc)</button>
+    <div id="about-overlay" class="overlay">
+        <button class="close-btn" onclick="closeAbout()">← BACK</button>
+        <div class="detail-container" id="about-content">
+            <div style="text-align: center; margin-top: 40px;">
+                <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 10px;">Jun Loye</h1>
+                <p style="color: var(--text-soft); font-size: 1.1rem;">创作者 / 开发者 / MC爱好者</p>
+                <div style="margin: 40px 0; height: 1px; background: var(--line);"></div>
+                <div class="markdown-body" style="text-align: left;">
+                    <h3>关于我</h3>
+                    <p>欢迎来到我的个人博客。这里是我记录思考、技术笔记和生活点滴的角落。</p>
+                    <h3>联系方式</h3>
+                    <ul>
+                        <li>Email: LoyeJun@qq.com LoyeJun9396@gmail.com</li>
+                        <li>Github: <a href="https://github.com/JunLoye" target="_blank">https://github.com/JunLoye<a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="post-detail-overlay" class="overlay">
+        <button class="close-btn" onclick="closePost()">← CLOSE</button>
         <div class="detail-container" id="detail-content-area"></div>
     </div>
 

@@ -4,24 +4,60 @@ const SUN_SVG = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2=
 const MOON_SVG = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
 
 let allIssues = [];
-window.onkeydown = (e) => { if (e.key === 'Escape') closePost(); };
 
+// --- 全局按键逻辑 ---
+window.onkeydown = (e) => { 
+    if (e.key === 'Escape') {
+        closePost();
+        closeAbout();
+    }
+};
+
+// --- 关于页面逻辑 ---
+function openAbout() {
+    const overlay = document.getElementById('about-overlay');
+    const content = document.getElementById('about-content');
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => content.classList.add('show'), 50);
+}
+
+function closeAbout() {
+    const overlay = document.getElementById('about-overlay');
+    const content = document.getElementById('about-content');
+    if (!content.classList.contains('show')) return;
+    content.classList.remove('show');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// --- 通用 UI 逻辑 ---
 function showError(msg) {
     const container = document.getElementById('notification-container');
     const toast = document.createElement('div');
     toast.className = 'error-toast';
     toast.textContent = msg;
     container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 400); }, 5000);
+    setTimeout(() => { 
+        toast.style.opacity = '0'; 
+        toast.style.transform = 'translateX(20px)'; 
+        setTimeout(() => toast.remove(), 400); 
+    }, 5000);
 }
 
 function toggleDarkMode() {
     const body = document.body;
     const isDark = body.getAttribute('data-theme') === 'dark';
     body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    document.getElementById('theme-icon').innerHTML = isDark ? MOON_SVG : SUN_SVG;
+    const icon = document.getElementById('theme-icon');
+    icon.innerHTML = isDark ? MOON_SVG : SUN_SVG;
+    icon.style.stroke = "var(--bg)";
+    icon.style.fill = isDark ? "currentColor" : "none";
 }
 
+// --- 文章逻辑 ---
 async function fetchPosts() {
     try {
         const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues?state=open&sort=created`);
@@ -46,23 +82,47 @@ function renderPosts(posts) {
 function openPost(num) {
     const issue = allIssues.find(i => i.number === num);
     const cover = issue.body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
-    let cleanBody = issue.body.replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "").replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "").replace(/🚀 正文内容/g, "").replace(/💡 发布核对[\s\S]*/, "").replace(/^\s*---\s*/gm, "").trim();
+    let cleanBody = issue.body.replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "")
+                              .replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "")
+                              .replace(/🚀 正文内容/g, "")
+                              .replace(/📄 正文内容/g, "")
+                              .replace(/💡 发布核对[\s\S]*/, "")
+                              .replace(/^\s*---\s*/gm, "")
+                              .trim();
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
     
     const area = document.getElementById('detail-content-area');
-    // 调小了这里的标题字号：font-size 从 2.8rem 降至 2rem
-    area.innerHTML = `<img src="${cover}" class="detail-hero-img"><div><div style="color:var(--text-soft); font-size:0.85rem; letter-spacing:1px;">${date}</div><h1 style="font-size:2rem; margin:15px 0; font-weight:900;">${issue.title}</h1><div style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; margin-bottom:40px; background:var(--selection-bg); display:inline-block; padding:2px 10px; border-radius:4px;">${issue.labels[0]?.name || 'MEMO'}</div></div><div class="markdown-body">${marked.parse(cleanBody)}</div>`;
+    area.innerHTML = `
+        <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; color:var(--text-soft); font-size:0.85rem; letter-spacing:1px;">
+                <span>${date}</span>
+                <span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; background:var(--selection-bg); padding:2px 10px; border-radius:4px;">
+                    ${issue.labels[0]?.name || 'MEMO'}
+                </span>
+            </div>
+            <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
+        </div>
+        <div class="markdown-body">${marked.parse(cleanBody)}</div>`;
     
     document.getElementById('post-detail-overlay').style.display = 'block';
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = '6px';
     
     setTimeout(() => area.classList.add('show'), 50);
-    document.getElementById('theme-toggle-btn').style.display = 'flex';
+    
+    const toggleBtn = document.getElementById('theme-toggle-btn');
+    const themeIcon = document.getElementById('theme-icon');
+    toggleBtn.style.display = 'flex';
+    themeIcon.style.stroke = "var(--bg)";
+    themeIcon.style.strokeWidth = "2";
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    themeIcon.style.fill = isDark ? "none" : "currentColor"; 
 }
 
 function closePost() { 
     const area = document.getElementById('detail-content-area');
+    if (!area.classList.contains('show')) return;
     area.classList.remove('show');
     setTimeout(() => {
         document.getElementById('post-detail-overlay').style.display = 'none'; 
@@ -132,7 +192,11 @@ musicBtn.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); nextT
 audio.onended = () => { nextTrack(); };
 
 // --- 初始化 ---
-document.getElementById('theme-icon').innerHTML = MOON_SVG;
+const initialIcon = document.getElementById('theme-icon');
+initialIcon.innerHTML = MOON_SVG;
+initialIcon.style.stroke = "var(--bg)";
+initialIcon.style.strokeWidth = "2";
+
 document.getElementById('year').textContent = new Date().getFullYear();
 fetchPosts(); 
 loadMusic();

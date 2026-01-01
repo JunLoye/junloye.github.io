@@ -5,7 +5,7 @@
     --line: #efefef;
     --accent: #007AFF;
     --overlay-bg: rgba(255, 255, 255, 0.98);
-    --container-width: 900px; /* 增大详情页容器宽度 */
+    --container-width: 900px;
     --selection-bg: rgba(0, 122, 255, 0.15);
     --selection-color: #007AFF;
     --shadow: 0 10px 30px rgba(0,0,0,0.05);
@@ -25,10 +25,8 @@
 
 html { scroll-behavior: smooth; }
 ::selection { background-color: var(--selection-bg); color: var(--selection-color); }
-
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
-
 * { box-sizing: border-box; }
 
 body, nav, .post-card, .music-player, .playlist-menu, footer, .markdown-body {
@@ -42,7 +40,6 @@ body {
     overflow-x: hidden;
 }
 
-/* 导航栏：禁止选择 */
 nav { 
     display: flex; justify-content: space-between; align-items: center; 
     padding: 20px 0; border-bottom: 1px solid var(--line); 
@@ -52,6 +49,38 @@ nav {
     user-select: none; -webkit-user-select: none;
 }
 .brand { font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; cursor: pointer; }
+
+/* ABOUT 按钮动态下划线 */
+.about-trigger {
+    position: relative;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-soft);
+    transition: color 0.3s ease;
+    padding: 4px 0;
+}
+
+.about-trigger::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent);
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.about-trigger:hover {
+    color: var(--accent);
+}
+
+.about-trigger:hover::after {
+    width: 100%;
+}
+
 #search-input { 
     padding: 8px 18px; border-radius: 30px; border: 1px solid var(--line); 
     outline: none; font-size: 0.85rem; width: 180px; background: var(--bg); 
@@ -60,7 +89,6 @@ nav {
 }
 #search-input:focus { width: 220px; border-color: var(--accent); }
 
-/* 首页网格：禁止选择 */
 .post-grid { 
     display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
     gap: 40px; 
@@ -75,8 +103,7 @@ nav {
 .post-card-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 8px 0; }
 .post-card-summary { font-size: 0.9rem; color: var(--text-soft); }
 
-/* 文章详情：允许选择文本 */
-#post-detail-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); z-index: 500; display: none; overflow-y: auto; }
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); z-index: 500; display: none; overflow-y: auto; }
 .detail-container { 
     max-width: var(--container-width); margin: 0 auto; padding: 60px 25px 100px; 
     opacity: 0; transform: translateY(20px); transition: transform 0.35s ease-out, opacity 0.3s ease; 
@@ -118,7 +145,6 @@ nav {
 .markdown-body code { background-color: var(--selection-bg) !important; color: var(--accent) !important; padding: 2px 5px; border-radius: 4px; }
 .markdown-body ul, .markdown-body ol { padding-left: 2em; color: var(--text); }
 
-/* 播放器：禁止选择 */
 .music-player-container { 
     position: fixed; bottom: 25px; right: 25px; z-index: 1000; 
     display: flex; flex-direction: column; align-items: flex-end; 
