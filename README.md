@@ -1,7 +1,4 @@
-
-# Jun Loye | Digital Garden 🌿
-
-这是我的个人数字花园，托管于 GitHub Pages。
+# Blog | Jun Loye
 
 ### ✨ 特性
 
