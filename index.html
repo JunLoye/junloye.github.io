@@ -12,9 +12,11 @@
             --text-soft: #555555;
             --line: #efefef;
             --accent: #007AFF;
-            --overlay-bg: #ffffff;
+            --overlay-bg: rgba(255, 255, 255, 0.98);
             --container-width: 750px;
             --selection-bg: rgba(0, 122, 255, 0.15);
+            --selection-color: #007AFF;
+            --shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
         [data-theme="dark"] {
@@ -23,158 +25,172 @@
             --text-soft: #aaaaaa;
             --line: #222222;
             --accent: #0A84FF;
-            --overlay-bg: #111111;
+            --overlay-bg: rgba(10, 10, 10, 0.98);
             --selection-bg: rgba(10, 132, 255, 0.3);
+            --selection-color: #58a6ff;
+            --shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
 
-        [data-width="wide"] { --container-width: 1100px; }
+        /* 全局平滑滚动与文本选择 */
+        html { scroll-behavior: smooth; }
+        ::selection { background-color: var(--selection-bg); color: var(--selection-color); }
 
         /* 极简滚动条 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-soft); }
 
-        /* 文本选择 */
-        ::selection { background: var(--selection-bg); color: var(--accent); }
-
-        /* 右键菜单 */
-        #custom-context-menu {
-            position: fixed; display: none; z-index: 2000;
-            background: var(--bg); backdrop-filter: blur(12px);
-            border: 1px solid var(--line); border-radius: 10px;
-            padding: 5px 0; width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .menu-item { padding: 8px 15px; font-size: 0.85rem; cursor: pointer; color: var(--text); }
-        .menu-item:hover { background: var(--line); }
-        .menu-divider { height: 1px; background: var(--line); margin: 5px 0; }
-
-        * { box-sizing: border-box; transition: background 0.3s, color 0.3s, border 0.3s, transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        * { box-sizing: border-box; transition: background 0.4s ease, color 0.4s ease, border 0.4s ease, transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.4s ease, box-shadow 0.4s ease; }
 
         body {
             font-family: "Inter", "PingFang SC", sans-serif;
             background-color: var(--bg); color: var(--text);
-            max-width: 1100px; margin: 0 auto; padding: 10px 25px; line-height: 1.6;
+            max-width: 1100px; margin: 0 auto; padding: 0 25px; line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        /* 导航 */
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 0 20px 0; border-bottom: 1px solid var(--line); margin-bottom: 30px; position: sticky; top: 0; background: var(--bg); z-index: 100; }
+        /* 导航栏 - 毛玻璃效果 */
+        nav { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px 0; border-bottom: 1px solid var(--line); 
+            position: sticky; top: 0; background: var(--bg); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 100; margin-bottom: 30px;
+        }
         .brand { font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; cursor: pointer; }
-        .nav-right { display: flex; align-items: center; gap: 12px; }
-        .nav-btn { background: var(--line); color: var(--text); border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
-        #search-input { padding: 8px 18px; border-radius: 30px; border: 1px solid var(--line); outline: none; font-size: 0.85rem; width: 150px; background: var(--bg); color: var(--text); }
+        #search-input { padding: 8px 18px; border-radius: 30px; border: 1px solid var(--line); outline: none; font-size: 0.85rem; width: 180px; background: var(--bg); color: var(--text); }
+        #search-input:focus { width: 220px; border-color: var(--accent); }
 
-        /* 首页网格 */
+        /* 首页网格 - 卡片动画 */
         .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; }
-        .post-card { cursor: pointer; }
-        .post-cover { width: 100%; height: 180px; background-color: var(--line); border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--line); }
-        .post-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .post-card { cursor: pointer; position: relative; }
+        .post-card:hover { transform: translateY(-8px); }
+        .post-cover { width: 100%; height: 180px; background-color: var(--line); border-radius: 16px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--line); }
+        .post-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .post-card:hover .post-cover img { transform: scale(1.08); }
         .post-card-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 8px 0; }
         .post-card-summary { font-size: 0.9rem; color: var(--text-soft); }
 
-        /* 详情页 */
+        /* 文章详情页遮罩 */
         #post-detail-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); z-index: 500; display: none; overflow-y: auto; }
-        .detail-container { max-width: var(--container-width); margin: 0 auto; padding: 40px 25px 100px; }
-        .detail-hero-img { width: 100%; height: 260px; border-radius: 12px; object-fit: cover; margin-bottom: 20px; border: 1px solid var(--line); }
-        .detail-header { margin-bottom: 25px; display: flex; flex-direction: column; gap: 2px; }
-        .detail-date { color: var(--text-soft); font-size: 0.85rem; }
-        .detail-title { font-size: 2.4rem; font-weight: 800; line-height: 1.1; margin: 0; }
-        .detail-tag { font-size: 0.7rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+        .detail-container { max-width: var(--container-width); margin: 0 auto; padding: 60px 25px 100px; opacity: 0; transform: translateY(30px); }
+        .detail-container.show { opacity: 1; transform: translateY(0); }
+        .detail-hero-img { width: 100%; height: 320px; border-radius: 20px; object-fit: cover; margin-bottom: 30px; box-shadow: var(--shadow); }
+        
+        /* 交互按钮 */
         .close-btn { position: fixed; top: 25px; left: 25px; background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 30px; cursor: pointer; font-size: 0.8rem; z-index: 600; font-weight: 600; border: none; }
-        .markdown-body { font-size: 1.1rem; line-height: 1.75; color: var(--text); }
+        .close-btn:hover { transform: scale(1.05); letter-spacing: 1px; }
 
-        /* 播放器交互核心修复 */
-        .music-player-container { position: fixed; bottom: 25px; right: 25px; z-index: 1000; }
-        .music-player { background: var(--bg); padding: 6px; border-radius: 50px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); display: flex; align-items: center; border: 1px solid var(--line); }
-        .music-info { max-width: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; transition: all 0.5s ease; white-space: nowrap; font-size: 0.75rem; color: var(--text-soft); }
+        #theme-toggle-btn {
+            position: fixed; bottom: 25px; left: 25px; width: 48px; height: 48px;
+            background: var(--text); color: var(--bg); border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 600; border: none; box-shadow: var(--shadow);
+        }
+        #theme-toggle-btn:hover { transform: rotate(15deg) scale(1.1); }
+        #theme-icon svg { width: 22px; height: 22px; fill: currentColor; }
+
+        /* 红色通知样式 */
+        #notification-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .error-toast { background: #ff4d4f; color: white; padding: 12px 24px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 10px 20px rgba(255, 77, 79, 0.2); margin-bottom: 10px; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* Markdown 正文 */
+        .markdown-body { font-size: 1.1rem; line-height: 1.8; color: var(--text); }
+        .markdown-body h1, .markdown-body h2 { margin-top: 2em; }
+        .markdown-body img { max-width: 100%; border-radius: 12px; margin: 20px 0; }
+
+        /* 🎵 播放器动效升级 */
+        .music-player-container { position: fixed; bottom: 25px; right: 25px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; }
+        .playlist-menu { background: var(--bg); border: 1px solid var(--line); border-radius: 20px; width: 240px; max-height: 0; opacity: 0; overflow: hidden; box-shadow: var(--shadow); transform: translateY(15px); pointer-events: none; }
+        .playlist-menu.active { max-height: 300px; opacity: 1; margin-bottom: 15px; transform: translateY(0); pointer-events: auto; padding: 10px 0; overflow-y: auto; }
+        .playlist-item { padding: 10px 20px; font-size: 0.85rem; cursor: pointer; color: var(--text-soft); }
+        .playlist-item:hover { color: var(--accent); background: var(--line); }
+        .playlist-item.playing { color: var(--accent); font-weight: 700; background: var(--selection-bg); }
+
+        .music-player { background: var(--bg); padding: 6px; border-radius: 50px; box-shadow: var(--shadow); display: flex; align-items: center; border: 1px solid var(--line); }
+        .music-info { max-width: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; white-space: nowrap; cursor: pointer; transform: translateX(10px); }
+        .music-player.is-playing .music-info { max-width: 200px; opacity: 1; padding: 0 15px 0 20px; transform: translateX(0); }
         
-        /* 仅在 is-playing 类存在时展开 */
-        .music-player.is-playing .music-info { max-width: 200px; opacity: 1; padding: 0 10px 0 15px; }
-        
-        .disc { width: 34px; height: 34px; background: var(--text); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; animation: rotate 5s linear infinite paused; flex-shrink: 0; }
-        .disc.playing { animation-play-state: running; }
-        .disc svg { width: 14px; height: 14px; fill: var(--bg); }
-        
+        .disc { 
+            width: 36px; height: 36px; background: var(--text); border-radius: 50%; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            animation: rotate 6s linear infinite paused; flex-shrink: 0; 
+            position: relative;
+        }
+        .disc.playing { animation-play-state: running; box-shadow: 0 0 15px var(--accent); }
+        .disc svg { width: 16px; height: 16px; fill: var(--bg); }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        footer { margin-top: 80px; padding: 40px 0; border-top: 1px solid var(--line); text-align: center; color: var(--text-soft); font-size: 0.8rem; }
+        
+        footer { margin-top: 100px; padding: 50px 0; border-top: 1px solid var(--line); text-align: center; color: var(--text-soft); font-size: 0.8rem; letter-spacing: 1px; }
     </style>
 </head>
-<body data-theme="light" data-width="normal">
+<body data-theme="light">
 
-    <div id="custom-context-menu">
-        <div class="menu-item" onclick="location.reload()">刷新页面</div>
-        <div class="menu-item" onclick="toggleDarkMode()">切换主题</div>
-        <div class="menu-divider"></div>
-        <div class="menu-item" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">回到顶部</div>
-        <div class="menu-item" onclick="closePost()">关闭文章</div>
-    </div>
+    <div id="notification-container"></div>
+    <button id="theme-toggle-btn" onclick="toggleDarkMode()"><svg id="theme-icon" viewBox="0 0 24 24"></svg></button>
 
     <nav>
         <div class="brand" onclick="location.reload()">JUN LOYE</div>
-        <div class="nav-right">
-            <button class="nav-btn" onclick="toggleWideMode()" id="wide-btn">宽屏</button>
-            <button class="nav-btn" onclick="toggleDarkMode()" id="theme-btn">深色</button>
-            <input type="text" id="search-input" placeholder="搜索...">
-        </div>
+        <div class="nav-right"><input type="text" id="search-input" placeholder="搜索文章..."></div>
     </nav>
 
-    <header class="hero">
-        <h1 id="welcome-text">你好，旅人。</h1>
-        <p>探索代码逻辑，实践设计留白。</p>
-    </header>
-
     <div id="post-detail-overlay">
-        <button class="close-btn" onclick="closePost()">← CLOSE</button>
+        <button class="close-btn" onclick="closePost()">← CLOSE (Esc)</button>
         <div class="detail-container" id="detail-content-area"></div>
     </div>
 
     <main class="post-grid" id="post-list-container"></main>
 
     <div class="music-player-container">
+        <div class="playlist-menu" id="playlist-menu"></div>
         <div id="player-bar" class="music-player">
-            <div class="music-info"><span id="track-name">Music</span></div>
+            <div class="music-info" onclick="togglePlaylist()"><span id="track-name" style="font-size: 0.75rem; font-weight: 600;">Music</span></div>
             <div class="disc" id="music-btn"><svg viewBox="0 0 24 24"><path id="btn-icon-path" d="M8 5v14l11-7z"/></svg></div>
             <audio id="bg-audio"></audio>
         </div>
     </div>
 
-    <footer><p>© <span id="year"></span> JUN LOYE</p></footer>
+    <footer><p>© <span id="year"></span> JUN LOYE | 精心灌溉的数字花园</p></footer>
 
     <script>
         const CONFIG = { username: 'JunLoye', repo: 'junloye.github.io', branch: 'main', musicFolder: 'music' };
         const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+        const SUN_SVG = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+        const MOON_SVG = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+        
         let allIssues = [];
+        window.onkeydown = (e) => { if (e.key === 'Escape') closePost(); };
 
-        // 右键菜单
-        const contextMenu = document.getElementById('custom-context-menu');
-        window.oncontextmenu = (e) => { e.preventDefault(); contextMenu.style.display = 'block'; contextMenu.style.left = e.clientX+'px'; contextMenu.style.top = e.clientY+'px'; };
-        window.onclick = () => contextMenu.style.display = 'none';
+        function showError(msg) {
+            const container = document.getElementById('notification-container');
+            const toast = document.createElement('div');
+            toast.className = 'error-toast';
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)'; setTimeout(() => toast.remove(), 400); }, 5000);
+        }
 
         function toggleDarkMode() {
-            const isLight = document.body.getAttribute('data-theme') === 'light';
-            document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
-            document.getElementById('theme-btn').textContent = isLight ? '浅色' : '深色';
+            const body = document.body;
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('theme-icon').innerHTML = isDark ? MOON_SVG : SUN_SVG;
         }
-        function toggleWideMode() {
-            const isNormal = document.body.getAttribute('data-width') === 'normal';
-            document.body.setAttribute('data-width', isNormal ? 'wide' : 'normal');
-            document.getElementById('wide-btn').textContent = isNormal ? '常规' : '宽屏';
-        }
+        document.getElementById('theme-icon').innerHTML = MOON_SVG;
 
         async function fetchPosts() {
             try {
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues?state=open&sort=created`);
+                if (res.status === 403) throw new Error("API 请求已达上限，请稍后再试。");
                 allIssues = (await res.json()).filter(i => !i.pull_request);
                 renderPosts(allIssues);
-            } catch (e) { document.getElementById('post-list-container').innerHTML = '加载失败'; }
+            } catch (e) { showError(e.message); }
         }
 
         function renderPosts(posts) {
-            const container = document.getElementById('post-list-container');
-            container.innerHTML = posts.map(issue => {
-                const body = issue.body || "";
-                const cover = body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
-                const summary = body.match(/### 📖 文章简述\s*([\s\S]*?)(?=\n---|###|$)/)?.[1]?.trim() || "阅读全文...";
+            document.getElementById('post-list-container').innerHTML = posts.map(issue => {
+                const cover = issue.body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
+                const summary = issue.body.match(/### 📖 文章简述\s*([\s\S]*?)(?=\n---|###|$)/)?.[1]?.trim() || "点击阅读更多细节...";
                 return `<div class="post-card" onclick="openPost(${issue.number})">
                     <div class="post-cover"><img src="${cover}"></div>
                     <h2 class="post-card-title">${issue.title}</h2>
@@ -188,50 +204,59 @@
             const cover = issue.body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
             let cleanBody = issue.body.replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "").replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "").replace(/🚀 正文内容/g, "").replace(/💡 发布核对[\s\S]*/, "").replace(/^\s*---\s*/gm, "").trim();
             const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('detail-content-area').innerHTML = `<img src="${cover}" class="detail-hero-img"><div class="detail-header"><div class="detail-date">${date}</div><h1 class="detail-title">${issue.title}</h1><div class="detail-tag">${issue.labels[0]?.name || 'Article'}</div></div><div class="markdown-body">${marked.parse(cleanBody)}</div>`;
+            
+            const area = document.getElementById('detail-content-area');
+            area.innerHTML = `<img src="${cover}" class="detail-hero-img"><div><div style="color:var(--text-soft); font-size:0.85rem; letter-spacing:1px;">${date}</div><h1 style="font-size:2.8rem; margin:15px 0; font-weight:900;">${issue.title}</h1><div style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; margin-bottom:40px; background:var(--selection-bg); display:inline-block; padding:2px 10px; border-radius:4px;">${issue.labels[0]?.name || 'MEMO'}</div></div><div class="markdown-body">${marked.parse(cleanBody)}</div>`;
+            
             document.getElementById('post-detail-overlay').style.display = 'block';
+            setTimeout(() => area.classList.add('show'), 50);
+            document.getElementById('theme-toggle-btn').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
-        function closePost() { document.getElementById('post-detail-overlay').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        function closePost() { 
+            const area = document.getElementById('detail-content-area');
+            area.classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('post-detail-overlay').style.display = 'none'; 
+                document.getElementById('theme-toggle-btn').style.display = 'none';
+                document.body.style.overflow = 'auto'; 
+            }, 400);
+        }
 
-        // 播放器逻辑核心修复
         const audio = document.getElementById('bg-audio'), musicBtn = document.getElementById('music-btn'), 
               playerBar = document.getElementById('player-bar'), trackName = document.getElementById('track-name'),
-              iconPath = document.getElementById('btn-icon-path');
+              iconPath = document.getElementById('btn-icon-path'), playlistMenu = document.getElementById('playlist-menu');
         let playlist = [], currentIdx = 0;
 
         async function loadMusic() {
             try {
-                const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.musicFolder}`);
-                playlist = (await res.json()).filter(f => f.name.endsWith('.mp3')).map(f => ({
+                const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.musicFolder}?ref=${CONFIG.branch}`);
+                const files = await res.json();
+                playlist = files.filter(f => f.name.endsWith('.mp3')).map(f => ({
                     name: f.name.replace('.mp3', ''),
                     url: `https://raw.githubusercontent.com/${CONFIG.username}/${CONFIG.repo}/${CONFIG.branch}/${f.path}`
                 }));
-                if (playlist.length) { audio.src = playlist[0].url; trackName.textContent = playlist[0].name; }
+                if (playlist.length) { audio.src = playlist[0].url; trackName.textContent = playlist[0].name; renderPlaylist(); }
             } catch (e) {}
         }
 
-        function playMusic() {
-            audio.play().catch(e => {});
-            musicBtn.classList.add('playing');
-            playerBar.classList.add('is-playing'); // 展开
-            iconPath.setAttribute('d', ICON_PAUSE);
-        }
+        function renderPlaylist() { playlistMenu.innerHTML = playlist.map((s, i) => `<div class="playlist-item ${i === currentIdx ? 'playing' : ''}" onclick="selectTrack(${i})">${s.name}</div>`).join(''); }
+        function selectTrack(i) { currentIdx = i; audio.src = playlist[i].url; trackName.textContent = playlist[i].name; renderPlaylist(); playMusic(); playlistMenu.classList.remove('active'); }
+        function togglePlaylist() { playlistMenu.classList.toggle('active'); }
+        function playMusic() { audio.play().catch(e => {}); musicBtn.classList.add('playing'); playerBar.classList.add('is-playing'); iconPath.setAttribute('d', ICON_PAUSE); }
+        function pauseMusic() { audio.pause(); musicBtn.classList.remove('playing'); playerBar.classList.remove('is-playing'); iconPath.setAttribute('d', ICON_PLAY); playlistMenu.classList.remove('active'); }
 
-        function pauseMusic() {
-            audio.pause();
-            musicBtn.classList.remove('playing');
-            playerBar.classList.remove('is-playing'); // 隐藏
-            iconPath.setAttribute('d', ICON_PLAY);
-        }
-
-        musicBtn.onclick = () => audio.paused ? playMusic() : pauseMusic();
-        audio.onended = () => { currentIdx = (currentIdx + 1) % playlist.length; audio.src = playlist[currentIdx].url; trackName.textContent = playlist[currentIdx].name; playMusic(); };
+        musicBtn.onclick = (e) => { e.stopPropagation(); audio.paused ? playMusic() : pauseMusic(); };
+        musicBtn.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); currentIdx = (currentIdx + 1) % playlist.length; selectTrack(currentIdx); };
+        audio.onended = () => { currentIdx = (currentIdx + 1) % playlist.length; selectTrack(currentIdx); };
 
         document.getElementById('year').textContent = new Date().getFullYear();
         fetchPosts(); loadMusic();
-        document.getElementById('search-input').oninput = (e) => renderPosts(allIssues.filter(i => i.title.toLowerCase().includes(e.target.value.toLowerCase())));
+        document.getElementById('search-input').oninput = (e) => {
+            const filtered = allIssues.filter(i => i.title.toLowerCase().includes(e.target.value.toLowerCase()));
+            renderPosts(filtered);
+        };
     </script>
 </body>
 </html>

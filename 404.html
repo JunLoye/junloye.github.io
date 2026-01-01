@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 迷路了 | Jun Loye</title>
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #ffffff; color: #111111; font-family: sans-serif;
+            text-align: center;
+        }
+        h1 { font-size: 6rem; margin: 0; font-weight: 900; letter-spacing: -2px; }
+        p { color: #555; font-size: 1.2rem; margin: 10px 0 30px; }
+        .back-btn {
+            padding: 12px 30px; background: #111; color: #fff;
+            border-radius: 30px; text-decoration: none; font-weight: 600;
+            transition: transform 0.3s;
+        }
+        .back-btn:hover { transform: scale(1.05); }
+        .timer { font-size: 0.8rem; color: #aaa; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <h1>404</h1>
+    <p>抱歉，这个页面似乎消失了。</p>
+    <a href="/" class="back-btn">回到首页</a>
+    <div class="timer"><span id="count">5</span> 秒后自动跳转</div>
+
+    <script>
+        let count = 5;
+        const timer = setInterval(() => {
+            count--;
+            document.getElementById('count').innerText = count;
+            if(count <= 0) {
+                clearInterval(timer);
+                window.location.href = "/";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
