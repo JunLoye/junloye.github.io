@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 | Jun Loye</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --text-soft: #666;
+            --line: #efefef;
+            --accent: #000;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+
+        body {
+            font-family: "Inter", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 顶部导航 */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            border-bottom: 1px solid var(--line);
+            z-index: 100;
+        }
+
+        .back-home {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-home:hover { opacity: 0.6; }
+
+        /* 文章容器 */
+        article {
+            max-width: 750px;
+            margin: 60px auto;
+            padding: 0 25px;
+        }
+
+        /* 文章头部 */
+        .post-header {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .post-meta {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--text-soft);
+            margin-bottom: 15px;
+        }
+
+        .post-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin: 0 0 20px 0;
+        }
+
+        .post-cover {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+
+        /* 正文内容样式 */
+        .post-content {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .post-content h2 {
+            font-size: 1.8rem;
+            margin-top: 40px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 10px;
+        }
+
+        .post-content p { margin-bottom: 25px; }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--accent);
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-soft);
+            font-style: italic;
+        }
+
+        .post-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* 音乐播放器 (全局统一) */
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--line);
+            z-index: 100;
+        }
+
+        .disc { width: 36px; height: 36px; background: #333; border-radius: 50%; cursor: pointer; animation: rotate 5s linear infinite paused; }
+        .disc.playing { animation-play-state: running; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        footer {
+            margin-top: 100px;
+            padding: 60px 0;
+            text-align: center;
+            border-top: 1px solid var(--line);
+            color: var(--text-soft);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .post-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-home">← Jun Loye</a>
+        <div class="search-info" style="font-size: 0.8rem; color: #999;">Reading Mode</div>
+    </nav>
+
+    <article>
+        <header class="post-header">
+            <div class="post-meta">#003 · TECH · 2026.01.01</div>
+            <h1 class="post-title">GitHub Pages 全自动部署方案</h1>
+        </header>
+
+        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80" class="post-cover" alt="Cover">
+
+        <section class="post-content">
+            <p>在现代 Web 开发中，部署流程的自动化已经成为了提高生产力的核心。对于使用 GitHub 托管的博客来说，GitHub Actions 提供了一个近乎完美的解决方案。</p>
+
+            <blockquote>
+                “好的工具应该像空气一样，让你感觉不到它的存在，却又无处不在。”
+            </blockquote>
+
+            <h2>为什么选择自动化部署？</h2>
+            <p>传统的手动部署通常涉及 <code>build</code>、<code>ftp upload</code> 或者手动推送到 <code>gh-pages</code> 分支。这不仅繁琐，而且容易出错。通过配置 YAML 脚本，我们可以实现：</p>
+            <ul>
+                <li>代码推送即更新</li>
+                <li>环境一致性保证</li>
+                <li>历史版本回溯</li>
+            </ul>
+
+            <h2>配置步骤</h2>
+            <p>首先，你需要在项目的根目录下创建一个 <code>.github/workflows</code> 文件夹，并添加一个新的配置文件...</p>
+        </section>
+    </article>
+
+    <div class="music-player">
+        <div class="disc" id="music-btn"></div>
+        <audio id="bg-audio" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <footer>
+        <p>© 2026 JUN LOYE · 感谢阅读</p>
+    </footer>
+
+    <script>
+        // 音乐控制 (保持逻辑一致)
+        const btn = document.getElementById('music-btn');
+        const audio = document.getElementById('bg-audio');
+        btn.onclick = () => {
+            if(audio.paused) { audio.play(); btn.classList.add('playing'); }
+            else { audio.pause(); btn.classList.remove('playing'); }
+        };
+    </script>
+</body>
+</html>
