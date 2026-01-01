@@ -141,7 +141,13 @@ nav {
 .markdown-body table th, .markdown-body table td { border: 1px solid var(--line) !important; padding: 8px 13px; }
 .markdown-body table tr:nth-child(2n) { background-color: var(--line) !important; }
 .markdown-body blockquote { border-left: 4px solid var(--accent) !important; color: var(--text-soft) !important; background: var(--line); padding: 1px 20px; margin: 20px 0; }
-.markdown-body pre { background-color: var(--line) !important; border-radius: 8px; border: 1px solid var(--line); }
+.markdown-body pre {
+    padding: 16px;
+    overflow: auto;
+    line-height: 1.45;
+    background-color: #1e1e1e !important; /* 强制深色背景，适合代码阅读 */
+    border-radius: 12px;
+}
 .markdown-body code { background-color: var(--selection-bg) !important; color: var(--accent) !important; padding: 2px 5px; border-radius: 4px; }
 .markdown-body ul, .markdown-body ol { padding-left: 2em; color: var(--text); }
 
@@ -170,3 +176,55 @@ footer {
     text-align: center; color: var(--text-soft); font-size: 0.8rem; letter-spacing: 1px; 
     user-select: none; -webkit-user-select: none;
 }
+
+.katex-display {
+    margin: 1.5em 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* GitHub 风格提示框解析后样式 */
+.markdown-alert {
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-left: 0.25em solid var(--line);
+    border-radius: 6px;
+    background-color: transparent;
+}
+
+.markdown-alert-title {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+.markdown-alert-content { 
+    font-size: 0.95rem; 
+    color: var(--text);
+}
+
+/* 各类型颜色与背景微调 */
+.markdown-alert-note { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
+.markdown-alert-note .markdown-alert-title { color: #0969da; }
+
+.markdown-alert-tip { border-left-color: #1a7f37; background: rgba(26, 127, 55, 0.05); }
+.markdown-alert-tip .markdown-alert-title { color: #1a7f37; }
+
+.markdown-alert-important { border-left-color: #8250df; background: rgba(130, 80, 223, 0.05); }
+.markdown-alert-important .markdown-alert-title { color: #8250df; }
+
+.markdown-alert-warning { border-left-color: #9a6700; background: rgba(154, 103, 0, 0.05); }
+.markdown-alert-warning .markdown-alert-title { color: #9a6700; }
+
+.markdown-alert-caution { border-left-color: #d1242f; background: rgba(209, 36, 47, 0.05); }
+.markdown-alert-caution .markdown-alert-title { color: #d1242f; }
+
+.markdown-alert-ai { border-left-color: #9333ea; background: rgba(147, 51, 234, 0.05); }
+.markdown-alert-ai .markdown-alert-title { color: #9333ea; }
+.markdown-alert-ai .markdown-alert-content { font-style: italic; }
+
+[data-theme="dark"] .markdown-alert { background-color: rgba(255, 255, 255, 0.03); }

@@ -82,6 +82,8 @@ function renderPosts(posts) {
 function openPost(num) {
     const issue = allIssues.find(i => i.number === num);
     const cover = issue.body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
+    
+    // 清理原始内容标记
     let cleanBody = issue.body.replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "")
                               .replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "")
                               .replace(/🚀 正文内容/g, "")
@@ -89,9 +91,25 @@ function openPost(num) {
                               .replace(/💡 发布核对[\s\S]*/, "")
                               .replace(/^\s*---\s*/gm, "")
                               .trim();
+
+    // 先将 Markdown 转为 HTML
+    let htmlContent = marked.parse(cleanBody);
+
+    // 修复：更健壮的提示框解析逻辑
+    // 识别 <blockquote> 中的 [!TYPE] 标记并替换为对应的 div
+    htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
+        const t = type.toUpperCase();
+        const titleText = t === 'AI' ? 'AI 生成提示' : t;
+        return `
+            <div class="markdown-alert markdown-alert-${t.toLowerCase()}">
+                <p class="markdown-alert-title">${titleText}</p>
+                <div class="markdown-alert-content">${content.trim()}</div>
+            </div>`;
+    });
+
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
-    
     const area = document.getElementById('detail-content-area');
+    
     area.innerHTML = `
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;">
         <div>
@@ -103,7 +121,7 @@ function openPost(num) {
             </div>
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
-        <div class="markdown-body">${marked.parse(cleanBody)}</div>`;
+        <div class="markdown-body">${htmlContent}</div>`;
     
     document.getElementById('post-detail-overlay').style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -112,12 +130,9 @@ function openPost(num) {
     setTimeout(() => area.classList.add('show'), 50);
     
     const toggleBtn = document.getElementById('theme-toggle-btn');
-    const themeIcon = document.getElementById('theme-icon');
     toggleBtn.style.display = 'flex';
-    themeIcon.style.stroke = "var(--bg)";
-    themeIcon.style.strokeWidth = "2";
     const isDark = document.body.getAttribute('data-theme') === 'dark';
-    themeIcon.style.fill = isDark ? "none" : "currentColor"; 
+    document.getElementById('theme-icon').innerHTML = isDark ? SUN_SVG : MOON_SVG;
 }
 
 function closePost() { 
