@@ -120,13 +120,26 @@ nav {
 }
 .close-btn:hover { transform: scale(1.05); }
 
+/* --- 修改后的部分 --- */
 #theme-toggle-btn {
-    position: fixed; bottom: 25px; left: 25px; width: 48px; height: 48px;
-    background: var(--text); color: var(--bg); border-radius: 50%;
-    display: none; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 600; border: none; box-shadow: var(--shadow);
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    width: 48px;
+    height: 48px;
+    background: var(--text); /* 按钮背景色随主题变化 */
+    color: var(--bg);        /* 图标颜色随主题变化 */
+    border-radius: 50%;
+    display: flex;           /* 确保这里是 flex 而不是 none */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 600;
+    border: none;
+    box-shadow: var(--shadow);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    user-select: none; -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 #theme-toggle-btn:hover { transform: scale(1.1); }
 #theme-icon svg { width: 22px; height: 22px; fill: currentColor; }
