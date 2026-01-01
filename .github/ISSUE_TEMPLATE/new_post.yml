@@ -1,6 +1,5 @@
 name: "📝 发布新文章"
-description: "使用结构化表单发布内容到你的 Digital Garden"
-title: ""
+description: "使用结构化表单发布内容到你的博客"
 labels: ["Blog"]
 body:
   - type: markdown
@@ -26,17 +25,8 @@ body:
   - type: textarea
     id: content
     attributes:
-      label: "🚀 正文内容"
+      label: "📄 正文内容"
       description: "支持标准的 Markdown 语法"
       placeholder: "在此开始你的创作..."
     validations:
       required: true
-  - type: checkboxes
-    id: guide
-    attributes:
-      label: "💡 发布核对"
-      options:
-        - label: "我已经检查了标题和内容"
-          required: true
-        - label: "我已在右侧 Labels 处选择了合适的分类标签"
-          required: true
