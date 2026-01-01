@@ -1,6 +1,6 @@
 name: "📝 发布新文章"
 description: "使用结构化表单发布内容到你的 Digital Garden"
-title: "【文章标题】"
+title: ""
 labels: ["Blog"]
 body:
   - type: markdown
