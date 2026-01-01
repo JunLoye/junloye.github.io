@@ -1,18 +1,29 @@
 ---
-name: "📝 新文章模板"
-about: "使用此模板发布博客文章"
-title: "【文章标题】"
+name: "📝 发布新文章"
+about: "使用此模板发布内容到你的 Digital Garden"
+title: "【请输入文章标题】"
 labels: ["Blog"]
+assignees: []
 ---
 
 ### 🖼️ 封面图链接
-(在此替换图片 URL，建议比例 16:9)
+> 请在此行下方粘贴图片 URL（建议比例 16:9，若不填将使用随机封面）。
+https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000
 
 ### 📖 文章简述
-(这段话将作为卡片预览显示在首页)
+> 这段文字将作为首页卡片的预览摘要。
+在这里写一段简短的引言，描述文章的核心内容...
 
 ---
 
-### 🚀 正文
+### 🚀 正文内容
 
-(请在此开始你的创作...)
+在这里开始编写你的 Markdown 正文。
+
+#### 示例列表：
+- **技术栈**：HTML, CSS, JavaScript
+- **核心功能**：自动抓取 GitHub Issues 数据
+
+```javascript
+// 你也可以插入代码块
+console.log("Hello, Digital Garden!");
