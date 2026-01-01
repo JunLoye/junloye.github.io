@@ -11,7 +11,7 @@ body:
     attributes:
       label: "🖼️ 封面图链接"
       description: "粘贴图片 URL（建议比例 16:9，留空则随机）"
-      placeholder: "https://example.com/image.jpg"
+      placeholder: "https://github.com/JunLoye/junloye.github.io/blob/main/image/cover.png?raw=true"
     validations:
       required: false
   - type: textarea
