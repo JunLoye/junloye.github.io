@@ -136,11 +136,33 @@ nav {
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 .markdown-body { background: transparent !important; color: var(--text) !important; font-family: inherit; font-size: 1.1rem; line-height: 1.8; }
+.markdown-body .markdown-alert {
+    padding: 16px 20px !important;
+    margin: 20px 0 !important;
+    border-left: 5px solid var(--line) !important;
+    border-radius: 8px !important;
+    background-color: var(--selection-bg) !important;
+}
+.markdown-alert-title {
+    display: flex !important;
+    align-items: center !important;
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 8px !important;
+    letter-spacing: 0.5px;
+}
 .markdown-body table { display: block; width: 100%; overflow: auto; color: var(--text) !important; margin: 20px 0; }
 .markdown-body table tr { background-color: var(--bg) !important; border-top: 1px solid var(--line); }
 .markdown-body table th, .markdown-body table td { border: 1px solid var(--line) !important; padding: 8px 13px; }
 .markdown-body table tr:nth-child(2n) { background-color: var(--line) !important; }
-.markdown-body blockquote { border-left: 4px solid var(--accent) !important; color: var(--text-soft) !important; background: var(--line); padding: 1px 20px; margin: 20px 0; }
+.markdown-body blockquote {
+    border-left: 4px solid var(--accent) !important;
+    color: var(--text-soft) !important;
+    background: var(--selection-bg) !important; /* 使用更柔和的背景 */
+    padding: 16px 20px !important;
+    margin: 20px 0 !important;
+    border-radius: 0 8px 8px 0;
+}
 .markdown-body pre {
     padding: 16px;
     overflow: auto;
@@ -185,8 +207,8 @@ footer {
 
 /* GitHub 风格提示框解析后样式 */
 .markdown-alert {
-    padding: 12px 16px;
-    margin: 16px 0;
+    padding: 10px 14px;
+    margin: 14px 0;
     border-left: 0.25em solid var(--line);
     border-radius: 6px;
     background-color: transparent;
@@ -195,36 +217,117 @@ footer {
 .markdown-alert-title {
     display: flex;
     align-items: center;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     line-height: 1;
     margin: 0 0 8px 0;
     text-transform: uppercase;
 }
 
-.markdown-alert-content { 
-    font-size: 0.95rem; 
-    color: var(--text);
+.markdown-alert-content {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    color: var(--text) !important;
 }
 
-/* 各类型颜色与背景微调 */
-.markdown-alert-note { border-left-color: #0969da; background: rgba(9, 105, 218, 0.05); }
-.markdown-alert-note .markdown-alert-title { color: #0969da; }
+/* 具体的配色方案 (加上 !important 确保覆盖) */
+.markdown-body .markdown-alert-note { border-left-color: #0969da !important; background: rgba(9, 105, 218, 0.08) !important; }
+.markdown-body .markdown-alert-note .markdown-alert-title { color: #0969da !important; }
 
-.markdown-alert-tip { border-left-color: #1a7f37; background: rgba(26, 127, 55, 0.05); }
-.markdown-alert-tip .markdown-alert-title { color: #1a7f37; }
+.markdown-body .markdown-alert-tip { border-left-color: #1a7f37 !important; background: rgba(26, 127, 55, 0.08) !important; }
+.markdown-body .markdown-alert-tip .markdown-alert-title { color: #1a7f37 !important; }
 
-.markdown-alert-important { border-left-color: #8250df; background: rgba(130, 80, 223, 0.05); }
-.markdown-alert-important .markdown-alert-title { color: #8250df; }
+.markdown-body .markdown-alert-important { border-left-color: #8250df !important; background: rgba(130, 80, 223, 0.08) !important; }
+.markdown-body .markdown-alert-important .markdown-alert-title { color: #8250df !important; }
 
-.markdown-alert-warning { border-left-color: #9a6700; background: rgba(154, 103, 0, 0.05); }
-.markdown-alert-warning .markdown-alert-title { color: #9a6700; }
+.markdown-body .markdown-alert-warning { border-left-color: #9a6700 !important; background: rgba(154, 103, 0, 0.08) !important; }
+.markdown-body .markdown-alert-warning .markdown-alert-title { color: #9a6700 !important; }
 
-.markdown-alert-caution { border-left-color: #d1242f; background: rgba(209, 36, 47, 0.05); }
-.markdown-alert-caution .markdown-alert-title { color: #d1242f; }
+.markdown-body .markdown-alert-caution { border-left-color: #d1242f !important; background: rgba(209, 36, 47, 0.08) !important; }
+.markdown-body .markdown-alert-caution .markdown-alert-title { color: #d1242f !important; }
 
-.markdown-alert-ai { border-left-color: #9333ea; background: rgba(147, 51, 234, 0.05); }
-.markdown-alert-ai .markdown-alert-title { color: #9333ea; }
-.markdown-alert-ai .markdown-alert-content { font-style: italic; }
+/* AI 生成提示专属样式 */
+.markdown-body .markdown-alert-ai { 
+    border-left-color: #9d18d6 !important; 
+    background: linear-gradient(to right, rgba(147, 51, 234, 0.1), rgba(147, 51, 234, 0.02)) !important;
+}
+.markdown-body .markdown-alert-ai .markdown-alert-title { color: #9d18d6 !important; }
+.markdown-body .markdown-alert-ai .markdown-alert-content { font-style: italic; opacity: 0.9; }
 
-[data-theme="dark"] .markdown-alert { background-color: rgba(255, 255, 255, 0.03); }
+[data-theme="dark"] .markdown-body .markdown-alert {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.post-card-tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+.post-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--line);
+    color: var(--text-soft);
+    text-transform: uppercase;
+}
+
+/* --- 通知系统样式 --- */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* 防止遮挡下方点击 */
+}
+
+.toast-message {
+    pointer-events: auto; /* 允许点击通知关闭 */
+    min-width: 280px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    user-select: none;
+}
+
+.toast-message.error {
+    border-left: 5px solid #ff4d4f;
+}
+
+.toast-message.warning {
+    border-left: 5px solid #faad14;
+}
+
+.toast-message.hide {
+    animation: fadeOut 0.4s ease forwards;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(20px); opacity: 0; }
+}
+
+/* 适配暗色模式 */
+[data-theme="dark"] .toast-message {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
