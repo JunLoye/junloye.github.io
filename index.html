@@ -19,6 +19,8 @@
         <div class="brand" onclick="location.reload()">JUN LOYE</div>
         <div class="nav-right" style="display: flex; align-items: center; gap: 20px;">
             <span class="about-trigger" onclick="openAbout()">ABOUT</span>
+            <!-- 新增发布按钮 -->
+            <span class="publish-trigger" onclick="openPublishModal()">发布新内容</span>
             <div id="settings-trigger" onclick="toggleSettings()" style="cursor:pointer; display:flex; align-items:center;">
                 <svg style="width:20px; height:20px; fill:var(--text-soft);" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             </div>
@@ -92,6 +94,43 @@
         <p>© <span id="year"></span> JUN LOYE</p>
         <p id="blog-run-time" style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;"></p>
     </footer>
+
+    <!-- 发布新内容弹窗 -->
+    <div id="publish-modal" class="overlay">
+        <div class="detail-container" id="publish-modal-content" style="max-width:500px;">
+            <button class="close-btn" onclick="closePublishModal()">← BACK</button>
+            <h2 style="margin-bottom:20px;">发布新内容</h2>
+            <form id="publish-form" autocomplete="off">
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="publish-title" required style="width:100%;padding:8px;margin-bottom:10px;">
+                </div>
+                <div class="form-group">
+                    <label>🖼️ 封面图链接</label>
+                    <input type="text" id="publish-cover" placeholder="https://github.com/JunLoye/junloye.github.io/blob/main/image/cover.png?raw=true" style="width:100%;padding:8px;margin-bottom:10px;">
+                    <input type="file" id="publish-cover-upload" accept="image/*" style="margin-bottom:10px;">
+                </div>
+                <div class="form-group">
+                    <label>📖 文章简述</label>
+                    <textarea id="publish-summary" rows="2" placeholder="在这里写一段简短的摘要..." style="width:100%;padding:8px;margin-bottom:10px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>📄 正文内容（支持 Markdown）</label>
+                    <textarea id="publish-body" rows="8" required style="width:100%;padding:8px;margin-bottom:10px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>标签（英文逗号分隔）</label>
+                    <input type="text" id="publish-labels" style="width:100%;padding:8px;margin-bottom:10px;">
+                </div>
+                <div class="form-group">
+                    <label>GitHub Token</label>
+                    <input type="password" id="publish-token" required style="width:100%;padding:8px;margin-bottom:10px;">
+                </div>
+                <button type="submit" style="padding:10px 30px;border-radius:20px;background:var(--accent);color:white;border:none;font-weight:700;cursor:pointer;">发布</button>
+            </form>
+            <div id="publish-progress" style="margin-top:10px;font-size:0.95rem;color:var(--accent);display:none;"></div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

@@ -50,7 +50,8 @@ nav {
 }
 .brand { font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; cursor: pointer; }
 
-.about-trigger {
+.about-trigger,
+.publish-trigger {
     position: relative;
     cursor: pointer;
     font-size: 0.85rem;
@@ -61,7 +62,8 @@ nav {
     padding: 4px 0;
 }
 
-.about-trigger::after {
+.about-trigger::after,
+.publish-trigger::after {
     content: '';
     position: absolute;
     width: 0;
@@ -72,11 +74,13 @@ nav {
     transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.about-trigger:hover {
+.about-trigger:hover,
+.publish-trigger:hover {
     color: var(--accent);
 }
 
-.about-trigger:hover::after {
+.about-trigger:hover::after,
+.publish-trigger:hover::after {
     width: 100%;
 }
 
@@ -471,4 +475,57 @@ mark.search-highlight {
 body {
     font-size: var(--global-font-size, 16px);
     font-family: var(--global-font-family, "Inter", "PingFang SC", sans-serif);
+}
+
+.publish-trigger {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 4px 0;
+    transition: color 0.3s;
+}
+.publish-trigger:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+#publish-modal {
+    display: none;
+    z-index: 1200;
+    background: var(--overlay-bg);
+}
+#publish-modal .detail-container {
+    background: var(--bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    margin-top: 80px;
+    padding: 40px 30px 30px;
+    max-width: 500px;
+}
+#publish-modal .close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+#publish-modal label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    margin-bottom: 4px;
+    display: block;
+}
+#publish-modal input, #publish-modal textarea {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+#publish-modal button[type="submit"] {
+    margin-top: 10px;
+}
+.form-group {
+    margin-bottom: 16px;
 }

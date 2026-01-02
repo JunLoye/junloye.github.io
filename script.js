@@ -60,6 +60,7 @@ window.onkeydown = (e) => {
     if (e.key === 'Escape') {
         closePost();
         closeAbout();
+        closePublishModal();
     }
 };
 
@@ -364,6 +365,187 @@ function toggleSettings() {
 function updateFontFamily(family) {
     document.documentElement.style.setProperty('--global-font-family', family);
     localStorage.setItem('pref-font-family', family);
+}
+
+// --- Cookie 工具 ---
+function setCookie(name, value, days = 30) {
+    const d = new Date();
+    d.setTime(d.getTime() + days*24*60*60*1000);
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
+}
+function getCookie(name) {
+    const arr = document.cookie.split(';');
+    for (let c of arr) {
+        const [k, v] = c.trim().split('=');
+        if (k === name) return decodeURIComponent(v || '');
+    }
+    return '';
+}
+
+// --- 上传图片到 GitHub ---
+async function uploadCoverToGithub(file, token) {
+    if (!file || !token) throw new Error('缺少图片或Token');
+    const reader = new FileReader();
+    const progressEl = document.getElementById('publish-progress');
+    progressEl.style.display = 'block';
+    progressEl.textContent = '正在上传封面...';
+
+    // 生成唯一路径
+    const timestamp = Date.now();
+    const ext = file.name.split('.').pop().toLowerCase();
+    const imgPath = `images/blog_${timestamp}/cover.${ext}`;
+    const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${imgPath}`;
+
+    return new Promise((resolve, reject) => {
+        reader.onload = async () => {
+            const base64 = reader.result.split(',')[1];
+            try {
+                const res = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `上传封面: ${imgPath}`,
+                        content: base64
+                    })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    reject(new Error(err.message || '图片上传失败'));
+                    return;
+                }
+                // 返回原始图片直链
+                const rawUrl = `https://github.com/${CONFIG.username}/${CONFIG.repo}/blob/main/${imgPath}?raw=true`;
+                progressEl.textContent = '封面上传成功！';
+                setTimeout(() => { progressEl.style.display = 'none'; }, 1200);
+                resolve(rawUrl);
+            } catch (e) {
+                progressEl.textContent = '封面上传失败！';
+                setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
+                reject(e);
+            }
+        };
+        reader.onerror = () => reject(new Error('图片读取失败'));
+        reader.readAsDataURL(file);
+    });
+}
+
+// --- 发布新内容弹窗逻辑 ---
+function openPublishModal() {
+    const modal = document.getElementById('publish-modal');
+    const content = document.getElementById('publish-modal-content');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => content.classList.add('show'), 50);
+
+    // 自动填充 token
+    const tokenInput = document.getElementById('publish-token');
+    if (tokenInput) tokenInput.value = getCookie('github_token') || '';
+}
+
+function closePublishModal() {
+    const modal = document.getElementById('publish-modal');
+    const content = document.getElementById('publish-modal-content');
+    if (!content.classList.contains('show')) return;
+    content.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// --- 发布新内容 API ---
+async function publishNewPost(e) {
+    e.preventDefault();
+    const title = document.getElementById('publish-title').value.trim();
+    const body = document.getElementById('publish-body').value.trim();
+    const labels = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
+    const token = document.getElementById('publish-token').value.trim();
+    let cover = document.getElementById('publish-cover')?.value.trim();
+    const summary = document.getElementById('publish-summary')?.value.trim();
+    const coverFile = document.getElementById('publish-cover-upload')?.files[0];
+    const progressEl = document.getElementById('publish-progress');
+
+    if (!title || !body || !token) {
+        showNotification('请填写所有必填项', 'warning');
+        return;
+    }
+
+    setCookie('github_token', token);
+
+    try {
+        // 上传封面图片（如有）
+        if (coverFile) {
+            progressEl.style.display = 'block';
+            progressEl.textContent = '正在上传封面图片...';
+            cover = await uploadCoverToGithub(coverFile, token);
+            document.getElementById('publish-cover').value = cover;
+        }
+
+        progressEl.style.display = 'block';
+        progressEl.textContent = '正在发布文章...';
+
+        // 构造正文
+        let issueBody = '';
+        if (cover) issueBody += `### 🖼️ 封面图链接\n${cover}\n\n`;
+        if (summary) issueBody += `### 📖 文章简述\n${summary}\n\n`;
+        issueBody += `### 📄 正文内容\n${body}\n`;
+
+        const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title,
+                body: issueBody,
+                labels
+            })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            progressEl.textContent = '发布失败: ' + (err.message || '未知错误');
+            setTimeout(() => { progressEl.style.display = 'none'; }, 2500);
+            throw new Error(err.message || '发布失败');
+        }
+        progressEl.textContent = '发布成功！正在同步...';
+        showNotification('发布成功！正在同步...', 'info');
+        closePublishModal();
+
+        // 本地插入新卡片（立即反馈）
+        // 可选：fetchPosts()前先插入一条本地数据
+        // fetchPosts()延迟执行，避免GitHub同步延迟
+        setTimeout(() => {
+            fetchPosts();
+            progressEl.style.display = 'none';
+        }, 2000);
+    } catch (err) {
+        showNotification('发布失败: ' + err.message, 'error');
+        progressEl.textContent = '发布失败: ' + err.message;
+        setTimeout(() => { progressEl.style.display = 'none'; }, 2500);
+    }
+}
+
+// 绑定表单事件
+const publishForm = document.getElementById('publish-form');
+if (publishForm) {
+    publishForm.onsubmit = publishNewPost;
+}
+
+// --- 封面上传事件绑定 ---
+const coverUploadInput = document.getElementById('publish-cover-upload');
+if (coverUploadInput) {
+    coverUploadInput.onchange = () => {
+        const file = coverUploadInput.files[0];
+        if (file) {
+            document.getElementById('publish-cover').value = file.name;
+        }
+    };
 }
 
 window.onload = () => {
