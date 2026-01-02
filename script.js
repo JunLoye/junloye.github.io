@@ -21,7 +21,7 @@ function showNotification(msg, type = 'error') {
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast-message ${type}`;
-    const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+    const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '️🌟';
     toast.innerHTML = `<span>${icon} ${msg}</span>`;
     container.appendChild(toast);
     
@@ -537,40 +537,76 @@ if (publishForm) {
     publishForm.onsubmit = publishNewPost;
 }
 
-// --- 封面上传事件绑定 ---
-const coverUploadInput = document.getElementById('publish-cover-upload');
-if (coverUploadInput) {
-    coverUploadInput.onchange = () => {
-        const file = coverUploadInput.files[0];
-        if (file) {
-            document.getElementById('publish-cover').value = file.name;
-        }
-    };
+// --- 封面上传与预览逻辑整合 ---
+
+// 辅助函数：文件转 Base64
+function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 }
 
-// --- Markdown 编辑预览 ---
-const previewBtn = document.getElementById('preview-btn');
-const mdPreview = document.getElementById('md-preview');
+// 1. 实现实时预览
 const publishBody = document.getElementById('publish-body');
+const mdPreview = document.getElementById('md-preview');
 
-if (previewBtn && mdPreview && publishBody) {
-    previewBtn.onclick = () => {
-        if (mdPreview.style.display === 'none') {
-            mdPreview.innerHTML = marked.parse(publishBody.value);
-            mdPreview.style.display = 'block';
-            previewBtn.textContent = '关闭预览';
-        } else {
-            mdPreview.style.display = 'none';
-            previewBtn.textContent = '预览 Markdown';
+if (publishBody && mdPreview) {
+    publishBody.addEventListener('input', () => {
+        mdPreview.innerHTML = marked.parse(publishBody.value || '预览区域...');
+        if (window.Prism) Prism.highlightAllUnder(mdPreview);
+    });
+}
+
+const coverUploadInput = document.getElementById('publish-cover-upload');
+const coverInput = document.getElementById('publish-cover');
+
+if (coverUploadInput) {
+    coverUploadInput.onchange = async () => {
+        const file = coverUploadInput.files[0];
+        if (!file) return;
+
+        const token = document.getElementById('publish-token').value.trim();
+        if (!token) {
+            showNotification('请先输入 GitHub Token', 'warning');
+            coverUploadInput.value = '';
+            return;
         }
-    };
-    publishBody.oninput = () => {
-        if (mdPreview.style.display !== 'none') {
-            mdPreview.innerHTML = marked.parse(publishBody.value);
+
+        const progressEl = document.getElementById('publish-progress');
+        
+        // --- 修改点 1：上传开始时禁用输入框 ---
+        coverInput.value = "正在上传并生成链接...";
+        coverInput.readOnly = true; // 设置为只读
+        coverInput.style.backgroundColor = "var(--line)"; // 视觉上变灰（可选）
+        
+        progressEl.style.display = 'block';
+        progressEl.textContent = '正在上传封面...';
+
+        try {
+            // 调用上传函数
+            const imageUrl = await uploadCoverToGithub(file, token);
+            
+            // --- 修改点 2：上传成功后填入链接并保持禁用 ---
+            coverInput.value = imageUrl;
+            coverInput.readOnly = true; 
+            showNotification('封面上传成功，链接已锁定', 'info');
+        } catch (err) {
+            showNotification('上传失败: ' + err.message, 'error');
+            // 上传失败则恢复可编辑状态，方便手动输入
+            coverInput.value = '';
+            coverInput.readOnly = false;
+            coverInput.style.backgroundColor = "";
+            coverUploadInput.value = '';
+        } finally {
+            progressEl.style.display = 'none';
         }
     };
 }
 
+// 3. 页面初始化
 window.onload = () => {
     const savedFamily = localStorage.getItem('pref-font-family') || "'Inter', sans-serif";
     updateFontFamily(savedFamily);

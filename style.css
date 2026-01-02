@@ -477,51 +477,6 @@ body {
     font-family: var(--global-font-family, "Inter", "PingFang SC", sans-serif);
 }
 
-.publish-trigger {
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--accent);
-    padding: 4px 0;
-    transition: color 0.3s;
-}
-.publish-trigger:hover {
-    color: var(--text);
-    text-decoration: underline;
-}
-
-#publish-modal {
-    display: none;
-    z-index: 1200;
-    background: var(--overlay-bg);
-    position: fixed; /* 全屏覆盖 */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow-y: auto;
-}
-#publish-modal .detail-container {
-    background: var(--bg);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    margin-top: 80px;
-    padding: 40px 30px 30px;
-    max-width: 500px;
-    position: relative;
-}
-#publish-modal .close-btn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-}
-#publish-modal label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-soft);
-    margin-bottom: 4px;
-    display: block;
-}
 #publish-modal input, #publish-modal textarea {
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -530,19 +485,11 @@ body {
     font-size: 1rem;
     margin-bottom: 10px;
 }
-#publish-modal button[type="submit"] {
-    margin-top: 10px;
-}
+
 .form-group {
     margin-bottom: 16px;
 }
 
-/* 优化封面上传区域样式 */
-#publish-modal .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
 
 #publish-cover-upload {
     display: block;
@@ -563,10 +510,118 @@ body {
     background: var(--selection-bg);
 }
 
-#md-preview {
-    min-height: 120px;
-    max-height: 400px;
+/* 修改发布模态框为全屏编辑器布局 */
+#publish-modal .detail-container {
+    max-width: 1000px; /* 增加宽度以容纳双栏 */
+    margin-top: 50px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    height: 85vh; /* 设置固定高度 */
+}
+
+/* 建立左右双栏布局容器 */
+.publish-main-content {
+    display: flex;
+    gap: 30px;
+    flex: 1;
+    overflow: hidden; /* 防止外层溢出 */
+    margin-top: 20px;
+}
+
+/* 编辑区域和预览区域各占一半 */
+.editor-side, .preview-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
-    margin-bottom: 10px;
-    transition: background 0.3s, color 0.3s;
+}
+
+#publish-body {
+    flex: 1; /* 正文输入框填满左侧 */
+    resize: none;
+    min-height: 300px;
+}
+
+
+.preview-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+/* 全屏编辑器容器 */
+.full-screen-editor {
+    width: 95vw !important;
+    max-width: 1400px !important;
+    height: 90vh !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#publish-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.editor-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* 核心双栏布局 */
+.editor-main {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    overflow: hidden; /* 防止外层滚动 */
+    margin-bottom: 15px;
+}
+
+.editor-side, .preview-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#publish-body {
+    flex: 1;
+    resize: none;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: monospace;
+}
+
+#md-preview {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+}
+
+.editor-footer {
+    display: grid;
+    grid-template-columns: 1fr 200px 150px;
+    gap: 15px;
+    align-items: center;
+}
+
+.cover-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#publish-cover {
+    background: #f0f0f0; /* 灰底表示不可输入 */
+    cursor: not-allowed;
+    flex: 1;
 }
