@@ -548,6 +548,29 @@ if (coverUploadInput) {
     };
 }
 
+// --- Markdown 编辑预览 ---
+const previewBtn = document.getElementById('preview-btn');
+const mdPreview = document.getElementById('md-preview');
+const publishBody = document.getElementById('publish-body');
+
+if (previewBtn && mdPreview && publishBody) {
+    previewBtn.onclick = () => {
+        if (mdPreview.style.display === 'none') {
+            mdPreview.innerHTML = marked.parse(publishBody.value);
+            mdPreview.style.display = 'block';
+            previewBtn.textContent = '关闭预览';
+        } else {
+            mdPreview.style.display = 'none';
+            previewBtn.textContent = '预览 Markdown';
+        }
+    };
+    publishBody.oninput = () => {
+        if (mdPreview.style.display !== 'none') {
+            mdPreview.innerHTML = marked.parse(publishBody.value);
+        }
+    };
+}
+
 window.onload = () => {
     const savedFamily = localStorage.getItem('pref-font-family') || "'Inter', sans-serif";
     updateFontFamily(savedFamily);

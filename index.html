@@ -97,7 +97,7 @@
 
     <!-- 发布新内容弹窗 -->
     <div id="publish-modal" class="overlay">
-        <div class="detail-container" id="publish-modal-content" style="max-width:500px;">
+        <div class="detail-container" id="publish-modal-content" style="max-width:500px; margin-top:80px;">
             <button class="close-btn" onclick="closePublishModal()">← BACK</button>
             <h2 style="margin-bottom:20px;">发布新内容</h2>
             <form id="publish-form" autocomplete="off">
@@ -108,7 +108,7 @@
                 <div class="form-group">
                     <label>🖼️ 封面图链接</label>
                     <input type="text" id="publish-cover" placeholder="https://github.com/JunLoye/junloye.github.io/blob/main/image/cover.png?raw=true" style="width:100%;padding:8px;margin-bottom:10px;">
-                    <input type="file" id="publish-cover-upload" accept="image/*" style="margin-bottom:10px;">
+                    <input type="file" id="publish-cover-upload" accept="image/*">
                 </div>
                 <div class="form-group">
                     <label>📖 文章简述</label>
@@ -117,6 +117,8 @@
                 <div class="form-group">
                     <label>📄 正文内容（支持 Markdown）</label>
                     <textarea id="publish-body" rows="8" required style="width:100%;padding:8px;margin-bottom:10px;"></textarea>
+                    <button type="button" id="preview-btn" style="margin-bottom:10px;padding:6px 18px;border-radius:16px;background:var(--line);color:var(--text-soft);border:none;font-weight:600;cursor:pointer;">预览 Markdown</button>
+                    <div id="md-preview" class="markdown-body" style="display:none;border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:10px;background:var(--bg);"></div>
                 </div>
                 <div class="form-group">
                     <label>标签（英文逗号分隔）</label>

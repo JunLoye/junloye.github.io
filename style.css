@@ -494,6 +494,12 @@ body {
     display: none;
     z-index: 1200;
     background: var(--overlay-bg);
+    position: fixed; /* 全屏覆盖 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;
 }
 #publish-modal .detail-container {
     background: var(--bg);
@@ -502,6 +508,7 @@ body {
     margin-top: 80px;
     padding: 40px 30px 30px;
     max-width: 500px;
+    position: relative;
 }
 #publish-modal .close-btn {
     position: absolute;
@@ -528,4 +535,38 @@ body {
 }
 .form-group {
     margin-bottom: 16px;
+}
+
+/* 优化封面上传区域样式 */
+#publish-modal .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#publish-cover-upload {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--line);
+    color: var(--text);
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-bottom: 0;
+    transition: border-color 0.3s;
+}
+
+#publish-cover-upload:hover {
+    border-color: var(--accent);
+    background: var(--selection-bg);
+}
+
+#md-preview {
+    min-height: 120px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    transition: background 0.3s, color 0.3s;
 }
