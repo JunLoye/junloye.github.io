@@ -48,7 +48,24 @@ nav {
     z-index: 100; margin-bottom: 30px;
     user-select: none; -webkit-user-select: none;
 }
-.brand { font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; cursor: pointer; }
+.brand { font-weight: 900; letter-spacing: 2px; font-size: 1.4rem; cursor: pointer; }
+
+.version-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--line);
+    color: var(--text-soft);
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: 0;
+}
+
+[data-theme="dark"] .version-badge {
+    background: #333;
+    color: var(--accent);
+}
 
 .about-trigger,
 .publish-trigger {
