@@ -111,6 +111,17 @@ function toggleDarkMode() {
 
 // --- 5. 文章列表与详情 ---
 async function fetchPosts() {
+    const CACHE_KEY = 'blog_posts_cache';
+    const CACHE_TIME = 5 * 60 * 1000; // 5分钟
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+
+    if (cached && (Date.now() - cached.time < CACHE_TIME)) {
+        allIssues = cached.data;
+        renderPosts(allIssues);
+        handleRouting();
+        return; // 直接返回缓存内容
+    }
+    
     const container = document.getElementById('post-list-container');
     try {
         // 使用 GitHub Search API 筛选特定参与者

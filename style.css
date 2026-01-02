@@ -115,7 +115,10 @@ nav {
     user-select: none; -webkit-user-select: none;
 }
 
-.post-card { cursor: pointer; position: relative; transition: transform 0.3s ease; }
+.post-card { cursor: pointer; position: relative; transition: transform 0.3s ease;
+    will-change: transform; /* 告诉浏览器这个元素可能有位移动画 */
+    contain: layout style;  /* 限制渲染范围 */
+}
 .post-card:hover { transform: translateY(-5px); }
 .post-cover { width: 100%; height: 180px; background-color: var(--line); border-radius: 16px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--line); }
 .post-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
