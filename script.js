@@ -6,11 +6,11 @@ const CONFIG = {
 };
 
 const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
-const SUN_SVG = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-const MOON_SVG = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+const SUN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+const MOON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
 
 let allIssues = [];
-const ORIGINAL_TITLE = document.title; // 记录网站初始标题
+const ORIGINAL_TITLE = document.title;
 
 // --- 1. 全局错误与通知系统 ---
 window.onerror = (msg) => showNotification(`代码错误: ${msg}`, 'error');
@@ -18,6 +18,7 @@ window.onunhandledrejection = (event) => showNotification(`异步请求失败: $
 
 function showNotification(msg, type = 'error') {
     const container = document.getElementById('notification-container');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast-message ${type}`;
     const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
@@ -33,28 +34,23 @@ function showNotification(msg, type = 'error') {
     toast.onclick = dismiss;
 }
 
-// --- 2. 路由与历史记录处理 ---
+// --- 2. 路由处理 ---
 function handleRouting() {
     const hash = window.location.hash;
-    // 如果 URL 包含 #post-数字，自动打开对应文章
     if (hash.startsWith('#post-')) {
         const num = parseInt(hash.replace('#post-', ''));
         if (!isNaN(num)) openPost(num, false);
-    } 
-    // 如果 URL 包含 #about，自动打开关于页面
-    else if (hash === '#about') {
+    } else if (hash === '#about') {
         openAbout(false);
     }
 }
 
-window.addEventListener('popstate', (event) => {
+window.addEventListener('popstate', () => {
     const postArea = document.getElementById('detail-content-area');
     const aboutContent = document.getElementById('about-content');
-    
-    // 浏览器后退时，如果弹窗是在开着的，则关闭它们
     if (!window.location.hash) {
-        if (postArea.classList.contains('show')) realClosePost();
-        if (aboutContent.classList.contains('show')) realCloseAbout();
+        if (postArea?.classList.contains('show')) realClosePost();
+        if (aboutContent?.classList.contains('show')) realCloseAbout();
     } else {
         handleRouting();
     }
@@ -67,7 +63,7 @@ window.onkeydown = (e) => {
     }
 };
 
-// --- 3. 关于页面 (About) 逻辑 ---
+// --- 3. 关于页面 ---
 function openAbout(pushState = true) {
     if (pushState) history.pushState({ page: 'about' }, "About | Jun Loye", "#about");
     const overlay = document.getElementById('about-overlay');
@@ -78,7 +74,6 @@ function openAbout(pushState = true) {
 }
 
 function closeAbout() {
-    // 如果当前在 about 路由，点击关闭按钮应触发后退
     if (window.location.hash === '#about') history.back();
     else realCloseAbout();
 }
@@ -95,75 +90,117 @@ function realCloseAbout() {
 }
 
 // --- 4. 主题切换逻辑 ---
-function toggleDarkMode() {
+function updateThemeIcon() {
     const body = document.body;
-    const icon = document.getElementById('theme-icon');
-    
-    // 获取当前是否为暗色
+    const btn = document.getElementById('theme-toggle-btn');
+    if (!btn) return;
     const isDark = body.getAttribute('data-theme') === 'dark';
-    
-    if (isDark) {
-        // 切换到亮色
-        body.setAttribute('data-theme', 'light');
-        icon.innerHTML = MOON_SVG; // 显示月亮图标
-    } else {
-        // 切换到暗色
-        body.setAttribute('data-theme', 'dark');
-        icon.innerHTML = SUN_SVG;  // 显示太阳图标
-    }
+    btn.innerHTML = isDark ? SUN_SVG : MOON_SVG;
 }
 
-// --- 5. 文章列表与详情逻辑 ---
+function toggleDarkMode() {
+    const body = document.body;
+    const isDark = body.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon();
+}
+
+// --- 5. 文章列表与详情 ---
 async function fetchPosts() {
+    const container = document.getElementById('post-list-container');
     try {
-        const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues?state=open&sort=created`);
+        // 使用 GitHub Search API 筛选特定参与者
+        // q 参数含义：指定仓库 + 是 issue + 开启状态 + 参与者(评论或创建)包含 JunLoye
+        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
+        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
+        
         if (!res.ok) throw new Error(`无法获取文章 (状态码: ${res.status})`);
-        allIssues = (await res.json()).filter(i => !i.pull_request);
+        
+        const data = await res.json();
+        // Search API 的结果存放在 items 数组中
+        allIssues = data.items.filter(i => !i.pull_request);
+        
         renderPosts(allIssues);
-        // 数据加载完毕后，解析路由以支持刷新跳转
         handleRouting();
     } catch (e) {
         showNotification(e.message, 'error');
+        if (container) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 100px 20px;">
+                    <div style="font-size: 3rem; margin-bottom: 20px;">🚧</div>
+                    <h3 style="color: var(--text);">内容加载失败</h3>
+                    <p style="color: var(--text-soft);">${e.message}</p>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 8px 20px; border-radius: 20px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer;">刷新页面</button>
+                </div>`;
+        }
     }
 }
 
-function renderPosts(posts) {
+function renderPosts(posts, highlightTerm = "") {
     const container = document.getElementById('post-list-container');
+    if (!container) return;
+    
     if (posts.length === 0) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text-soft);">未找到匹配的文章</div>`;
         return;
     }
+
     container.innerHTML = posts.map(issue => {
-        const cover = issue.body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
-        const summary = issue.body.match(/### 📖 文章简述\s*([\s\S]*?)(?=\n---|###|$)/)?.[1]?.trim() || "阅读更多详情...";
-        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
+        const cover = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
+        const summaryRaw = issue.body?.match(/### 📖 文章简述\s*([\s\S]*?)(?=\n---|###|$)/)?.[1]?.trim() || "";
+        
+        let displayTitle = issue.title;
+        let displaySummary = marked.parse(summaryRaw);
+
+        if (highlightTerm) {
+            const regex = new RegExp(`(${highlightTerm})`, 'gi');
+            displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
+            displaySummary = displaySummary.replace(new RegExp(`(>[^<]*)(${highlightTerm})([^>]*<)`, 'gi'), '$1<mark class="search-highlight">$2</mark>$3');
+        }
+
+        const tagsHtml = issue.labels.map(l => 
+            `<span class="post-tag" onclick="event.stopPropagation(); filterByTag('${l.name}')">${l.name}</span>`
+        ).join('');
 
         return `<div class="post-card" onclick="openPost(${issue.number})">
             <div class="post-cover"><img src="${cover}"></div>
-            <h2 class="post-card-title">${issue.title}</h2>
-            <div class="post-card-summary">${summary}</div>
+            <h2 class="post-card-title">${displayTitle}</h2>
+            <div class="post-card-summary markdown-body" style="font-size: 0.9rem;">${displaySummary}</div>
             <div class="post-card-tags">${tagsHtml}</div>
         </div>`;
     }).join('');
+
+    if (highlightTerm) {
+        let countEl = document.getElementById('search-count-hint');
+        if (!countEl) {
+            countEl = document.createElement('div');
+            countEl.id = 'search-count-hint';
+            countEl.style = 'grid-column: 1/-1; font-size: 0.85rem; color: var(--text-soft); margin-bottom: -20px;';
+            container.prepend(countEl);
+        }
+        countEl.textContent = `找到 ${posts.length} 篇相关内容：`;
+    }
 }
 
 function openPost(num, pushState = true) {
     const issue = allIssues.find(i => i.number === num);
     if (!issue) return;
     
-    // 注入历史记录和网页标题
     if (pushState) history.pushState({ page: 'detail', id: num }, issue.title, `#post-${num}`);
     document.title = `${issue.title} | Jun Loye`;
 
-    const cover = issue.body.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
-    let cleanBody = issue.body.replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "")
+    const cover = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
+    let cleanBody = (issue.body || "")
+                              .replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "")
                               .replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "")
                               .replace(/🚀 正文内容|📄 正文内容/g, "")
                               .replace(/💡 发布核对[\s\S]*/, "")
                               .replace(/^\s*---\s*/gm, "").trim();
 
     let htmlContent = marked.parse(cleanBody);
-    // 处理 Markdown Alert 样式
     htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
         const t = type.toUpperCase();
         return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${t === 'AI' ? 'AI Generated' : t}</p><div class="markdown-alert-content">${content.trim()}</div></div>`;
@@ -194,9 +231,8 @@ function closePost() {
 
 function realClosePost() {
     const area = document.getElementById('detail-content-area');
-    if (!area.classList.contains('show')) return;
-    
-    document.title = ORIGINAL_TITLE; // 恢复原始标题
+    if (!area?.classList.contains('show')) return;
+    document.title = ORIGINAL_TITLE;
     area.classList.remove('show');
     setTimeout(() => {
         document.getElementById('post-detail-overlay').style.display = 'none'; 
@@ -231,7 +267,9 @@ async function loadMusic() {
 }
 
 function renderPlaylist() { 
-    playlistMenu.innerHTML = playlist.map((s, i) => `<div class="playlist-item ${i === currentIdx ? 'playing' : ''}" onclick="selectTrack(${i})">${s.name}</div>`).join(''); 
+    if (playlistMenu) {
+        playlistMenu.innerHTML = playlist.map((s, i) => `<div class="playlist-item ${i === currentIdx ? 'playing' : ''}" onclick="selectTrack(${i})">${s.name}</div>`).join(''); 
+    }
 }
 
 function selectTrack(i) { 
@@ -244,7 +282,7 @@ function selectTrack(i) {
 }
 
 function togglePlaylist() { playlistMenu.classList.toggle('active'); }
-function playMusic() { audio.play().catch(e => showNotification("无法播放，请尝试手动点击", "warning")); musicBtn.classList.add('playing'); playerBar.classList.add('is-playing'); iconPath.setAttribute('d', ICON_PAUSE); }
+function playMusic() { audio.play().catch(() => showNotification("可能无法播放，请尝试手动点击", "warning")); musicBtn.classList.add('playing'); playerBar.classList.add('is-playing'); iconPath.setAttribute('d', ICON_PAUSE); }
 function pauseMusic() { audio.pause(); musicBtn.classList.remove('playing'); playerBar.classList.remove('is-playing'); iconPath.setAttribute('d', ICON_PLAY); playlistMenu.classList.remove('active'); }
 
 function nextTrack() {
@@ -253,30 +291,96 @@ function nextTrack() {
     selectTrack(currentIdx);
 }
 
-musicBtn.onclick = (e) => { e.stopPropagation(); audio.paused ? playMusic() : pauseMusic(); };
-musicBtn.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); nextTrack(); };
-audio.onended = () => { nextTrack(); };
+if (musicBtn) {
+    musicBtn.onclick = (e) => { e.stopPropagation(); audio.paused ? playMusic() : pauseMusic(); };
+    musicBtn.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); nextTrack(); };
+}
+if (audio) audio.onended = () => { nextTrack(); };
 
 // --- 7. 搜索逻辑 ---
-document.getElementById('search-input').oninput = (e) => {
-    const term = e.target.value.toLowerCase().trim();
-    const filtered = allIssues.filter(i => i.title.toLowerCase().includes(term) || i.labels.some(l => l.name.toLowerCase().includes(term)));
-    renderPosts(filtered);
-};
+function filterByTag(tagName) {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = tagName;
+        searchInput.dispatchEvent(new Event('input')); 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
 
-// --- 8. 初始化执行 ---
+const searchInputEl = document.getElementById('search-input');
+if (searchInputEl) {
+    searchInputEl.oninput = (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        if (!term) {
+            renderPosts(allIssues);
+            const countEl = document.getElementById('search-count-hint');
+            if (countEl) countEl.remove();
+            return;
+        }
+        const filtered = allIssues.filter(issue => {
+            const titleMatch = issue.title.toLowerCase().includes(term);
+            const bodyMatch = (issue.body || "").toLowerCase().includes(term);
+            const tagMatch = issue.labels.some(l => l.name.toLowerCase().includes(term));
+            return titleMatch || bodyMatch || tagMatch;
+        });
+        renderPosts(filtered, term);
+    };
+}
+
+// --- 8. 运行时间 ---
+function updateRunTime() {
+    const startTime = new Date('2026-01-01T00:00:00');
+    const now = new Date();
+    let years = now.getFullYear() - startTime.getFullYear();
+    let months = now.getMonth() - startTime.getMonth();
+    let days = now.getDate() - startTime.getDate();
+    if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+    if (months < 0) { years--; months += 12; }
+    let timeStr = "本站已运行 ";
+    if (years > 0) timeStr += `${years} 年 `;
+    if (months > 0 || years > 0) timeStr += `${months} 个月 `;
+    timeStr += `${days} 天`;
+    const element = document.getElementById('blog-run-time');
+    if (element) element.textContent = timeStr;
+}
+
+function toggleSettings() {
+    const panel = document.getElementById('settings-panel');
+    if (!panel) return;
+    panel.classList.toggle('active');
+    
+    const closePanel = (e) => {
+        const trigger = document.getElementById('settings-trigger');
+        if (!panel.contains(e.target) && trigger && !trigger.contains(e.target)) {
+            panel.classList.remove('active');
+            document.removeEventListener('mousedown', closePanel);
+        }
+    };
+    if (panel.classList.contains('active')) {
+        document.addEventListener('mousedown', closePanel);
+    }
+}
+
+function updateFontFamily(family) {
+    document.documentElement.style.setProperty('--global-font-family', family);
+    localStorage.setItem('pref-font-family', family);
+}
+
 window.onload = () => {
-    const body = document.body;
-    const icon = document.getElementById('theme-icon');
+    const savedFamily = localStorage.getItem('pref-font-family') || "'Inter', sans-serif";
+    updateFontFamily(savedFamily);
+    const fontSelect = document.getElementById('font-family-select');
+    if (fontSelect) fontSelect.value = savedFamily;
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    updateThemeIcon();
+
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
     
-    // 根据当前 body 的 data-theme 初始化图标
-    const currentTheme = body.getAttribute('data-theme');
-    icon.innerHTML = currentTheme === 'dark' ? SUN_SVG : MOON_SVG;
-    
-    // 这里的 stroke 样式建议写在 CSS 里，JS 保持简洁
-    icon.style.fill = "currentColor"; 
-    
-    document.getElementById('year').textContent = new Date().getFullYear();
+    updateRunTime(); 
+    setInterval(updateRunTime, 3600000); 
     fetchPosts(); 
     loadMusic();
 };

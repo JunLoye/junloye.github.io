@@ -21,7 +21,7 @@ body:
       description: "这段文字将作为首页卡片的预览摘要。"
       placeholder: "在这里写一段简短的摘要..."
     validations:
-      required: true
+      required: false
   - type: textarea
     id: content
     attributes:

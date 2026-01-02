@@ -50,7 +50,6 @@ nav {
 }
 .brand { font-weight: 900; letter-spacing: 2px; font-size: 1.1rem; cursor: pointer; }
 
-/* ABOUT 按钮动态下划线 */
 .about-trigger {
     position: relative;
     cursor: pointer;
@@ -120,17 +119,16 @@ nav {
 }
 .close-btn:hover { transform: scale(1.05); }
 
-/* --- 修改后的部分 --- */
 #theme-toggle-btn {
     position: fixed;
     bottom: 25px;
     left: 25px;
     width: 48px;
     height: 48px;
-    background: var(--text); /* 按钮背景色随主题变化 */
-    color: var(--bg);        /* 图标颜色随主题变化 */
+    background: var(--text);
+    color: var(--bg);
     border-radius: 50%;
-    display: flex;           /* 确保这里是 flex 而不是 none */
+    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -171,7 +169,7 @@ nav {
 .markdown-body blockquote {
     border-left: 4px solid var(--accent) !important;
     color: var(--text-soft) !important;
-    background: var(--selection-bg) !important; /* 使用更柔和的背景 */
+    background: var(--selection-bg) !important;
     padding: 16px 20px !important;
     margin: 20px 0 !important;
     border-radius: 0 8px 8px 0;
@@ -180,7 +178,7 @@ nav {
     padding: 16px;
     overflow: auto;
     line-height: 1.45;
-    background-color: #1e1e1e !important; /* 强制深色背景，适合代码阅读 */
+    background-color: #1e1e1e !important;
     border-radius: 12px;
 }
 .markdown-body code { background-color: var(--selection-bg) !important; color: var(--accent) !important; padding: 2px 5px; border-radius: 4px; }
@@ -218,7 +216,6 @@ footer {
     overflow-y: hidden;
 }
 
-/* GitHub 风格提示框解析后样式 */
 .markdown-alert {
     padding: 10px 14px;
     margin: 14px 0;
@@ -243,7 +240,6 @@ footer {
     color: var(--text) !important;
 }
 
-/* 具体的配色方案 (加上 !important 确保覆盖) */
 .markdown-body .markdown-alert-note { border-left-color: #0969da !important; background: rgba(9, 105, 218, 0.08) !important; }
 .markdown-body .markdown-alert-note .markdown-alert-title { color: #0969da !important; }
 
@@ -259,7 +255,6 @@ footer {
 .markdown-body .markdown-alert-caution { border-left-color: #d1242f !important; background: rgba(209, 36, 47, 0.08) !important; }
 .markdown-body .markdown-alert-caution .markdown-alert-title { color: #d1242f !important; }
 
-/* AI 生成提示专属样式 */
 .markdown-body .markdown-alert-ai { 
     border-left-color: #9d18d6 !important; 
     background: linear-gradient(to right, rgba(147, 51, 234, 0.1), rgba(147, 51, 234, 0.02)) !important;
@@ -287,7 +282,6 @@ footer {
     text-transform: uppercase;
 }
 
-/* --- 通知系统样式 --- */
 #notification-container {
     position: fixed;
     top: 20px;
@@ -296,11 +290,11 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    pointer-events: none; /* 防止遮挡下方点击 */
+    pointer-events: none;
 }
 
 .toast-message {
-    pointer-events: auto; /* 允许点击通知关闭 */
+    pointer-events: auto;
     min-width: 280px;
     padding: 14px 20px;
     border-radius: 12px;
@@ -343,4 +337,138 @@ footer {
 [data-theme="dark"] .toast-message {
     background: #1a1a1a;
     box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+/* About 页面 Github 徽标样式 */
+.about-github-footer {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+}
+
+.github-badge-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.github-badge-container:hover {
+    border-color: var(--accent);
+    background: var(--selection-bg);
+    transform: translateY(-2px);
+}
+
+.github-icon-large {
+    width: 40px;
+    height: 40px;
+    fill: var(--text);
+}
+
+.github-badge-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.badge-line-1 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.badge-line-2 {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* 适配暗色模式的特殊处理 */
+[data-theme="dark"] .github-badge-container {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* 搜索高亮与标签增强 */
+mark.search-highlight {
+    background-color: var(--accent);
+    color: white;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+[data-theme="dark"] mark.search-highlight {
+    background-color: #f1c40f; /* 暗色模式使用明亮的黄色 */
+    color: #000;
+}
+
+.post-tag {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.post-tag:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* 设置面板样式 */
+.settings-panel {
+    position: fixed;
+    top: 70px;
+    right: 25px;
+    width: 220px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: var(--shadow);
+    z-index: 999;
+    display: none; /* 默认隐藏 */
+    animation: fadeInDown 0.3s ease;
+}
+
+.settings-panel.active { display: block; }
+
+.settings-header {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-soft);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.setting-item select {
+    background: var(--line);
+    color: var(--text);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    outline: none;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+    font-size: var(--global-font-size, 16px);
+    font-family: var(--global-font-family, "Inter", "PingFang SC", sans-serif);
 }
