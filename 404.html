@@ -3,41 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - 迷路了 | Jun Loye</title>
+    <title>404 - 页面未找到</title>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #1a1a1a;
+            --accent-color: #ff5722; /* 警示橙 */
+            --border-thick: 3px;
+            --transition-curve: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            margin: 0; padding: 0; height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #ffffff; color: #111111; font-family: sans-serif;
-            text-align: center;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            font-family: "Inter", -apple-system, system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
         }
-        h1 { font-size: 6rem; margin: 0; font-weight: 900; letter-spacing: -2px; }
-        p { color: #555; font-size: 1.2rem; margin: 10px 0 30px; }
-        .back-btn {
-            padding: 12px 30px; background: #111; color: #fff;
-            border-radius: 30px; text-decoration: none; font-weight: 600;
-            transition: transform 0.3s;
+
+        /* 节日主题配色覆盖 */
+        [data-holiday="christmas"] { --bg-color: #052d1d; --text-main: #ffffff; }
+        [data-holiday="cny"] { --bg-color: #b91d1d; --text-main: #ffffff; }
+        [data-holiday="april-fools"] { --bg-color: #2d1b4e; --text-main: #ccff00; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .back-btn:hover { transform: scale(1.05); }
-        .timer { font-size: 0.8rem; color: #aaa; margin-top: 40px; }
+
+        .error-card {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            padding: 50px;
+            border: var(--border-thick) solid #000;
+            position: relative;
+            animation: slideUp 0.8s var(--transition-curve);
+        }
+
+        /* 中置装饰线，区分于 521 的左侧线 */
+        .error-card::before {
+            content: "";
+            position: absolute;
+            top: -var(--border-thick);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: var(--border-thick);
+            background: #000;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin: 0 0 15px 0;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: #000;
+        }
+
+        .error-desc {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: #444;
+        }
+
+        /* 拓扑图：路径通畅但末端丢失 */
+        .status-map {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .node { text-align: center; width: 80px; position: relative; }
+
+        .node-icon {
+            width: 14px;
+            height: 14px;
+            background: #000;
+            margin: 0 auto 10px;
+            border-radius: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .node-name {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #000;
+        }
+
+        .line {
+            flex-grow: 1;
+            height: 2px;
+            background: #000;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* 404 专属：目标节点变为虚线圆圈旋转 */
+        .node.missing .node-icon {
+            background: transparent !important;
+            border: 2px dashed var(--accent-color);
+            border-radius: 50%;
+            animation: rotate 4s linear infinite;
+        }
+
+        .node.missing .node-name { color: var(--accent-color); }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: 2px solid #000;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn.secondary { background: transparent; color: #000; }
+        .btn:hover { filter: invert(1); }
+
+        .footer-info {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #aaa;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            font-family: monospace;
+            line-height: 1.8;
+        }
+
+        .footer-info strong { color: #666; }
+
+        /* 节日图标适配 */
+        [data-holiday="christmas"] .node.missing .node-icon::after { content: "❄️"; font-size: 16px; }
+        [data-holiday="cny"] .node.missing .node-icon::after { content: "🧧"; font-size: 16px; }
+        [data-holiday="april-fools"] .node.missing .node-icon::after { content: "❓"; font-size: 16px; }
     </style>
+    <link id="holiday-style" rel="stylesheet" href="">
 </head>
 <body>
-    <h1>404</h1>
-    <p>抱歉，这个页面似乎消失了。</p>
-    <a href="/" class="back-btn">回到首页</a>
-    <div class="timer"><span id="count">5</span> 秒后自动跳转</div>
 
-    <script>
-        let count = 5;
-        const timer = setInterval(() => {
-            count--;
-            document.getElementById('count').innerText = count;
-            if(count <= 0) {
-                clearInterval(timer);
-                window.location.href = "/";
-            }
-        }, 1000);
-    </script>
+<div class="error-card">
+    <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--accent-color);">HTTP 404</div>
+    <h1>路径缺失。</h1>
+    
+    <p class="error-desc">
+        请求的资源已移除或从未存在。请核对地址栏中的 URL 拼写，或点击下方按钮返回导航。
+    </p>
+
+    <div class="status-map">
+        <div class="node">
+            <div class="node-icon"></div>
+            <div class="node-name">Visitor</div>
+        </div>
+        <div class="line"></div>
+        <div class="node">
+            <div class="node-icon"></div>
+            <div class="node-name">Server</div>
+        </div>
+        <div class="line"></div>
+        <div class="node missing">
+            <div class="node-icon"></div>
+            <div class="node-name">Empty</div>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <a href="/" class="btn">返回首页</a>
+        <a href="javascript:history.back();" class="btn secondary">返回上一页</a>
+    </div>
+
+    <div class="footer-info">
+        <strong>请求路径:</strong> <span id="request-path"></span> <br>
+        <strong>检测时间:</strong> <span id="current-time"></span> <br>
+        <strong>您的 IP:</strong> </div>
+</div>
+
+<script>
+    /**
+     * 初始化 404 页面逻辑
+     */
+    function init404() {
+        // 1. 获取当前 URL 路径
+        document.getElementById('request-path').textContent = window.location.pathname;
+
+        // 2. 启动实时时间
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        // 3. 节日主题检测
+        checkHoliday();
+    }
+
+    function updateTimestamp() {
+        const now = new Date();
+        const ts = now.getFullYear() + '-' + 
+            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(now.getDate()).padStart(2, '0') + ' ' + 
+            String(now.getHours()).padStart(2, '0') + ':' + 
+            String(now.getMinutes()).padStart(2, '0') + ':' + 
+            String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('current-time').textContent = ts;
+    }
+
+    function checkHoliday() {
+        const now = new Date();
+        const m = now.getMonth() + 1;
+        const d = now.getDate();
+        const styleLink = document.getElementById('holiday-style');
+        const body = document.body;
+        
+        let holiday = null;
+        if (m === 12 && (d >= 24 && d <= 26)) holiday = "christmas";
+        else if (m === 4 && d === 1) holiday = "april-fools";
+        else if (m === 2 && (d >= 15 && d <= 20)) holiday = "cny";
+
+        if (holiday) {
+            styleLink.href = holiday + ".css";
+            body.setAttribute('data-holiday', holiday);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', init404);
+</script>
+
 </body>
 </html>

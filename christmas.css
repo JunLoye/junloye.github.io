@@ -1,0 +1,84 @@
+/* christmas.css - 修复文字可见度问题 */
+:root {
+    --bg: #052d1d; /* 深色背景 */
+    --text: #ffffff;
+    --text-soft: #a8d5ba;
+    --line: rgba(255, 255, 255, 0.1);
+    --accent: #e63946;
+}
+
+/* 页面背景 */
+body {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+/* 核心修复：将卡片容器改为深色透明，防止白底白字 */
+.container, .error-card, #status-report {
+    background: rgba(10, 45, 30, 0.85) !important; /* 深色半透明 */
+    border: 2px solid var(--accent) !important;
+    backdrop-filter: blur(12px); /* 毛玻璃效果 */
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* 修正卡片内的副文本颜色 */
+.error-desc, .footer-info, .info-item b {
+    color: var(--text-soft) !important;
+}
+
+/* 按钮颜色适配 */
+.btn, .refresh-btn {
+    background: var(--accent) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* --- 背景装饰：圣诞树与雪花 --- */
+
+/* 雪花 */
+body::before {
+    content: "";
+    position: fixed;
+    top: -100px;
+    box-shadow: 
+        20vw 20vh 2px #fff, 40vw 10vh 2px #fff, 60vw 40vh 2px #fff, 80vw 30vh 2px #fff,
+        15vw 50vh 2px #fff, 35vw 70vh 2px #fff, 55vw 90vh 2px #fff, 75vw 60vh 2px #fff;
+    width: 4px;
+    height: 4px;
+    background: transparent;
+    border-radius: 50%;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1000;
+    animation: snowFall 12s linear infinite;
+}
+
+/* 圣诞树 */
+body::after {
+    content: "";
+    position: fixed;
+    bottom: 0;
+    right: 5%;
+    width: 150px;
+    height: 250px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.2;
+    background: 
+        conic-gradient(from 150deg at 50% 0%, #2d5a27 0 60deg, transparent 0) 50% 20% / 60px 60px no-repeat,
+        conic-gradient(from 150deg at 50% 0%, #244a20 0 60deg, transparent 0) 50% 45% / 100px 80px no-repeat,
+        conic-gradient(from 150deg at 50% 0%, #1b3a18 0 60deg, transparent 0) 50% 75% / 140px 100px no-repeat,
+        linear-gradient(#3e2723, #3e2723) 50% 100% / 20px 30px no-repeat;
+}
+
+@keyframes snowFall {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(110vh); }
+}
+
+/* 节日图标 */
+[data-holiday="christmas"] .node.offline .node-icon::after {
+    content: "🎁";
+    font-size: 20px;
+}

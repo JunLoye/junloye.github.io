@@ -121,7 +121,7 @@ async function fetchPosts() {
         handleRouting();
         return; // 直接返回缓存内容
     }
-    
+
     const container = document.getElementById('post-list-container');
     try {
         // 使用 GitHub Search API 筛选特定参与者
@@ -616,6 +616,46 @@ if (coverUploadInput) {
         }
     };
 }
+
+/**
+ * 节日主题自动检测系统
+ */
+function initHolidayTheme() {
+    const now = new Date();
+    const month = now.getMonth() + 1; // 1-12
+    const date = now.getDate();
+    const styleLink = document.getElementById('holiday-style');
+    const body = document.body;
+    
+    let theme = null;
+
+    // 1. 圣诞节 (12月24日 - 12月26日)
+    if (month === 12 && (date >= 24 && date <= 26)) {
+        theme = "christmas";
+    }
+    // 2. 愚人节 (4月1日)
+    else if (month === 4 && date === 1) {
+        theme = "april-fools";
+    }
+    // 3. 春节精确范围 (以2026年为例: 2月15日 - 2月20日)
+    // 修复点：不再简单判断 1月或2月，避免常驻开启
+    else if (month === 2 && (date >= 15 && date <= 20)) {
+        theme = "cny";
+    }
+
+    // 应用或清除主题
+    if (theme && styleLink) {
+        styleLink.href = `${theme}.css`;
+        body.setAttribute('data-holiday', theme);
+        console.log(`[Theme] 已激活节日模式: ${theme}`);
+    } else if (styleLink) {
+        styleLink.href = "";
+        body.removeAttribute('data-holiday');
+    }
+}
+
+// 确保在页面加载后运行，且名称与上面定义的一致
+window.addEventListener('DOMContentLoaded', initHolidayTheme);
 
 // 3. 页面初始化
 window.onload = () => {

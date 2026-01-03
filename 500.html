@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - 服务器内部错误</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #1a1a1a;
+            --accent-color: #ff5722; 
+            --border-thick: 3px;
+            --transition-curve: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-card {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            padding: 50px;
+            border: var(--border-thick) solid #000;
+            position: relative;
+            animation: slideUp 0.8s var(--transition-curve);
+        }
+
+        /* 顶部边框线，指示故障发生在内部 */
+        .error-card::before {
+            content: "";
+            position: absolute;
+            top: -var(--border-thick);
+            right: -var(--border-thick);
+            width: 100px;
+            height: var(--border-thick);
+            background: var(--accent-color);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin: 0 0 15px 0;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .error-desc {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: #444;
+        }
+
+        /* 状态可视化：故障点在 Host 内部 */
+        .status-map {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .node { text-align: center; width: 80px; }
+
+        .node-icon {
+            width: 12px;
+            height: 12px;
+            background: #000;
+            margin: 0 auto 10px;
+            border-radius: 2px;
+        }
+
+        .node-name {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .line {
+            flex-grow: 1;
+            height: 2px;
+            background: #000;
+            position: relative;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        /* 正常流向动画 */
+        .line::after {
+            content: "";
+            position: absolute;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #ccc, transparent);
+            animation: flow 2s infinite linear;
+        }
+
+        @keyframes flow { to { left: 100%; } }
+
+        /* 内部故障点样式 */
+        .node.internal-error .node-icon {
+            background: #fff;
+            border: 3px solid var(--accent-color);
+            animation: glitch 0.3s infinite;
+        }
+
+        .node.internal-error .node-name { color: var(--accent-color); }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); }
+            40% { transform: translate(-2px, -1px); }
+            60% { transform: translate(2px, 1px); }
+            80% { transform: translate(2px, -1px); }
+            100% { transform: translate(0); }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: 2px solid #000;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .btn:hover { background: transparent; color: #000; }
+
+        .footer-info {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #aaa;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="error-card">
+    <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--accent-color);">HTTP 500</div>
+    <h1>服务器内部错误。</h1>
+    
+    <p class="error-desc">
+        连接已建立，但源服务器在处理请求时遇到了意外情况。这通常是由于代码配置错误或数据库连接中断引起的。
+    </p>
+
+    <div class="status-map">
+        <div class="node">
+            <div class="node-icon"></div>
+            <div class="node-name">Visitor</div>
+        </div>
+        <div class="line"></div>
+        <div class="node">
+            <div class="node-icon"></div>
+            <div class="node-name">Network</div>
+        </div>
+        <div class="line"></div>
+        <div class="node internal-error">
+            <div class="node-icon"></div>
+            <div class="node-name">Server</div>
+        </div>
+    </div>
+
+    <button onclick="location.reload();" class="btn">尝试刷新页面</button>
+
+    <div class="footer-info">
+        检测时间: <span id="current-time"></span> <br>
+        服务器标识: <br>
+        请求 ID: </div>
+</div>
+
+<script>
+    function updateTimestamp() {
+        const now = new Date();
+        const timestamp = now.getFullYear() + '-' + 
+            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(now.getDate()).padStart(2, '0') + ' ' + 
+            String(now.getHours()).padStart(2, '0') + ':' + 
+            String(now.getMinutes()).padStart(2, '0') + ':' + 
+            String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('current-time').textContent = timestamp;
+    }
+    updateTimestamp();
+    setInterval(updateTimestamp, 1000);
+</script>
+
+</body>
+</html>
