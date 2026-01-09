@@ -53,13 +53,29 @@ async function exchangeCodeForToken(code) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code })
         });
+
+        // 打印原始响应状态
+        console.log('Worker 响应状态码:', res.status);
+
         const data = await res.json();
+        
+        // 在控制台打印完整的返回数据，方便调试
+        console.log('Worker 返回数据:', data);
+
         if (data.token) {
-            localStorage.setItem('github_token', data.token);
+            setCookie('github_token', data.token);
             await updateAuthUI();
-            showNotification('登录成功', 'info');
-        } else { throw new Error(data.error || 'Token 换取失败'); }
-    } catch (e) { showNotification(e.message, 'error'); }
+            showNotification('登录成功！', 'info');
+        } else {
+            // 如果 data 中有具体错误信息则抛出
+            const errorMsg = data.details || data.error || '获取 Token 失败';
+            throw new Error(errorMsg);
+        }
+    } catch (e) {
+        // 打印具体的错误对象到控制台
+        console.error('Exchange Token Error:', e);
+        showNotification(e.message, 'error');
+    }
 }
 
 async function updateAuthUI() {
