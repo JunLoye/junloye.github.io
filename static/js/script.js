@@ -101,7 +101,9 @@ async function fetchPosts() {
         if (!res.ok) throw new Error(`无法获取文章 (状态码: ${res.status})`);
         
         const data = await res.json();
-        allIssues = data.items.filter(i => !i.pull_request);
+        
+        // 过滤：排除标题包含 [FEEDBACK] 的内容，且排除 Pull Request
+        allIssues = data.items.filter(i => !i.pull_request && !i.title.includes('[FEEDBACK]'));
         
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
         

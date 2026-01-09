@@ -67,7 +67,6 @@ function showCorrectionModal(num, title) {
     modal.style.display = 'flex';
 
     if (!token) {
-        // 未登录状态
         textarea.disabled = true;
         textarea.placeholder = "🔒 请先在 首页顶部 通过 GitHub 登录后再提交反馈...\n或者直接到项目GitHub地址反馈";
         textarea.style.cursor = "not-allowed";
@@ -81,9 +80,8 @@ function showCorrectionModal(num, title) {
 
         showNotification("请先登录 GitHub 以激活网页端反馈功能", "warning");
     } else {
-        // 已登录状态
         textarea.disabled = false;
-        textarea.placeholder = "请输入您的建议或勘误内容...";
+        textarea.placeholder = "请输入您要反馈的内容...";
         textarea.style.cursor = "auto";
         textarea.style.background = "var(--bg)";
         
