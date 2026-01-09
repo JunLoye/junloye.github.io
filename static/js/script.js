@@ -2,12 +2,183 @@ const CONFIG = {
     username: 'JunLoye', 
     repo: 'junloye.github.io', 
     branch: 'main', 
-    musicFolder: 'music' 
+    musicFolder: 'music',
+    clientId: 'Ov23licJrsWm5hKFYAxj', 
+    proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev/' 
 };
 
 const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 const SUN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
 const MOON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
+function showNotification(msg, type = 'error') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast-message ${type}`;
+    toast.innerHTML = `<span>${type === 'error' ? '❌' : '🌟'} ${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 5000);
+}
+
+// --- 路由与 OAuth ---
+async function handleRouting() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        await exchangeCodeForToken(code);
+    }
+
+    const hash = window.location.hash;
+    if (hash.startsWith('#post-')) {
+        const num = parseInt(hash.replace('#post-', ''));
+        if (!isNaN(num)) openPost(num, false);
+    } else if (hash === '#about') {
+        openAbout(false);
+    }
+}
+
+function loginWithGithub() {
+    // 【关键修复点】确保这里的地址和 GitHub OAuth App 配置里的 Callback URL 一模一样
+    const redirectUri = window.location.origin + window.location.pathname;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CONFIG.clientId}&scope=public_repo&redirect_uri=${encodeURIComponent(redirectUri)}`;
+}
+
+async function exchangeCodeForToken(code) {
+    showNotification('正在获取登录令牌...', 'info');
+    try {
+        const res = await fetch(CONFIG.proxyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+        if (data.token) {
+            localStorage.setItem('github_token', data.token);
+            await updateAuthUI();
+            showNotification('登录成功', 'info');
+        } else { throw new Error(data.error || 'Token 换取失败'); }
+    } catch (e) { showNotification(e.message, 'error'); }
+}
+
+async function updateAuthUI() {
+    const token = localStorage.getItem('github_token');
+    const loginBtn = document.getElementById('github-login-btn');
+    const userInfoArea = document.getElementById('user-info-display');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (token) {
+        try {
+            const res = await fetch('https://api.github.com/user', { headers: { 'Authorization': `token ${token}` } });
+            if (!res.ok) throw new Error();
+            const user = await res.json();
+            loginBtn.style.display = 'none';
+            userInfoArea.style.display = 'flex';
+            document.getElementById('user-avatar').src = user.avatar_url;
+            document.getElementById('user-name').textContent = user.login;
+            submitBtn.disabled = false;
+            submitBtn.style.background = 'var(--accent)';
+            submitBtn.style.cursor = 'pointer';
+            submitBtn.textContent = '发布文章';
+        } catch (e) { logoutGithub(); }
+    } else {
+        loginBtn.style.display = 'flex';
+        userInfoArea.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.style.background = 'var(--line)';
+        submitBtn.textContent = '请先登录';
+    }
+}
+
+function logoutGithub() {
+    localStorage.removeItem('github_token');
+    updateAuthUI();
+}
+
+// --- 文章逻辑 ---
+async function fetchPosts() {
+    try {
+        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open`);
+        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
+        const data = await res.json();
+        allIssues = (data.items || []).filter(i => !i.pull_request);
+        renderPosts(allIssues);
+        handleRouting();
+    } catch (e) { showNotification('文章加载失败', 'error'); }
+}
+
+function renderPosts(posts) {
+    const container = document.getElementById('post-list-container');
+    if (!container) return;
+    container.innerHTML = posts.map(issue => {
+        const cover = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
+        return `<div class="post-card" onclick="openPost(${issue.number})">
+            <div class="post-cover"><img src="${cover}"></div>
+            <h2 class="post-card-title">${issue.title}</h2>
+            <div class="post-card-tags">${issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('')}</div>
+        </div>`;
+    }).join('');
+}
+
+function openPost(num, pushState = true) {
+    const issue = allIssues.find(i => i.number === num);
+    if (!issue) return;
+    if (pushState) history.pushState({ page: 'detail', id: num }, issue.title, `#post-${num}`);
+    const area = document.getElementById('detail-content-area');
+    area.innerHTML = `<h1 style="font-size:2rem; margin-bottom:20px;">${issue.title}</h1><div class="markdown-body">${marked.parse(issue.body || "")}</div>`;
+    document.getElementById('post-detail-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => area.classList.add('show'), 50);
+}
+
+function closePost() { if (window.location.hash.startsWith('#post-')) history.back(); else realClosePost(); }
+function realClosePost() {
+    const area = document.getElementById('detail-content-area');
+    area.classList.remove('show');
+    setTimeout(() => { document.getElementById('post-detail-overlay').style.display = 'none'; document.body.style.overflow = ''; }, 300);
+}
+
+// --- 发布 ---
+async function publishNewPost(e) {
+    e.preventDefault();
+    const token = localStorage.getItem('github_token');
+    const title = document.getElementById('publish-title').value;
+    const body = document.getElementById('publish-body').value;
+    const labels = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
+    const progress = document.getElementById('publish-progress');
+
+    try {
+        progress.style.display = 'block';
+        progress.textContent = '发布中...';
+        const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues`, {
+            method: 'POST',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, body, labels })
+        });
+        if (!res.ok) throw new Error('发布失败');
+        showNotification('发布成功', 'info');
+        closePublishModal();
+        fetchPosts();
+    } catch (e) { showNotification(e.message, 'error'); }
+    finally { progress.style.display = 'none'; }
+}
+
+function openPublishModal() {
+    document.getElementById('publish-modal').style.display = 'block';
+    setTimeout(() => document.getElementById('publish-modal-content').classList.add('show'), 50);
+}
+function closePublishModal() {
+    document.getElementById('publish-modal-content').classList.remove('show');
+    setTimeout(() => document.getElementById('publish-modal').style.display = 'none', 300);
+}
+
+function toggleDarkMode() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+
 
 let allIssues = [];
 const ORIGINAL_TITLE = document.title;
@@ -21,7 +192,7 @@ function showNotification(msg, type = 'error') {
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast-message ${type}`;
-    const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '️🌟';
+    const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '🌟';
     toast.innerHTML = `<span>${icon} ${msg}</span>`;
     container.appendChild(toast);
     
@@ -34,9 +205,18 @@ function showNotification(msg, type = 'error') {
     toast.onclick = dismiss;
 }
 
-// --- 2. 路由处理 ---
-function handleRouting() {
+// --- 2. 路由与 OAuth 回调处理 ---
+async function handleRouting() {
     const hash = window.location.hash;
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    // 处理 OAuth 回调
+    if (code) {
+        window.history.replaceState({}, document.title, window.location.pathname); // 清除 URL 中的 code
+        await exchangeCodeForToken(code);
+    }
+
     if (hash.startsWith('#post-')) {
         const num = parseInt(hash.replace('#post-', ''));
         if (!isNaN(num)) openPost(num, false);
@@ -112,27 +292,24 @@ function toggleDarkMode() {
 // --- 5. 文章列表与详情 ---
 async function fetchPosts() {
     const CACHE_KEY = 'blog_posts_cache';
-    const CACHE_TIME = 5 * 60 * 1000; // 5分钟
+    const CACHE_TIME = 5 * 60 * 1000; 
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
 
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
         renderPosts(allIssues);
         handleRouting();
-        return; // 直接返回缓存内容
+        return; 
     }
 
     const container = document.getElementById('post-list-container');
     try {
-        // 使用 GitHub Search API 筛选特定参与者
-        // q 参数含义：指定仓库 + 是 issue + 开启状态 + 参与者(评论或创建)包含 JunLoye
         const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
         const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
         
         if (!res.ok) throw new Error(`无法获取文章 (状态码: ${res.status})`);
         
         const data = await res.json();
-        // Search API 的结果存放在 items 数组中
         allIssues = data.items.filter(i => !i.pull_request);
         
         renderPosts(allIssues);
@@ -339,7 +516,7 @@ if (searchInputEl) {
     };
 }
 
-// --- 8. 运行时间 ---
+// --- 8. 运行时间与设置 ---
 function updateRunTime() {
     const startTime = new Date('2026-01-01T00:00:00');
     const now = new Date();
@@ -360,17 +537,6 @@ function toggleSettings() {
     const panel = document.getElementById('settings-panel');
     if (!panel) return;
     panel.classList.toggle('active');
-    
-    const closePanel = (e) => {
-        const trigger = document.getElementById('settings-trigger');
-        if (!panel.contains(e.target) && trigger && !trigger.contains(e.target)) {
-            panel.classList.remove('active');
-            document.removeEventListener('mousedown', closePanel);
-        }
-    };
-    if (panel.classList.contains('active')) {
-        document.addEventListener('mousedown', closePanel);
-    }
 }
 
 function updateFontFamily(family) {
@@ -393,21 +559,86 @@ function getCookie(name) {
     return '';
 }
 
-// --- 上传图片到 GitHub ---
-async function uploadCoverToGithub(file, token) {
-    if (!file || !token) throw new Error('缺少图片或Token');
-    const reader = new FileReader();
-    const progressEl = document.getElementById('publish-progress');
-    progressEl.style.display = 'block';
-    progressEl.textContent = '正在上传封面...';
+// --- OAuth 登录系统 ---
+function loginWithGithub() {
+    const redirectUri = window.location.origin + window.location.pathname;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CONFIG.clientId}&scope=public_repo&redirect_uri=${encodeURIComponent(redirectUri)}`;
+}
 
-    // 生成唯一路径
+async function exchangeCodeForToken(code) {
+    showNotification('正在获取登录令牌...', 'info');
+    try {
+        const res = await fetch(CONFIG.proxyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+        if (data.token) {
+            setCookie('github_token', data.token);
+            await updateAuthUI();
+            showNotification('登录成功！', 'info');
+        } else {
+            throw new Error(data.error || '获取 Token 失败');
+        }
+    } catch (e) {
+        showNotification(e.message, 'error');
+    }
+}
+
+async function updateAuthUI() {
+    const token = getCookie('github_token');
+    const loginBtn = document.getElementById('github-login-btn');
+    const userInfoArea = document.getElementById('user-info-display');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (token) {
+        try {
+            const res = await fetch('https://api.github.com/user', {
+                headers: { 'Authorization': `token ${token}` }
+            });
+            if (!res.ok) throw new Error();
+            const user = await res.json();
+            
+            // 更新 UI
+            loginBtn.style.display = 'none';
+            userInfoArea.style.display = 'flex';
+            document.getElementById('user-avatar').src = user.avatar_url;
+            document.getElementById('user-name').textContent = user.login;
+            
+            // 启用发布按钮
+            submitBtn.disabled = false;
+            submitBtn.style.background = 'var(--accent)';
+            submitBtn.style.cursor = 'pointer';
+            submitBtn.textContent = '发布文章';
+        } catch (e) {
+            logoutGithub();
+        }
+    } else {
+        loginBtn.style.display = 'flex';
+        userInfoArea.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.style.background = 'var(--line)';
+        submitBtn.style.cursor = 'not-allowed';
+        submitBtn.textContent = '请先登录';
+    }
+}
+
+function logoutGithub() {
+    setCookie('github_token', '', -1);
+    updateAuthUI();
+}
+
+// --- 上传图片与发布内容 ---
+async function uploadCoverToGithub(file, token) {
+    if (!file || !token) throw new Error('缺少图片或登录已失效');
     const timestamp = Date.now();
     const ext = file.name.split('.').pop().toLowerCase();
     const imgPath = `images/blog_${timestamp}/cover.${ext}`;
     const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${imgPath}`;
 
     return new Promise((resolve, reject) => {
+        const reader = new FileReader();
         reader.onload = async () => {
             const base64 = reader.result.split(',')[1];
             try {
@@ -415,46 +646,25 @@ async function uploadCoverToGithub(file, token) {
                     method: 'PUT',
                     headers: {
                         'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github+json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        message: `上传封面: ${imgPath}`,
-                        content: base64
-                    })
+                    body: JSON.stringify({ message: `Upload cover: ${imgPath}`, content: base64 })
                 });
-                if (!res.ok) {
-                    const err = await res.json();
-                    reject(new Error(err.message || '图片上传失败'));
-                    return;
-                }
-                // 返回原始图片直链
-                const rawUrl = `https://github.com/${CONFIG.username}/${CONFIG.repo}/blob/main/${imgPath}?raw=true`;
-                progressEl.textContent = '封面上传成功！';
-                setTimeout(() => { progressEl.style.display = 'none'; }, 1200);
-                resolve(rawUrl);
-            } catch (e) {
-                progressEl.textContent = '封面上传失败！';
-                setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
-                reject(e);
-            }
+                if (!res.ok) throw new Error('图片上传失败');
+                resolve(`https://github.com/${CONFIG.username}/${CONFIG.repo}/blob/main/${imgPath}?raw=true`);
+            } catch (e) { reject(e); }
         };
-        reader.onerror = () => reject(new Error('图片读取失败'));
         reader.readAsDataURL(file);
     });
 }
 
-// --- 发布新内容弹窗逻辑 ---
 function openPublishModal() {
     const modal = document.getElementById('publish-modal');
     const content = document.getElementById('publish-modal-content');
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     setTimeout(() => content.classList.add('show'), 50);
-
-    // 自动填充 token
-    const tokenInput = document.getElementById('publish-token');
-    if (tokenInput) tokenInput.value = getCookie('github_token') || '';
+    updateAuthUI();
 }
 
 function closePublishModal() {
@@ -468,38 +678,27 @@ function closePublishModal() {
     }, 300);
 }
 
-// --- 发布新内容 API ---
 async function publishNewPost(e) {
     e.preventDefault();
+    const token = getCookie('github_token');
     const title = document.getElementById('publish-title').value.trim();
     const body = document.getElementById('publish-body').value.trim();
     const labels = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
-    const token = document.getElementById('publish-token').value.trim();
-    let cover = document.getElementById('publish-cover')?.value.trim();
-    const summary = document.getElementById('publish-summary')?.value.trim();
-    const coverFile = document.getElementById('publish-cover-upload')?.files[0];
+    const summary = document.getElementById('publish-summary').value.trim();
+    let cover = document.getElementById('publish-cover').value.trim();
+    const coverFile = document.getElementById('publish-cover-upload').files[0];
     const progressEl = document.getElementById('publish-progress');
 
-    if (!title || !body || !token) {
-        showNotification('请填写所有必填项', 'warning');
-        return;
-    }
-
-    setCookie('github_token', token);
+    if (!token) return showNotification('请先登录', 'warning');
 
     try {
-        // 上传封面图片（如有）
+        progressEl.style.display = 'block';
         if (coverFile) {
-            progressEl.style.display = 'block';
-            progressEl.textContent = '正在上传封面图片...';
+            progressEl.textContent = '正在上传封面...';
             cover = await uploadCoverToGithub(coverFile, token);
-            document.getElementById('publish-cover').value = cover;
         }
 
-        progressEl.style.display = 'block';
-        progressEl.textContent = '正在发布文章...';
-
-        // 构造正文
+        progressEl.textContent = '正在发布...';
         let issueBody = '';
         if (cover) issueBody += `### 🖼️ 封面图链接\n${cover}\n\n`;
         if (summary) issueBody += `### 📖 文章简述\n${summary}\n\n`;
@@ -509,156 +708,38 @@ async function publishNewPost(e) {
             method: 'POST',
             headers: {
                 'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github+json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                title,
-                body: issueBody,
-                labels
-            })
+            body: JSON.stringify({ title, body: issueBody, labels })
         });
-        if (!res.ok) {
-            const err = await res.json();
-            progressEl.textContent = '发布失败: ' + (err.message || '未知错误');
-            setTimeout(() => { progressEl.style.display = 'none'; }, 2500);
-            throw new Error(err.message || '发布失败');
-        }
-        progressEl.textContent = '发布成功！正在同步...';
-        showNotification('发布成功！正在同步...', 'info');
-        closePublishModal();
 
-        // 本地插入新卡片（立即反馈）
-        // 可选：fetchPosts()前先插入一条本地数据
-        // fetchPosts()延迟执行，避免GitHub同步延迟
-        setTimeout(() => {
-            fetchPosts();
-            progressEl.style.display = 'none';
-        }, 2000);
+        if (!res.ok) throw new Error('发布失败');
+        
+        showNotification('发布成功！', 'info');
+        closePublishModal();
+        setTimeout(fetchPosts, 2000);
     } catch (err) {
-        showNotification('发布失败: ' + err.message, 'error');
-        progressEl.textContent = '发布失败: ' + err.message;
-        setTimeout(() => { progressEl.style.display = 'none'; }, 2500);
+        showNotification(err.message, 'error');
+    } finally {
+        progressEl.style.display = 'none';
     }
 }
 
-// 绑定表单事件
-const publishForm = document.getElementById('publish-form');
-if (publishForm) {
-    publishForm.onsubmit = publishNewPost;
-}
+// --- 初始化与监听 ---
+document.getElementById('publish-form').onsubmit = publishNewPost;
 
-// --- 封面上传与预览逻辑整合 ---
-
-// 辅助函数：文件转 Base64
-function toBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-}
-
-// 1. 实现实时预览
 const publishBody = document.getElementById('publish-body');
 const mdPreview = document.getElementById('md-preview');
-
 if (publishBody && mdPreview) {
-    publishBody.addEventListener('input', () => {
+    publishBody.oninput = () => {
         mdPreview.innerHTML = marked.parse(publishBody.value || '预览区域...');
-        if (window.Prism) Prism.highlightAllUnder(mdPreview);
-    });
-}
-
-const coverUploadInput = document.getElementById('publish-cover-upload');
-const coverInput = document.getElementById('publish-cover');
-
-if (coverUploadInput) {
-    coverUploadInput.onchange = async () => {
-        const file = coverUploadInput.files[0];
-        if (!file) return;
-
-        const token = document.getElementById('publish-token').value.trim();
-        if (!token) {
-            showNotification('请先输入 GitHub Token', 'warning');
-            coverUploadInput.value = '';
-            return;
-        }
-
-        const progressEl = document.getElementById('publish-progress');
-        
-        // --- 修改点 1：上传开始时禁用输入框 ---
-        coverInput.value = "正在上传并生成链接...";
-        coverInput.readOnly = true; // 设置为只读
-        coverInput.style.backgroundColor = "var(--line)"; // 视觉上变灰（可选）
-        
-        progressEl.style.display = 'block';
-        progressEl.textContent = '正在上传封面...';
-
-        try {
-            // 调用上传函数
-            const imageUrl = await uploadCoverToGithub(file, token);
-            
-            // --- 修改点 2：上传成功后填入链接并保持禁用 ---
-            coverInput.value = imageUrl;
-            coverInput.readOnly = true; 
-            showNotification('封面上传成功，链接已锁定', 'info');
-        } catch (err) {
-            showNotification('上传失败: ' + err.message, 'error');
-            // 上传失败则恢复可编辑状态，方便手动输入
-            coverInput.value = '';
-            coverInput.readOnly = false;
-            coverInput.style.backgroundColor = "";
-            coverUploadInput.value = '';
-        } finally {
-            progressEl.style.display = 'none';
-        }
     };
 }
 
-/**
- * 节日主题自动检测系统
- */
-function initHolidayTheme() {
-    const now = new Date();
-    const month = now.getMonth() + 1; // 1-12
-    const date = now.getDate();
-    const styleLink = document.getElementById('holiday-style');
-    const body = document.body;
-    
-    let theme = null;
 
-    // 1. 圣诞节 (12月24日 - 12月26日)
-    if (month === 12 && (date >= 24 && date <= 26)) {
-        theme = "christmas";
-    }
-    // 2. 愚人节 (4月1日)
-    else if (month === 4 && date === 1) {
-        theme = "april-fools";
-    }
-    // 3. 春节精确范围 (以2026年为例: 2月15日 - 2月20日)
-    // 修复点：不再简单判断 1月或2月，避免常驻开启
-    else if (month === 2 && (date >= 15 && date <= 20)) {
-        theme = "cny";
-    }
-
-    // 应用或清除主题
-    if (theme && styleLink) {
-        styleLink.href = `${theme}.css`;
-        body.setAttribute('data-holiday', theme);
-        console.log(`[Theme] 已激活节日模式: ${theme}`);
-    } else if (styleLink) {
-        styleLink.href = "";
-        body.removeAttribute('data-holiday');
-    }
-}
-
-// 确保在页面加载后运行，且名称与上面定义的一致
-window.addEventListener('DOMContentLoaded', initHolidayTheme);
-
-// 3. 页面初始化
 window.onload = () => {
+    updateAuthUI();
+
     const savedFamily = localStorage.getItem('pref-font-family') || "'Inter', sans-serif";
     updateFontFamily(savedFamily);
     const fontSelect = document.getElementById('font-family-select');
@@ -672,7 +753,6 @@ window.onload = () => {
     if (yearEl) yearEl.textContent = new Date().getFullYear();
     
     updateRunTime(); 
-    setInterval(updateRunTime, 3600000); 
     fetchPosts(); 
     loadMusic();
 };
