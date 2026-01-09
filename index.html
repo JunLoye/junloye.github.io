@@ -9,12 +9,45 @@
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="static/css/music-player.css">
     <link rel="stylesheet" href="static/css/publish.css">
+    <link rel="stylesheet" href="static/css/post.css">
 
     <link id="holiday-style" rel="stylesheet" href="">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" defer>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" id="prism-theme" defer>
+    <style>
+        /* 纠错按钮样式 */
+        .edit-btn {
+            position: absolute;
+            top: 20px;
+            right: 120px;
+            padding: 8px 16px;
+            background: var(--line);
+            color: var(--text);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .edit-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        @media (max-width: 600px) {
+            .edit-btn {
+                right: 90px;
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
 </head>
 <body data-theme="light">
     <div id="notification-container"></div>
@@ -22,7 +55,7 @@
 
     <nav>
         <div class="brand" onclick="location.reload()">
-            JUN LOYE <span class="version-badge">v7.1</span>
+            JUN LOYE <span class="version-badge">v7.2</span>
         </div>
         <div class="nav-right">
             <span class="about-trigger" onclick="openAbout()">ABOUT</span>
@@ -43,41 +76,15 @@
         </div>
     </nav>
 
-    <div id="about-overlay" class="overlay">
-        <button class="close-btn" onclick="closeAbout()">← BACK</button>
-        <div class="detail-container" id="about-content">
-            <div style="text-align: center; margin-top: 40px;">
-                <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 10px;">Jun Loye</h1>
-                <p style="color: var(--text-soft); font-size: 1.1rem;">创作者 / 开发者 / MC爱好者</p>
-                <div style="margin: 40px 0; height: 1px; background: var(--line);"></div>
-                
-                <div class="markdown-body" style="text-align: left;">
-                    <h3>关于我</h3>
-                    <p>欢迎来到我的个人博客。这里是我记录思考、技术笔记和生活点滴的角落。</p>
-                    <h3>联系方式</h3>
-                    <ul>
-                        <li>Email: LoyeJun@qq.com LoyeJun9396@gmail.com</li>
-                        <li>Github: <a href="https://github.com/JunLoye" target="_blank">https://github.com/JunLoye</a></li>
-                    </ul>
-                </div>
-
-                <div class="about-github-footer">
-                    <a href="https://github.com/JunLoye/junloye.github.io" target="_blank" class="github-badge-container">
-                        <svg class="github-icon-large" viewBox="0 0 24 24">
-                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-                        </svg>
-                        <div class="github-badge-text">
-                            <span class="badge-line-1">本站在 Github 托管</span>
-                            <span class="badge-line-2">© 2026 JUN LOYE · OPEN SOURCE</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="publish-modal" class="overlay"></div>
+    <div id="about-overlay" class="overlay"></div>
 
     <div id="post-detail-overlay" class="overlay">
         <button class="close-btn" onclick="closePost()">← CLOSE</button>
+        <button id="post-edit-btn" class="edit-btn" style="display:none;" onclick="handleCorrection()">
+            <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            纠错
+        </button>
         <div class="detail-container" id="detail-content-area"></div>
     </div>
 
@@ -96,53 +103,6 @@
         <p>© <span id="year"></span> JUN LOYE</p>
         <p id="blog-run-time" style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;"></p>
     </footer>
-
-    <div id="publish-modal" class="overlay">
-        <div class="detail-container" id="publish-modal-content">
-            <button class="close-btn" onclick="closePublishModal()">← CLOSE</button>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin:0;">NEW POST</h2>
-            </div>
-            
-            <form id="publish-form" autocomplete="off" style="display: flex; flex-direction: column; height: 100%;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group">
-                        <label>标题</label>
-                        <input type="text" id="publish-title" required style="width:100%;padding:8px;">
-                    </div>
-                    <div class="form-group">
-                        <label>标签 (逗号分隔)</label>
-                        <input type="text" id="publish-labels" placeholder="Memo, Tech..." style="width:100%;padding:8px;">
-                    </div>
-                </div>
-
-                <div class="publish-main-content">
-                    <div class="editor-side">
-                        <label>📄 正文内容</label>
-                        <textarea id="publish-body" placeholder="在此输入内容..." required></textarea>
-                    </div>
-                    <div class="preview-side">
-                        <div class="preview-label">预览</div>
-                        <div id="md-preview" class="markdown-body"></div>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end; margin-top: 20px;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>🖼️ 封面图链接 / 上传</label>
-                        <input type="text" id="publish-cover" style="width:100%;padding:8px;margin-bottom:5px;">
-                        <input type="file" id="publish-cover-upload" accept="image/*">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>文章简述 (可选)</label>
-                        <input type="text" id="publish-summary" style="width:100%;padding:8px;">
-                    </div>
-                    <button type="submit" id="submit-btn" disabled style="height:45px; border-radius:10px; background:var(--line); color:white; border:none; font-weight:700; cursor:not-allowed;">请先登录</button>
-                </div>
-            </form>
-            <div id="publish-progress" style="margin-top:10px;font-size:0.95rem;color:var(--accent);display:none;"></div>
-        </div>
-    </div>
 
     <script src="static/js/login.js"></script>
     <script src="static/js/music-player.js"></script>

@@ -154,3 +154,57 @@
 [data-theme="dark"] #publish-body {
     background: #111;
 }
+
+/* --- 移动端适配 (屏幕宽度小于 768px) --- */
+@media screen and (max-width: 768px) {
+    #publish-modal .detail-container {
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        margin-top: 0;
+        padding: 15px;
+        border-radius: 0;
+    }
+
+    .full-screen-editor {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+    }
+
+    .publish-header-grid, 
+    .editor-header, 
+    .publish-footer-grid {
+        grid-template-columns: 1fr; /* 全部改为单栏 */
+        gap: 10px;
+    }
+
+    .publish-main-content {
+        flex-direction: column; /* 左右布局变为上下布局 */
+        overflow-y: auto; /* 允许纵向滚动查看内容 */
+        gap: 20px;
+    }
+
+    .editor-side, .preview-side {
+        flex: none; /* 取消弹性比例，让内容根据高度撑开或固定 */
+        height: auto;
+    }
+
+    #publish-body {
+        min-height: 300px; /* 给编辑器一个最小高度 */
+    }
+
+    #md-preview {
+        min-height: 200px; /* 给预览区域一个最小高度 */
+        margin-bottom: 20px;
+    }
+
+    .publish-footer-grid {
+        padding-bottom: 30px; /* 留出底部空间 */
+    }
+
+    .publish-footer-grid .publish-btn {
+        width: 100%;
+        order: -1; /* 将发布按钮在视觉上移到最前 */
+    }
+}

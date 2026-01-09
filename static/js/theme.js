@@ -19,8 +19,11 @@ function toggleDarkMode() {
     updateThemeIcon();
 }
 
-window.onload = () => {
+(function applySavedTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
+})();
+
+window.addEventListener('load', () => {
     updateThemeIcon();
-};
+});

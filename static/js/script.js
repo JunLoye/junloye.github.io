@@ -173,7 +173,8 @@ async function initAllTemplates() {
 }
 
 // --- 11. 初始化 ---
-window.onload = () => {
+// 使用 addEventListener 代替 window.onload 以避免多个脚本冲突
+window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
     
@@ -183,4 +184,4 @@ window.onload = () => {
     
     // 开始加载异步组件
     initAllTemplates();
-};
+});

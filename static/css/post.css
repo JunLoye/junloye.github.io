@@ -1,0 +1,182 @@
+.edit-btn {
+    position: fixed;
+    top: 25px;
+    right: 140px;
+    background: var(--bg);
+    color: var(--text-soft);
+    padding: 10px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 601;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.edit-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--selection-bg);
+    transform: translateY(-1px);
+}
+
+.edit-btn:active {
+    transform: translateY(0);
+}
+
+
+/* 提示框文字主体 */
+.edit-btn::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 52px; /* 按钮下方 */
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: var(--shadow);
+    pointer-events: none;
+}
+
+/* 提示框小三角 */
+.edit-btn::after {
+    content: '';
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid var(--text);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+}
+
+/* 悬停显示状态 */
+.edit-btn:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.edit-btn:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- 现有弹窗样式保持不变 --- */
+#correction-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.correction-content {
+    background: var(--bg);
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    animation: modalShow 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes modalShow {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 通知组件 - 顶部淡出 */
+.success-toast {
+    position: fixed;
+    top: -100px; /* 初始隐藏在更上方 */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #238636; /* GitHub 成功绿色 */
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 9999;
+    transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.success-toast.show {
+    top: 30px; /* 弹出位置 */
+    opacity: 1;
+}
+
+/* 弹窗样式 */
+#correction-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+}
+
+.correction-content {
+    background: var(--bg);
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 450px;
+    border: 1px solid var(--line);
+}
+
+#correction-text {
+    width: 100%;
+    height: 140px;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    margin-bottom: 20px;
+    outline: none;
+    font-family: inherit;
+}
+
+.correction-btns { display: flex; gap: 12px; }
+.correction-btns button { flex: 1; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; border: none; }
+#submit-comment-btn { background: var(--accent); color: white; }
+#submit-issue-btn { background: var(--selection-bg); color: var(--accent); }
+#cancel-modal-btn { width: 100%; margin-top: 15px; background: transparent; color: var(--text-soft); cursor: pointer; border: none; }
