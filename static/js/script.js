@@ -35,6 +35,30 @@ function showNotification(msg, type = 'error') {
     toast.onclick = dismiss;
 }
 
+// 检查 GitHub API 配额限制并返回详细提示
+async function checkGitHubRateLimit() {
+    try {
+        const res = await fetch('https://api.github.com/rate_limit');
+        if (res.ok) {
+            const data = await res.json();
+            const searchLimit = data.resources.search;
+            const coreLimit = data.resources.core;
+            
+            if (searchLimit.remaining === 0) {
+                const resetDate = new Date(searchLimit.reset * 1000).toLocaleTimeString();
+                return `搜索接口配额已用尽。请在 ${resetDate} 后重试，或尝试登录 GitHub 以获取更多配额。`;
+            }
+            if (coreLimit.remaining === 0) {
+                const resetDate = new Date(coreLimit.reset * 1000).toLocaleTimeString();
+                return `API 核心配额已用尽。请在 ${resetDate} 后重试。`;
+            }
+        }
+    } catch (e) {
+        return "无法连接到 GitHub 服务，请检查您的网络连接。";
+    }
+    return null;
+}
+
 async function handleRouting() {
     const hash = window.location.hash;
     const urlParams = new URLSearchParams(window.location.search);
@@ -99,7 +123,20 @@ async function fetchPosts() {
         const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
         const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
         
-        if (!res.ok) throw new Error(`无法获取文章 (状态码: ${res.status})`);
+        if (!res.ok) {
+            // 尝试获取 GitHub 返回的详细错误 JSON 信息
+            let detail = "";
+            try {
+                const errorData = await res.json();
+                detail = errorData.message ? ` (${errorData.message})` : "";
+            } catch(e) {
+                detail = ` (状态码: ${res.status})`;
+            }
+
+            // 如果请求失败，进一步检查是否是因为配额限制
+            const limitMsg = await checkGitHubRateLimit();
+            throw new Error(limitMsg || `GitHub 接口请求失败${detail}`);
+        }
         
         const data = await res.json();
         allIssues = data.items.filter(i => !i.pull_request && !i.title.includes('[FEEDBACK]'));
@@ -109,7 +146,9 @@ async function fetchPosts() {
         renderPosts(allIssues);
         handleRouting();
     } catch (e) {
+        // 使用自定义通知显示详细错误
         showNotification(e.message, 'error');
+        
         if (container) {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 100px 20px;">
