@@ -50,10 +50,10 @@ body {
     font-family: "Inter", "PingFang SC", sans-serif;
     background-color: var(--bg);
     color: var(--text);
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 25px;
-    line-height: 1.6;
+    padding: 0 20px;
+    line-height: 1.5;
     overflow-x: hidden;
 }
 
@@ -103,6 +103,8 @@ nav {
     color: var(--accent);
 }
 
+/* 导航链接样式补充 */
+.qa-trigger,
 .about-trigger,
 .publish-trigger {
     position: relative;
@@ -115,6 +117,7 @@ nav {
     padding: 4px 0;
 }
 
+.qa-trigger::after,
 .about-trigger::after,
 .publish-trigger::after {
     content: '';
@@ -127,11 +130,13 @@ nav {
     transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+.qa-trigger:hover,
 .about-trigger:hover,
 .publish-trigger:hover {
     color: var(--accent);
 }
 
+.qa-trigger:hover::after,
 .about-trigger:hover::after,
 .publish-trigger:hover::after {
     width: 100%;
@@ -520,8 +525,8 @@ nav {
 }
 
 footer {
-    margin-top: 100px;
-    padding: 50px 0;
+    margin-top: 30px;
+    padding: 10px 0;
     border-top: 1px solid var(--line);
     text-align: center;
     color: var(--text-soft);

@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name='description' content='Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖前端开发、后端技术、算法与数据结构等内容，致力于打造高质量的技术文章和实用教程'>
+    <meta name="google-site-verification" content="fJ753iyaVnQymPQwrMoRVIqYPbswugSIkqtD1DwmEFg">
+
     <title>Blog | Jun Loye</title>
     <link rel="icon" href="image/favicon.ico" type="image/x-icon">
-    <meta name="google-site-verification" content="fJ753iyaVnQymPQwrMoRVIqYPbswugSIkqtD1DwmEFg" />
 
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="static/css/music-player.css">
     <link rel="stylesheet" href="static/css/publish.css">
     <link rel="stylesheet" href="static/css/post.css">
+    <link rel="stylesheet" href="" id="holiday-style">
 
-    <link id="holiday-style" rel="stylesheet" href="">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" defer>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" defer>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" id="prism-theme" defer>
 </head>
 <body data-theme="light">
     <div id="notification-container"></div>
@@ -24,9 +24,10 @@
 
     <nav>
         <div class="brand" onclick="location.reload()">
-            JUN LOYE <span class="version-badge">Beta7.3</span>
+            JUN LOYE <span class="version-badge">Beta7.4</span>
         </div>
         <div class="nav-right">
+            <span class="qa-trigger" onclick="openQA()">Q&A</span>
             <span class="about-trigger" onclick="openAbout()">ABOUT</span>
             <span class="publish-trigger" onclick="openPublishModal()">PUBLISH</span>
             
@@ -47,14 +48,8 @@
 
     <div id="publish-modal" class="overlay"></div>
     <div id="about-overlay" class="overlay"></div>
-
+    <div id="qa-overlay" class="overlay"></div>
     <div id="post-detail-overlay" class="overlay">
-        <button class="close-btn" onclick="closePost()">← CLOSE</button>
-        <button id="post-edit-btn" class="edit-btn" style="display:none;" onclick="handleCorrection()">
-            <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            纠错
-        </button>
-        <div class="detail-container" id="detail-content-area"></div>
     </div>
 
     <main class="post-grid" id="post-list-container"></main>
@@ -81,8 +76,7 @@
     <script src="static/js/post-detail.js"></script>
     <script src="static/js/about.js"></script>
     <script src="static/js/publish.js"></script>
-
-    <script src="static/js/script.js"></script>
+    <script src="static/js/qa.js"></script> <script src="static/js/script.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" defer></script>

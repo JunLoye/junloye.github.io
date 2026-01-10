@@ -6,7 +6,16 @@ function openPost(num, pushState = true) {
     if (pushState) history.pushState({ page: 'detail', id: num }, issue.title, `#post-${num}`);
     document.title = `${issue.title} | Jun Loye`;
 
-    const cover = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/)?.[1] || `https://picsum.photos/seed/${issue.id}/800/450`;
+    // --- 修改部分：封面图提取逻辑与备用图逻辑 ---
+    // 优先从正文提取指定格式链接，若无则使用 CONFIG 中定义的备用地址（若 CONFIG 未加载则使用默认字符串）
+    const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
+        ? CONFIG.defaultCover 
+        : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
+    
+    const coverMatch = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/);
+    const cover = coverMatch ? coverMatch[1] : defaultCover;
+    // --- 修改结束 ---
+
     let cleanBody = (issue.body || "")
                               .replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "")
                               .replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "")
@@ -22,7 +31,8 @@ function openPost(num, pushState = true) {
 
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    area.innerHTML = `<img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;">
+    // --- 修改部分：在 img 标签中添加 onerror 容错处理 ---
+    area.innerHTML = `<img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; color:var(--text-soft); font-size:0.85rem;">
                 <span>${date}</span>
@@ -31,6 +41,7 @@ function openPost(num, pushState = true) {
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
         <div class="markdown-body">${htmlContent}</div>`;
+    // --- 修改结束 ---
     
     const editBtn = document.getElementById('edit-post-btn');
     if (editBtn) {

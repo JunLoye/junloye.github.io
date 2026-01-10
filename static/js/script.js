@@ -4,17 +4,16 @@ const CONFIG = {
     branch: 'main',
     musicFolder: 'music',
     clientId: 'Ov23licJrsWm5hKFYAxj',
-    proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev'
+    proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
+    defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png'
 };
 
 const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 
-
 let allIssues = [];
 const ORIGINAL_TITLE = document.title;
-let templatesLoaded = false; // 标记外部组件是否加载完成
+let templatesLoaded = false;
 
-// --- 1. 全局错误与通知系统 ---
 window.onerror = (msg) => showNotification(`代码错误: ${msg}`, 'error');
 window.onunhandledrejection = (event) => showNotification(`异步请求失败: ${event.reason}`, 'error');
 
@@ -36,7 +35,6 @@ function showNotification(msg, type = 'error') {
     toast.onclick = dismiss;
 }
 
-// --- 2. 路由与 OAuth 回调处理 ---
 async function handleRouting() {
     const hash = window.location.hash;
     const urlParams = new URLSearchParams(window.location.search);
@@ -47,7 +45,6 @@ async function handleRouting() {
         await exchangeCodeForToken(code);
     }
 
-    // 如果模板还没加载好，延迟处理路由
     if (!templatesLoaded) {
         setTimeout(handleRouting, 100);
         return;
@@ -58,15 +55,19 @@ async function handleRouting() {
         if (!isNaN(num)) openPost(num, false);
     } else if (hash === '#about') {
         openAbout(false);
+    } else if (hash === '#qa') {
+        openQA(false);
     }
 }
 
 window.addEventListener('popstate', () => {
     const detailArea = document.getElementById('detail-content-area');
     const aboutContent = document.getElementById('about-content');
+    const qaContent = document.getElementById('qa-content');
     if (!window.location.hash) {
         if (detailArea?.classList.contains('show')) realClosePost();
         if (aboutContent?.classList.contains('show')) realCloseAbout();
+        if (qaContent?.classList.contains('show')) realCloseQA();
     } else {
         handleRouting();
     }
@@ -77,10 +78,10 @@ window.onkeydown = (e) => {
         closePost();
         closeAbout();
         closePublishModal();
+        closeQA();
     }
 };
 
-// --- 5. 文章列表与详情 ---
 async function fetchPosts() {
     const CACHE_KEY = 'blog_posts_cache';
     const CACHE_TIME = 5 * 60 * 1000; 
@@ -101,8 +102,6 @@ async function fetchPosts() {
         if (!res.ok) throw new Error(`无法获取文章 (状态码: ${res.status})`);
         
         const data = await res.json();
-        
-        // 过滤：排除标题包含 [FEEDBACK] 的内容，且排除 Pull Request
         allIssues = data.items.filter(i => !i.pull_request && !i.title.includes('[FEEDBACK]'));
         
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
@@ -123,7 +122,55 @@ async function fetchPosts() {
     }
 }
 
-// --- 8. 运行时间与设置 ---
+function renderPosts(posts, highlightTerm = "") {
+    const container = document.getElementById('post-list-container');
+    if (!container) return;
+    
+    if (posts.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text-soft);">未找到匹配的文章</div>`;
+        return;
+    }
+
+    container.innerHTML = posts.map(issue => {
+        const coverMatch = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/);
+        const cover = coverMatch ? coverMatch[1] : CONFIG.defaultCover;
+        const summaryRaw = issue.body?.match(/### 📖 文章简述\s*([\s\S]*?)(?=\n---|###|$)/)?.[1]?.trim() || "";
+        
+        let displayTitle = issue.title;
+        let displaySummary = (typeof marked !== 'undefined') ? marked.parse(summaryRaw) : summaryRaw;
+
+        if (highlightTerm) {
+            const regex = new RegExp(`(${highlightTerm})`, 'gi');
+            displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
+            displaySummary = displaySummary.replace(new RegExp(`(>[^<]*)(${highlightTerm})([^>]*<)`, 'gi'), '$1<mark class="search-highlight">$2</mark>$3');
+        }
+
+        const tagsHtml = issue.labels.map(l => 
+            `<span class="post-tag" onclick="event.stopPropagation(); filterByTag('${l.name}')">${l.name}</span>`
+        ).join('');
+
+        return `<div class="post-card" onclick="openPost(${issue.number})">
+            <div class="post-cover">
+                <img src="${cover}" alt="cover" onerror="this.onerror=null; this.src='${CONFIG.defaultCover}';">
+            </div>
+            <h2 class="post-card-title">${displayTitle}</h2>
+            <div class="post-card-summary markdown-body" style="font-size: 0.9rem;">${displaySummary}</div>
+            <div class="post-card-tags">${tagsHtml}</div>
+        </div>`;
+    }).join('');
+
+    if (highlightTerm) {
+        let countEl = document.getElementById('search-count-hint');
+        if (!countEl) {
+            countEl = document.createElement('div');
+            countEl.id = 'search-count-hint';
+            countEl.style = 'grid-column: 1/-1; font-size: 0.85rem; color: var(--text-soft); margin-bottom: -20px;';
+            container.prepend(countEl);
+        }
+        countEl.textContent = `找到 ${posts.length} 篇相关内容：`;
+    }
+}
+
 function updateRunTime() {
     const startTime = new Date('2026-01-01T00:00:00');
     const now = new Date();
@@ -140,19 +187,18 @@ function updateRunTime() {
     if (element) element.textContent = timeStr;
 }
 
-// --- 9. OAuth 登录核心逻辑 ---
 function logoutGithub() {
     setCookie('github_token', '', -1);
     updateAuthUI();
 }
 
-// --- 10. 模板加载逻辑 ---
 async function loadTemplate(id, file) {
     try {
         const response = await fetch(file);
         if (!response.ok) throw new Error(`加载模板失败: ${file}`);
         const text = await response.text();
-        document.getElementById(id).innerHTML = text;
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = text;
         return true;
     } catch (e) {
         console.error(e);
@@ -164,8 +210,9 @@ async function initAllTemplates() {
     const t1 = loadTemplate('about-overlay', 'components/about.html');
     const t2 = loadTemplate('post-detail-overlay', 'components/post-detail.html');
     const t3 = loadTemplate('publish-modal', 'components/publish-form.html');
+    const t4 = loadTemplate('qa-overlay', 'components/qa.html'); // 新增 QA 模板加载
     
-    await Promise.all([t1, t2, t3]);
+    await Promise.all([t1, t2, t3, t4]);
     templatesLoaded = true;
     
     if (typeof initPublishForm === 'function') {
@@ -174,8 +221,6 @@ async function initAllTemplates() {
     updateAuthUI();
 }
 
-// --- 11. 初始化 ---
-// 使用 addEventListener 代替 window.onload 以避免多个脚本冲突
 window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -184,6 +229,5 @@ window.addEventListener('load', () => {
     fetchPosts(); 
     if (typeof loadMusic === 'function') loadMusic();
     
-    // 开始加载异步组件
     initAllTemplates();
 });
