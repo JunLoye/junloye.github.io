@@ -1,0 +1,35 @@
+name: Handle Feedback Issues
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  feedback-automation:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.title, '[FEEDBACK]')
+    steps:
+      - name: Auto Assign and Label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.issue.number;
+
+            // 1. 分配给负责人 JunLoye
+            await github.rest.issues.addAssignees({
+              owner,
+              repo,
+              issue_number,
+              assignees: ['JunLoye']
+            });
+
+            // 2. 添加 FEEDBACK 标签
+            // 注意：如果标签不存在，GitHub 会自动创建它
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number,
+              labels: ['FEEDBACK']
+            });

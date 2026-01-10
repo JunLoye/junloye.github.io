@@ -272,13 +272,14 @@ async function submitCorrection(num, title, type) {
         };
         
         let url = `https://api.github.com/repos/${username}/${repo}/issues`;
-        let body = {};
+        let bodyContent = {};
+
         if (type === 'comment') {
             url += `/${num}/comments`;
-            body = { body: `### 🛠️ 快速反馈\n\n${text}` };
+            bodyContent = { body: `### 🛠️ 快速反馈\n\n${text}` };
         } else {
-            // 在提交新 Issue 时增加 assignees 字段，分配给 JunLoye
-            body = { 
+            // 提交新 Issue 时明确设置标签和负责人
+            bodyContent = { 
                 title: `[FEEDBACK] ${title}`, 
                 body: text, 
                 labels: ["FEEDBACK"],
@@ -286,14 +287,24 @@ async function submitCorrection(num, title, type) {
             };
         }
 
-        const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+        const res = await fetch(url, { 
+            method: 'POST', 
+            headers: headers, 
+            body: JSON.stringify(bodyContent) 
+        });
+
         if (res.ok) {
             document.getElementById('correction-modal').style.display = 'none';
             showSuccessToast("提交成功！");
             if (type === 'comment') fetchComments(num);
+        } else {
+            const errorData = await res.json();
+            console.error("GitHub API Error:", errorData);
+            alert(`提交失败: ${errorData.message}`);
         }
     } catch (e) {
-        console.error(e);
+        console.error("Request Error:", e);
+        alert("提交请求出现错误，请检查网络或登录状态。");
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;
