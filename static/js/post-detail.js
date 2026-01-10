@@ -277,7 +277,13 @@ async function submitCorrection(num, title, type) {
             url += `/${num}/comments`;
             body = { body: `### 🛠️ 快速反馈\n\n${text}` };
         } else {
-            body = { title: `[FEEDBACK] ${title}`, body: text, labels: ["FEEDBACK"] };
+            // 在提交新 Issue 时增加 assignees 字段，分配给 JunLoye
+            body = { 
+                title: `[FEEDBACK] ${title}`, 
+                body: text, 
+                labels: ["FEEDBACK"],
+                assignees: ["JunLoye"] 
+            };
         }
 
         const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
