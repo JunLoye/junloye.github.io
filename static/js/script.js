@@ -210,7 +210,7 @@ async function initAllTemplates() {
     const t1 = loadTemplate('about-overlay', 'components/about.html');
     const t2 = loadTemplate('post-detail-overlay', 'components/post-detail.html');
     const t3 = loadTemplate('publish-modal', 'components/publish-form.html');
-    const t4 = loadTemplate('qa-overlay', 'components/qa.html'); // 新增 QA 模板加载
+    const t4 = loadTemplate('qa-overlay', 'components/qa.html');
     
     await Promise.all([t1, t2, t3, t4]);
     templatesLoaded = true;

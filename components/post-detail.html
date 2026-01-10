@@ -18,4 +18,21 @@
     </div>
 </div>
 
-<div class="detail-container" id="detail-content-area"></div>
+<div class="detail-container" id="detail-content-area">
+    <div id="detail-content-area"></div>
+    <div id="comments-area" class="comments-section" style="display: none;">
+        <div class="comments-header">💬 评论</div>
+        <div id="quick-reply-area" style="margin-bottom: 40px; display: none;">
+            <div style="display: flex; gap: 15px;">
+                <img id="reply-user-avatar" src="" style="width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);">
+                <div style="flex: 1;">
+                    <textarea id="quick-reply-text" placeholder="以此账号发表评论..." style="width: 100%; height: 100px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); outline: none; font-family: inherit; resize: vertical;"></textarea>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                        <button id="submit-quick-reply-btn" style="padding: 8px 20px; border-radius: 8px; background: var(--accent); color: white; border: none; font-weight: 600; cursor: pointer;">发表评论</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="comments-list"></div>
+    </div>
+</div>
