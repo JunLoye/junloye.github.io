@@ -208,3 +208,15 @@
         order: -1; /* 将发布按钮在视觉上移到最前 */
     }
 }
+
+/* --- publish.css 移动端适配 --- */
+@media screen and (max-width: 768px) {
+    #publish-modal .detail-container {
+        width: 100vw; height: 100vh; max-height: 100vh;
+        margin-top: 0; padding: 15px; border-radius: 0;
+    }
+    .publish-header-grid { grid-template-columns: 1fr; gap: 10px; }
+    .publish-main-content { flex-direction: column; overflow-y: auto; }
+    #publish-body { min-height: 300px; }
+    .publish-preview-side { border-top: 1px solid var(--line); padding-top: 20px; }
+}

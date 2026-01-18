@@ -1,0 +1,57 @@
+.markdown-body {
+    background: transparent !important;
+    color: var(--text) !important;
+    font-family: inherit;
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.markdown-body table {
+    display: block;
+    width: 100%;
+    overflow: auto;
+    color: var(--text) !important;
+    margin: 20px 0;
+}
+.markdown-body table tr {
+    background-color: var(--bg) !important;
+    border-top: 1px solid var(--line);
+}
+.markdown-body table th, .markdown-body table td {
+    border: 1px solid var(--line) !important;
+    padding: 8px 13px;
+}
+.markdown-body table tr:nth-child(2n) {
+    background-color: var(--line) !important;
+}
+.markdown-body blockquote {
+    border-left: 4px solid var(--accent) !important;
+    color: var(--text-soft) !important;
+    background: var(--selection-bg) !important;
+    padding: 16px 20px !important;
+    margin: 20px 0 !important;
+    border-radius: 0 8px 8px 0;
+}
+.markdown-body pre {
+    padding: 16px;
+    overflow: auto;
+    line-height: 1.45;
+    background-color: #1e1e1e !important;
+    border-radius: 12px;
+}
+.markdown-body code {
+    background-color: var(--selection-bg) !important;
+    color: var(--accent) !important;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+.markdown-body ul, .markdown-body ol {
+    padding-left: 2em;
+    color: var(--text);
+}
+
+@media screen and (max-width: 768px) {
+    .markdown-body { font-size: 1rem; line-height: 1.6; }
+    .markdown-body blockquote { padding: 12px 15px !important; }
+    .markdown-body pre { padding: 12px; }
+}

@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="static/css/music-player.css">
     <link rel="stylesheet" href="static/css/publish.css">
     <link rel="stylesheet" href="static/css/post.css">
-    <link rel="stylesheet" href="" id="holiday-style">
+    <link rel="stylesheet" href="static/css/markdown-body.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" defer>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" defer>
@@ -22,10 +22,36 @@
     <div id="notification-container"></div>
     <button id="theme-toggle-btn" onclick="toggleDarkMode()"><svg id="theme-icon" viewBox="0 0 24 24"></svg></button>
 
+    <aside class="sidebar-info" id="sidebar-info">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Blog Info</span>
+        </div>
+        <div class="sidebar-content">
+            <div class="info-item">
+                <span class="info-label">博文总数</span>
+                <span class="info-value" id="sidebar-post-count">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">运行时间</span>
+                <span class="info-value" id="sidebar-run-time">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">您的 IP</span>
+                <span class="info-value" id="sidebar-ip">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Version</span>
+                <span class="info-value" id="sidebar-ip">Beta8.4</span>
+            </div>
+        </div>
+    </aside>
+
     <nav>
         <div class="brand" onclick="location.reload()">
-            JUN LOYE <span class="version-badge">Beta8.2</span>
+            <!-- JUN LOYE <span class="version-badge">Beta8.3</span> -->
+            JUN LOYE
         </div>
+        
         <div class="nav-right">
             <span class="qa-trigger" onclick="openQA()">Q&A</span>
             <span class="about-trigger" onclick="openAbout()">ABOUT</span>
@@ -65,7 +91,6 @@
 
     <footer>
         <p>© <span id="year"></span> JUN LOYE</p>
-        <p id="blog-run-time" style="font-size: 0.75rem; margin-top: 8px; opacity: 0.8;"></p>
     </footer>
 
     <script src="static/js/login.js"></script>

@@ -76,3 +76,8 @@
     opacity: 1;
     padding: 0 15px 0 20px;
 }
+
+@media screen and (max-width: 480px) {
+    .music-player-container { right: 15px; bottom: 15px; }
+    .playlist-menu { width: calc(100vw - 30px); max-width: 280px; }
+}

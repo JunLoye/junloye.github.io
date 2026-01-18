@@ -1,5 +1,8 @@
+/**
+ * 打开文章详情页
+ * 匹配最新的 [Cover], [Summary], [Content] 表单结构
+ */
 function openPost(num, pushState = true) {
-    // 1. 获取基础数据
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
     const area = document.getElementById('detail-content-area');
@@ -18,20 +21,27 @@ function openPost(num, pushState = true) {
     const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
         ? CONFIG.defaultCover 
         : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
-    const coverMatch = issue.body?.match(/### 🖼️ 封面图链接\s*(http\S+)/);
+
+    // 1. 匹配封面图：支持 [Cover] 标记
+    const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
+    // 2. 正文清洗逻辑：
+    // - 移除 [Cover] 及其后的链接
+    // - 移除 [Summary] 及其后的简述内容（直到遇到 [Content] 或下一个标记）
+    // - 移除 [Content] 标记本身
     let cleanBody = (issue.body || "")
-                              .replace(/### 🖼️ 封面图链接[\s\S]*?(?=\n---|###|$)/, "")
-                              .replace(/### 📖 文章简述[\s\S]*?(?=\n---|###|$)/, "")
-                              .replace(/🚀 正文内容|📄 正文内容/g, "")
-                              .replace(/💡 发布核对[\s\S]*/, "")
-                              .replace(/^\s*---\s*/gm, "").trim();
+        .replace(/\[Cover\]\s*http\S*/g, "")
+        .replace(/\[Summary\][\s\S]*?(?=\[Content\]|---|$)/, "")
+        .replace(/\[Content\]/g, "")
+        .replace(/^\s*---\s*/gm, "")
+        .trim();
 
     let htmlContent = "";
     try {
         if (typeof marked !== 'undefined') {
             htmlContent = marked.parse(cleanBody);
+            // 渲染 GitHub 风格的 Alert
             htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
                 const t = type.toUpperCase();
                 return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${t === 'AI' ? 'AI Generated' : t}</p><div class="markdown-alert-content">${content.trim()}</div></div>`;
@@ -48,6 +58,7 @@ function openPost(num, pushState = true) {
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
+    // 渲染详情页内容
     area.innerHTML = `
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
         <div class="detail-header">
@@ -59,8 +70,7 @@ function openPost(num, pushState = true) {
         </div>
         <div class="markdown-body">${htmlContent}</div>
         <div id="comments-wrapper" class="comments-section" style="display:none;">
-            <div class="comments-header">💬 评论</div>
-            
+            <div class="comments-header">💬 Comments</div>
             <div id="quick-reply-area" style="margin-bottom: 40px; display: none;">
                 <div style="display: flex; gap: 15px;">
                     <img id="reply-user-avatar" src="" style="width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);">
@@ -72,7 +82,6 @@ function openPost(num, pushState = true) {
                     </div>
                 </div>
             </div>
-
             <div id="comments-list"></div>
         </div>`;
     
@@ -100,6 +109,9 @@ function openPost(num, pushState = true) {
     fetchComments(num);
 }
 
+/**
+ * 评论区设置与获取 (保持原有逻辑)
+ */
 async function setupReplyArea(num) {
     const replyArea = document.getElementById('quick-reply-area');
     const avatarImg = document.getElementById('reply-user-avatar');
@@ -191,8 +203,8 @@ async function fetchComments(num) {
             const cDate = new Date(c.created_at).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             let content = (typeof marked !== 'undefined') ? marked.parse(c.body) : c.body;
             
-            const isFeedback = c.body.includes('### 🛠️ 快速反馈');
-            const displayContent = isFeedback ? content.replace('### 🛠️ 快速反馈', '<span style="font-size:0.7rem; background:var(--accent); color:white; padding:2px 6px; border-radius:4px; margin-bottom:10px; display:inline-block;">FEEDBACK</span>') : content;
+            const isFeedback = c.body.includes('### [Feedback]');
+            const displayContent = isFeedback ? content.replace('### [Feedback]', '<span style="font-size:0.7rem; background:var(--accent); color:white; padding:2px 6px; border-radius:4px; margin-bottom:10px; display:inline-block;">FEEDBACK</span>') : content;
 
             return `
                 <div class="comment-item" style="margin-bottom: 25px; display: flex; gap: 12px; animation: fadeIn 0.4s ease;">
@@ -276,14 +288,12 @@ async function submitCorrection(num, title, type) {
 
         if (type === 'comment') {
             url += `/${num}/comments`;
-            bodyContent = { body: `### 🛠️ 快速反馈\n\n${text}` };
+            bodyContent = { body: `### [Feedback]\n\n${text}` };
         } else {
-            // 提交新 Issue 时明确设置标签和负责人
             bodyContent = { 
-                title: `[FEEDBACK] ${title}`, 
-                body: text, 
-                labels: ["FEEDBACK"],
-                assignees: ["JunLoye"] 
+                title: `[Feedback] ${title}`,
+                body: text,
+                labels: ["Feedback"]
             };
         }
 
@@ -299,11 +309,9 @@ async function submitCorrection(num, title, type) {
             if (type === 'comment') fetchComments(num);
         } else {
             const errorData = await res.json();
-            console.error("GitHub API Error:", errorData);
             alert(`提交失败: ${errorData.message}`);
         }
     } catch (e) {
-        console.error("Request Error:", e);
         alert("提交请求出现错误，请检查网络或登录状态。");
     } finally {
         btn.innerText = originalText;

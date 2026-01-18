@@ -7,18 +7,18 @@
     <form id="publish-form" autocomplete="off" style="display: flex; flex-direction: column; height: 100%;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="form-group">
-                <label>标题</label>
+                <label>[Title]</label>
                 <input type="text" id="publish-title" required style="width:100%;padding:8px;">
             </div>
             <div class="form-group">
-                <label>标签 (逗号分隔)</label>
-                <input type="text" id="publish-labels" placeholder="Memo, Tech..." style="width:100%;padding:8px;">
+                <label>[Label]</label>
+                <input type="text" id="publish-labels" placeholder="Tech, Game..." style="width:100%;padding:8px;">
             </div>
         </div>
 
         <div class="publish-main-content">
             <div class="editor-side">
-                <label>📄 正文内容</label>
+                <label>[Content]</label>
                 <textarea id="publish-body" placeholder="在此输入内容..." required></textarea>
             </div>
             <div class="preview-side">
@@ -29,12 +29,12 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end; margin-top: 20px;">
             <div class="form-group" style="margin-bottom:0;">
-                <label>🖼️ 封面图链接 / 上传</label>
+                <label>[Cover]</label>
                 <input type="text" id="publish-cover" style="width:100%;padding:8px;margin-bottom:5px;">
                 <input type="file" id="publish-cover-upload" accept="image/*">
             </div>
             <div class="form-group" style="margin-bottom:0;">
-                <label>文章简述 (可选)</label>
+                <label>[Summary]</label>
                 <input type="text" id="publish-summary" style="width:100%;padding:8px;">
             </div>
             <button type="submit" id="submit-btn" disabled style="height:45px; border-radius:10px; background:var(--line); color:white; border:none; font-weight:700; cursor:not-allowed;">请先登录</button>
