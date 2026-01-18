@@ -22,22 +22,42 @@ function loginWithGithub() {
 async function exchangeCodeForToken(code) {
     showNotification('正在获取登录令牌...', 'info');
     try {
+        // 增加超时控制
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
         const res = await fetch(CONFIG.proxyUrl, {
             method: 'POST',
             mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code })
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ code }),
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`代理服务器错误 (${res.status}): ${errorText || '未知错误'}`);
+        }
+
         const data = await res.json();
+        
         if (data.token) {
             setCookie('github_token', data.token);
             showNotification('登录成功！', 'info');
-            await updateAuthUI(); // 登录后立即刷新
+            await updateAuthUI(); 
         } else {
-            throw new Error(data.error || '获取 Token 失败');
+            throw new Error(data.error || data.message || 'Worker 未返回 Token，请检查配置');
         }
     } catch (e) {
-        showNotification(e.message, 'error');
+        console.error('Token Exchange Error:', e);
+        let errorMsg = e.message;
+        if (e.name === 'AbortError') errorMsg = '请求超时，请检查网络或代理地址';
+        showNotification(errorMsg, 'error');
     }
 }
 

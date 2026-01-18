@@ -82,6 +82,9 @@ window.onkeydown = (e) => {
     }
 };
 
+/**
+ * 核心修改：增加了对 [Feedback] 的多重过滤
+ */
 async function fetchPosts() {
     const CACHE_KEY = 'blog_posts_cache';
     const CACHE_TIME = 5 * 60 * 1000; 
@@ -101,7 +104,18 @@ async function fetchPosts() {
         if (!res.ok) throw new Error("GitHub API 请求受限");
         
         const data = await res.json();
-        allIssues = data.items.filter(i => !i.pull_request && !i.title.includes('[FEEDBACK]'));
+        
+        // 过滤逻辑：
+        // 1. 排除拉取请求 (Pull Requests)
+        // 2. 排除标题中包含 "[FEEDBACK]" (不区分大小写) 的 Issue
+        // 3. 排除标签 (Labels) 中包含 "FEEDBACK" 的 Issue
+        allIssues = data.items.filter(issue => {
+            const isPR = !!issue.pull_request;
+            const hasFeedbackTitle = issue.title.toUpperCase().includes('[FEEDBACK]');
+            const hasFeedbackLabel = issue.labels.some(l => l.name.toUpperCase() === 'FEEDBACK');
+            
+            return !isPR && !hasFeedbackTitle && !hasFeedbackLabel;
+        });
         
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
         
@@ -168,7 +182,6 @@ async function initAllTemplates() {
     
     if (typeof initPublishForm === 'function') initPublishForm();
     
-    // 关键：模板加载完后，调用一次 login.js 里的更新逻辑
     if (typeof updateAuthUI === 'function') await updateAuthUI();
 }
 
