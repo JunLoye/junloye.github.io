@@ -65,7 +65,7 @@ async function handleRouting() {
 }
 
 window.addEventListener('popstate', () => {
-    const detailArea = document.getElementById('detail-content-area');
+    const detailArea = document.getElementById('content-area');
     const aboutContent = document.getElementById('about-content');
     const qaContent = document.getElementById('qa-content');
     

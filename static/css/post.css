@@ -299,3 +299,12 @@
     display: inline;
     margin: 0;
 }
+
+.inline-box {
+    display: inline-block; /* 核心：使其既能设置宽高又不换行 */
+    width: 3ch;            /* 宽度随字体字符宽度变化 */
+    height: 1em;           /* 高度随当前行高变化 */
+    background: black;     /* 颜色 */
+    vertical-align: middle; /* 优化：使色块与文字中心对齐，防止视觉上偏下 */
+    line-height: normal;   /* 确保内部不影响行高 */
+}
