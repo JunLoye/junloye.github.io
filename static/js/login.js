@@ -33,21 +33,21 @@ async function exchangeCodeForToken(code) {
         });
 
         if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(`Worker 响应异常 (${res.status}): ${errorText}`);
+            const errorBody = await res.text();
+            throw new Error(`代理请求失败 (${res.status}): ${errorBody}`);
         }
 
         const data = await res.json();
         
-        // 这里的 data.token 必须对应你 Worker 返回的字段名
+        // 核心检查：如果 data 中没有 token 字段，则抛出详细的后端错误
         if (data.token) {
             setCookie('github_token', data.token);
             showNotification('登录成功！', 'info');
             await updateAuthUI(); 
         } else {
-            // 如果没有 token，尝试读取数据中的错误描述
-            const remoteErr = data.error || data.message || '未知错误';
-            throw new Error(`Worker 未返回 Token。原因: ${remoteErr}`);
+            // 尝试提取 GitHub 或 Worker 返回的具体错误详情
+            const detail = data.error_description || data.error || data.message || '返回数据格式不正确';
+            throw new Error(`获取 Token 失败: ${detail}`);
         }
     } catch (e) {
         console.error('Token Exchange Error:', e);
@@ -56,7 +56,7 @@ async function exchangeCodeForToken(code) {
 }
 
 /**
- * 核心修复：统一处理所有 UI 状态切换
+ * 统一处理所有 UI 状态切换
  */
 async function updateAuthUI() {
     const token = getCookie('github_token');
@@ -67,10 +67,7 @@ async function updateAuthUI() {
     // 1. 同步非登录相关的基础信息
     if (typeof fetchUserIP === 'function') fetchUserIP();
     if (typeof updateBlogRunTime === 'function') updateBlogRunTime();
-    if (window.allIssues && typeof updateSidebarStats === 'function') {
-        updateSidebarStats(window.allIssues.length);
-    }
-
+    
     // 2. 处理登录状态 UI
     if (token) {
         try {
@@ -111,11 +108,6 @@ async function updateAuthUI() {
             submitBtn.style.cursor = 'not-allowed';
             submitBtn.textContent = '请先登录';
         }
-    }
-
-    // 同步 publish.js 内部可能存在的状态控制
-    if (typeof syncPublishButtonState === 'function') {
-        syncPublishButtonState();
     }
 }
 
