@@ -11,18 +11,28 @@ permissions:
 jobs:
   feedback-automation:
     runs-on: ubuntu-latest
+    # 确保只有标题包含 [Feedback] 且确实是 issue 事件时才运行
     if: contains(github.event.issue.title, '[Feedback]')
     steps:
       - name: Auto Process Feedback
         uses: actions/github-script@v7
         with:
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const currentIssue = github.event.issue;
-            const currentNumber = currentIssue.number;
+            const { owner, repo } = context.repo;
+            const issue = context.payload.issue;
 
-            // 1. 给当前的反馈 Issue 添加 [FEEDBACK] 标签并分配负责人
+            // 严谨性检查：确保 issue 对象存在
+            if (!issue) {
+              console.log("No issue object found in event payload. Skipping.");
+              return;
+            }
+
+            const currentNumber = issue.number;
+            const body = issue.body || "";
+
+            console.log(`Processing Feedback for Issue #${currentNumber}`);
+
+            // 1. 给当前的反馈 Issue 打标并分配负责人
             try {
               await github.rest.issues.addLabels({
                 owner, repo, issue_number: currentNumber,
@@ -30,36 +40,33 @@ jobs:
               });
               await github.rest.issues.addAssignees({
                 owner, repo, issue_number: currentNumber,
-                assignees: ['JunLoye']
+                assignees: ['JunLoye'] // 请确保这是你的精确 GitHub ID
               });
-            } catch (e) { console.log('Basic setup failed: ' + e.message); }
+            } catch (e) {
+              console.log('Setup current issue failed: ' + e.message);
+            }
 
-            // 2. 核心逻辑：给原文章添加 Argue 标签
-            // 假设反馈 Issue 的标题格式为 "[Feedback] 原文章标题" 
-            // 或者正文中包含 "Ref: #编号"
-            
-            // 策略 A：从正文中匹配 #编号 (推荐，最准确)
-            const refMatch = currentIssue.body.match(/#(\d+)/);
+            // 2. 寻找并标记原文章 (Ref: #编号)
+            const refMatch = body.match(/Ref: #(\d+)/i);
             
             if (refMatch) {
               const originalIssueNumber = parseInt(refMatch[1]);
               try {
+                // 给原文章添加 Argue 标签
                 await github.rest.issues.addLabels({
-                  owner,
-                  repo,
-                  issue_number: originalIssueNumber,
+                  owner, repo, issue_number: originalIssueNumber,
                   labels: ['Argue']
                 });
-                console.log(`Successfully added Argue label to original post #${originalIssueNumber}`);
                 
-                // 可选：在原文章下留言提醒
+                // 在原文章下方留言告知
                 await github.rest.issues.createComment({
                   owner, repo, issue_number: originalIssueNumber,
-                  body: `⚠️ 这篇文章收到了反馈建议，详情请见 #${currentNumber}。标签已更新为 Argue。`
+                  body: `⚠️ 本文已收到纠错反馈，详情请见 #${currentNumber}。标签已更新为 **Argue**。`
                 });
+                console.log(`Successfully linked to original issue #${originalIssueNumber}`);
               } catch (e) {
-                console.log('Failed to label original issue: ' + e.message);
+                console.log('Failed to update original issue: ' + e.message);
               }
             } else {
-              console.log('No original issue reference found in body.');
+              console.log('No "Ref: #number" pattern found in the issue body.');
             }
