@@ -83,16 +83,19 @@ window.onkeydown = (e) => {
 };
 
 /**
- * 核心修改：增加了对 [Feedback] 的多重过滤
+ * 核心修复：解决了缓存状态下侧边栏统计不更新的问题
  */
 async function fetchPosts() {
     const CACHE_KEY = 'blog_posts_cache';
     const CACHE_TIME = 5 * 60 * 1000; 
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
 
+    // 检查缓存
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
         renderPosts(allIssues);
+        // 修复点：即使使用缓存，也要刷新侧边栏统计
+        updateSidebarStats(allIssues.length);
         handleRouting();
         return; 
     }
@@ -105,10 +108,7 @@ async function fetchPosts() {
         
         const data = await res.json();
         
-        // 过滤逻辑：
-        // 1. 排除拉取请求 (Pull Requests)
-        // 2. 排除标题中包含 "[FEEDBACK]" (不区分大小写) 的 Issue
-        // 3. 排除标签 (Labels) 中包含 "FEEDBACK" 的 Issue
+        // 过滤逻辑保持不变
         allIssues = data.items.filter(issue => {
             const isPR = !!issue.pull_request;
             const hasFeedbackTitle = issue.title.toUpperCase().includes('[FEEDBACK]');
@@ -120,8 +120,8 @@ async function fetchPosts() {
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
         
         renderPosts(allIssues);
-        handleRouting();
         updateSidebarStats(allIssues.length);
+        handleRouting();
     } catch (e) {
         showNotification(e.message, 'error');
     }
@@ -187,7 +187,9 @@ async function initAllTemplates() {
 
 function updateSidebarStats(count) {
     const countEl = document.getElementById('sidebar-post-count');
-    if (countEl) countEl.textContent = `${count} 篇`;
+    if (countEl) {
+        countEl.textContent = `${count} 篇`;
+    }
 }
 
 async function fetchUserIP() {

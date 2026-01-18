@@ -58,11 +58,6 @@ jobs:
                   labels: ['Argue']
                 });
                 
-                // 在原文章下方留言告知
-                await github.rest.issues.createComment({
-                  owner, repo, issue_number: originalIssueNumber,
-                  body: `⚠️ 本文已收到纠错反馈，详情请见 #${currentNumber}。标签已更新为 **Argue**。`
-                });
                 console.log(`Successfully linked to original issue #${originalIssueNumber}`);
               } catch (e) {
                 console.log('Failed to update original issue: ' + e.message);
