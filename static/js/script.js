@@ -36,22 +36,26 @@ function showNotification(msg, type = 'error') {
 }
 
 async function handleRouting() {
-    const hash = window.location.hash;
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const postId = urlParams.get('post');
+    const hash = window.location.hash;
 
+    // 处理 OAuth 登录回调
     if (code) {
         window.history.replaceState({}, document.title, window.location.pathname);
         await exchangeCodeForToken(code);
     }
 
+    // 等待组件加载
     if (!templatesLoaded) {
         setTimeout(handleRouting, 100);
         return;
     }
 
-    if (hash.startsWith('#post-')) {
-        const num = parseInt(hash.replace('#post-', ''));
+    // 路由分发
+    if (postId) {
+        const num = parseInt(postId);
         if (!isNaN(num)) openPost(num, false);
     } else if (hash === '#about') {
         openAbout(false);
@@ -64,13 +68,22 @@ window.addEventListener('popstate', () => {
     const detailArea = document.getElementById('detail-content-area');
     const aboutContent = document.getElementById('about-content');
     const qaContent = document.getElementById('qa-content');
-    if (!window.location.hash) {
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasPostParam = urlParams.has('post');
+
+    // 如果当前 URL 既没有 post 参数也没有对应的 hash，则关闭所有弹窗
+    if (!hasPostParam) {
         if (detailArea?.classList.contains('show')) realClosePost();
+    }
+    
+    if (!window.location.hash) {
         if (aboutContent?.classList.contains('show')) realCloseAbout();
         if (qaContent?.classList.contains('show')) realCloseQA();
-    } else {
-        handleRouting();
     }
+    
+    // 重新执行路由解析
+    handleRouting();
 });
 
 window.onkeydown = (e) => { 
@@ -82,19 +95,14 @@ window.onkeydown = (e) => {
     }
 };
 
-/**
- * 核心修复：解决了缓存状态下侧边栏统计不更新的问题
- */
 async function fetchPosts() {
     const CACHE_KEY = 'blog_posts_cache';
     const CACHE_TIME = 5 * 60 * 1000; 
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
 
-    // 检查缓存
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
         renderPosts(allIssues);
-        // 修复点：即使使用缓存，也要刷新侧边栏统计
         updateSidebarStats(allIssues.length);
         handleRouting();
         return; 
@@ -108,7 +116,6 @@ async function fetchPosts() {
         
         const data = await res.json();
         
-        // 过滤逻辑保持不变
         allIssues = data.items.filter(issue => {
             const isPR = !!issue.pull_request;
             const hasFeedbackTitle = issue.title.toUpperCase().includes('[FEEDBACK]');
@@ -181,7 +188,6 @@ async function initAllTemplates() {
     templatesLoaded = true;
     
     if (typeof initPublishForm === 'function') initPublishForm();
-    
     if (typeof updateAuthUI === 'function') await updateAuthUI();
 }
 
@@ -222,4 +228,6 @@ window.addEventListener('load', () => {
     fetchPosts(); 
     if (typeof loadMusic === 'function') loadMusic();
     initAllTemplates();
+    fetchUserIP();
+    updateBlogRunTime();
 });

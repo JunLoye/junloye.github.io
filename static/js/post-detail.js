@@ -9,8 +9,9 @@ function openPost(num, pushState = true) {
         return;
     }
     
+    // 使用查询参数 ?post=
     if (pushState) {
-        history.pushState({ page: 'detail', id: num }, issue.title, `#post-${num}`);
+        history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
     }
     document.title = `${issue.title} | Jun Loye`;
 
@@ -18,11 +19,9 @@ function openPost(num, pushState = true) {
         ? CONFIG.defaultCover 
         : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
 
-    // 1. 匹配封面图
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
-    // 2. 检测 Argue 标签
     const hasArgue = issue.labels.some(l => l.name.toLowerCase() === 'argue');
     const argueBannerHtml = hasArgue ? `
         <div class="argue-banner">
@@ -34,7 +33,6 @@ function openPost(num, pushState = true) {
         </div>
     ` : '';
 
-    // 3. 引用 (References) 解析逻辑 [新增]
     const refMatch = issue.body?.match(/\[References\]([\s\S]*?)(?=\[Content\]|---|$)/);
     const referenceRaw = refMatch ? refMatch[1].trim() : "";
     let referenceHtml = "";
@@ -43,7 +41,6 @@ function openPost(num, pushState = true) {
         const refLines = referenceRaw.split('\n').filter(line => line.trim() !== "");
         const formattedRefs = refLines.map((line, index) => {
             const refId = index + 1;
-            // 将每一行包装在带有 ID 的容器中以便跳转
             const content = typeof marked !== 'undefined' ? marked.parse(line) : line;
             return `<div id="ref-${refId}" class="reference-item">${content}</div>`;
         }).join('');
@@ -55,24 +52,22 @@ function openPost(num, pushState = true) {
             </div>`;
     }
 
-    // 4. 正文清洗与序号链接化 [增强]
     let bodyRaw = (issue.body || "");
     let cleanBody = bodyRaw
         .replace(/\[Cover\]\s*http\S*/g, "")
         .replace(/\[Summary\][\s\S]*?(?=\[Content\]|---|$)/, "")
-        .replace(/\[References\][\s\S]*?(?=\[Content\]|---|$)/, "") // 剔除引用板块
+        .replace(/\[References\][\s\S]*?(?=\[Content\]|---|$)/, "")
         .replace(/\[Content\]/g, "")
         .replace(/^\s*---\s*/gm, "")
         .trim();
 
-    // 自动将正文中的 [1] 替换为指向底部引用的锚点链接
+    // 渲染引用链接
     cleanBody = cleanBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
 
     let htmlContent = "";
     try {
         if (typeof marked !== 'undefined') {
             htmlContent = marked.parse(cleanBody);
-            // 渲染 GitHub 风格的 Alert
             htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
                 const t = type.toUpperCase();
                 return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${t === 'AI' ? 'AI Generated' : t}</p><div class="markdown-alert-content">${content.trim()}</div></div>`;
@@ -89,7 +84,6 @@ function openPost(num, pushState = true) {
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
-    // 5. 渲染页面
     area.innerHTML = `
         ${argueBannerHtml}
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
@@ -140,12 +134,9 @@ function openPost(num, pushState = true) {
 
     setupReplyArea(num);
     fetchComments(num);
-    setupReferenceHighlighting(); // 初始化高亮监听 [新增]
+    setupReferenceHighlighting(); 
 }
 
-/**
- * 监听哈希变化，为跳转到的引用条目添加高亮效果 [新增]
- */
 function setupReferenceHighlighting() {
     const handleHash = () => {
         const hash = window.location.hash;
@@ -159,9 +150,9 @@ function setupReferenceHighlighting() {
         }
     };
     window.addEventListener('hashchange', handleHash);
+    // 初始检查一次
+    handleHash();
 }
-
-// ... 后续 setupReplyArea, fetchComments, showCorrectionModal 等函数保持不变 ...
 
 async function setupReplyArea(num) {
     const replyArea = document.getElementById('quick-reply-area');
@@ -384,8 +375,22 @@ function showSuccessToast(message) {
 }
 
 function closePost() {
-    if (window.location.hash.startsWith('#post-')) history.back();
-    else realClosePost();
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasPostParam = urlParams.has('post');
+    const hasHash = !!window.location.hash;
+
+    if (hasPostParam && hasHash) {
+        // 如果同时有 post 参数和 hash（说明点击过引用），直接返回首页
+        // 或者是 history.go(-2) 取决于你希望的体验
+        // 这里推荐直接替换状态回到首页，确保一次关闭
+        history.pushState({}, ORIGINAL_TITLE, window.location.pathname);
+        realClosePost();
+    } else if (hasPostParam) {
+        // 只有 post 参数，正常返回
+        history.back();
+    } else {
+        realClosePost();
+    }
 }
 
 function realClosePost() {

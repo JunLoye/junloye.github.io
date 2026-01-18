@@ -142,7 +142,7 @@
 }
 .correction-btns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr; /* 修正为单行铺满或保持双列 */
     gap: 15px;
 }
 .correction-btns button {
@@ -151,11 +151,17 @@
     cursor: pointer;
     font-weight: 600;
     border: none;
+    transition: opacity 0.2s;
 }
 
+.correction-btns button:hover {
+    opacity: 0.9;
+}
+
+/* 修复按钮颜色逻辑 */
 #submit-issue-btn {
-    background: var(--selection-bg);
-    color: var(--accent);
+    background: var(--accent);
+    color: white;
 }
 
 #cancel-modal-btn {
@@ -165,6 +171,10 @@
     color: var(--text-soft);
     cursor: pointer;
     border: none;
+}
+
+#cancel-modal-btn:hover {
+    color: var(--text);
 }
 
 .comments-section {
