@@ -87,8 +87,8 @@
     gap: 30px;
     flex: 1;
     overflow: hidden;
-    /* 防止外层溢出 */
     margin-top: 20px;
+    min-height: 200px;
 }
 
 .editor-side, .preview-side {
