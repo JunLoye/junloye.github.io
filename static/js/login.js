@@ -22,10 +22,6 @@ function loginWithGithub() {
 async function exchangeCodeForToken(code) {
     showNotification('正在获取登录令牌...', 'info');
     try {
-        // 增加超时控制
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
         const res = await fetch(CONFIG.proxyUrl, {
             method: 'POST',
             mode: 'cors',
@@ -33,31 +29,29 @@ async function exchangeCodeForToken(code) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ code }),
-            signal: controller.signal
+            body: JSON.stringify({ code })
         });
-
-        clearTimeout(timeoutId);
 
         if (!res.ok) {
             const errorText = await res.text();
-            throw new Error(`代理服务器错误 (${res.status}): ${errorText || '未知错误'}`);
+            throw new Error(`Worker 响应异常 (${res.status}): ${errorText}`);
         }
 
         const data = await res.json();
         
+        // 这里的 data.token 必须对应你 Worker 返回的字段名
         if (data.token) {
             setCookie('github_token', data.token);
             showNotification('登录成功！', 'info');
             await updateAuthUI(); 
         } else {
-            throw new Error(data.error || data.message || 'Worker 未返回 Token，请检查配置');
+            // 如果没有 token，尝试读取数据中的错误描述
+            const remoteErr = data.error || data.message || '未知错误';
+            throw new Error(`Worker 未返回 Token。原因: ${remoteErr}`);
         }
     } catch (e) {
         console.error('Token Exchange Error:', e);
-        let errorMsg = e.message;
-        if (e.name === 'AbortError') errorMsg = '请求超时，请检查网络或代理地址';
-        showNotification(errorMsg, 'error');
+        showNotification(e.message, 'error');
     }
 }
 
