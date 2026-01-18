@@ -33,21 +33,23 @@ async function exchangeCodeForToken(code) {
         });
 
         if (!res.ok) {
-            const errorBody = await res.text();
-            throw new Error(`代理请求失败 (${res.status}): ${errorBody}`);
+            const errorText = await res.text();
+            throw new Error(`Worker 响应异常: ${res.status}`);
         }
 
         const data = await res.json();
         
-        // 核心检查：如果 data 中没有 token 字段，则抛出详细的后端错误
-        if (data.token) {
-            setCookie('github_token', data.token);
+        // 关键修复：同时检查 token (自定义) 和 access_token (GitHub 标准)
+        const token = data.token || data.access_token;
+
+        if (token) {
+            setCookie('github_token', token);
             showNotification('登录成功！', 'info');
             await updateAuthUI(); 
         } else {
-            // 尝试提取 GitHub 或 Worker 返回的具体错误详情
-            const detail = data.error_description || data.error || data.message || '返回数据格式不正确';
-            throw new Error(`获取 Token 失败: ${detail}`);
+            // 如果 GitHub 返回了错误（如 code 过期），通常在 error_description 字段
+            const errorDetail = data.error_description || data.error || 'Worker 未返回有效令牌';
+            throw new Error(`登录失败: ${errorDetail}`);
         }
     } catch (e) {
         console.error('Token Exchange Error:', e);
@@ -55,20 +57,15 @@ async function exchangeCodeForToken(code) {
     }
 }
 
-/**
- * 统一处理所有 UI 状态切换
- */
 async function updateAuthUI() {
     const token = getCookie('github_token');
     const loginBtn = document.getElementById('github-login-btn');
     const userInfoArea = document.getElementById('user-info-display');
     const submitBtn = document.getElementById('submit-btn');
 
-    // 1. 同步非登录相关的基础信息
     if (typeof fetchUserIP === 'function') fetchUserIP();
     if (typeof updateBlogRunTime === 'function') updateBlogRunTime();
-    
-    // 2. 处理登录状态 UI
+
     if (token) {
         try {
             const res = await fetch('https://api.github.com/user', {
@@ -77,7 +74,6 @@ async function updateAuthUI() {
             if (!res.ok) throw new Error('Token 已过期');
             const user = await res.json();
             
-            // 隐藏登录按钮，显示用户信息
             if (loginBtn) loginBtn.style.display = 'none';
             if (userInfoArea) {
                 userInfoArea.style.display = 'flex';
@@ -87,7 +83,6 @@ async function updateAuthUI() {
                 if (name) name.textContent = user.login;
             }
             
-            // 启用发布按钮
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.style.background = 'var(--accent)';
@@ -95,11 +90,10 @@ async function updateAuthUI() {
                 submitBtn.textContent = 'PUBLISH NOW';
             }
         } catch (e) {
-            console.warn("自动登录失败，清除无效 Token", e);
+            console.warn("自动登录失败", e);
             logoutGithub();
         }
     } else {
-        // 未登录状态 UI 重置
         if (loginBtn) loginBtn.style.display = 'flex';
         if (userInfoArea) userInfoArea.style.display = 'none';
         if (submitBtn) {
