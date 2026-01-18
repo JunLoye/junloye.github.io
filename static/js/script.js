@@ -35,30 +35,6 @@ function showNotification(msg, type = 'error') {
     toast.onclick = dismiss;
 }
 
-// 检查 GitHub API 配额限制
-async function checkGitHubRateLimit() {
-    try {
-        const res = await fetch('https://api.github.com/rate_limit');
-        if (res.ok) {
-            const data = await res.json();
-            const searchLimit = data.resources.search;
-            const coreLimit = data.resources.core;
-            
-            if (searchLimit.remaining === 0) {
-                const resetDate = new Date(searchLimit.reset * 1000).toLocaleTimeString();
-                return `搜索接口配额已用尽。请在 ${resetDate} 后重试。`;
-            }
-            if (coreLimit.remaining === 0) {
-                const resetDate = new Date(coreLimit.reset * 1000).toLocaleTimeString();
-                return `API 核心配额已用尽。请在 ${resetDate} 后重试。`;
-            }
-        }
-    } catch (e) {
-        return "无法连接到 GitHub 服务。";
-    }
-    return null;
-}
-
 async function handleRouting() {
     const hash = window.location.hash;
     const urlParams = new URLSearchParams(window.location.search);
@@ -118,15 +94,11 @@ async function fetchPosts() {
         return; 
     }
 
-    const container = document.getElementById('post-list-container');
     try {
         const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
         const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
         
-        if (!res.ok) {
-            const limitMsg = await checkGitHubRateLimit();
-            throw new Error(limitMsg || `GitHub 接口请求失败 (状态码: ${res.status})`);
-        }
+        if (!res.ok) throw new Error("GitHub API 请求受限");
         
         const data = await res.json();
         allIssues = data.items.filter(i => !i.pull_request && !i.title.includes('[FEEDBACK]'));
@@ -135,89 +107,46 @@ async function fetchPosts() {
         
         renderPosts(allIssues);
         handleRouting();
+        updateSidebarStats(allIssues.length);
     } catch (e) {
         showNotification(e.message, 'error');
-        if (container) {
-            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px 20px;"><h3>内容加载失败</h3><p>${e.message}</p></div>`;
-        }
     }
 }
 
-/**
- * 核心渲染函数：匹配新 form 格式
- */
 function renderPosts(posts, highlightTerm = "") {
     const container = document.getElementById('post-list-container');
     if (!container) return;
     
-    if (posts.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text-soft);">未找到匹配的文章</div>`;
-        return;
-    }
-
     container.innerHTML = posts.map(issue => {
-        // 1. 匹配封面：适配 [Cover] 标签
         const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
         const cover = coverMatch ? coverMatch[1] : CONFIG.defaultCover;
         
-        // 2. 匹配简述：提取 [Summary] 后的内容，直到分隔符或 Content 标签
         const summaryMatch = issue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)/);
         const rawSummaryContent = summaryMatch ? summaryMatch[1] : "";
-
-        // 去除空行并只取前 3 行
-        const summaryRaw = rawSummaryContent
-            .split('\n')
-            .map(line => line.trim())
-            .filter(line => line !== "") 
-            .slice(0, 3)                
-            .join('\n');
+        const summaryRaw = rawSummaryContent.split('\n').map(l => l.trim()).filter(Boolean).slice(0, 3).join('\n');
         
         let displayTitle = issue.title;
         let displaySummary = (typeof marked !== 'undefined') ? marked.parse(summaryRaw) : summaryRaw;
 
-        // 搜索高亮逻辑
         if (highlightTerm) {
             const regex = new RegExp(`(${highlightTerm})`, 'gi');
             displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
-            displaySummary = displaySummary.replace(new RegExp(`(>[^<]*)(${highlightTerm})([^>]*<)`, 'gi'), '$1<mark class="search-highlight">$2</mark>$3');
         }
 
-        const tagsHtml = issue.labels.map(l => 
-            `<span class="post-tag" onclick="event.stopPropagation(); filterByTag('${l.name}')">${l.name}</span>`
-        ).join('');
+        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
 
         return `<div class="post-card" onclick="openPost(${issue.number})">
-            <div class="post-cover">
-                <img src="${cover}" alt="cover" onerror="this.onerror=null; this.src='${CONFIG.defaultCover}';">
-            </div>
+            <div class="post-cover"><img src="${cover}" onerror="this.src='${CONFIG.defaultCover}'"></div>
             <h2 class="post-card-title">${displayTitle}</h2>
-            <div class="post-card-summary markdown-body" style="font-size: 0.9rem;">${displaySummary}</div>
+            <div class="post-card-summary markdown-body">${displaySummary}</div>
             <div class="post-card-tags">${tagsHtml}</div>
         </div>`;
     }).join('');
-
-    // 搜索提示
-    if (highlightTerm) {
-        let countEl = document.getElementById('search-count-hint');
-        if (!countEl) {
-            countEl = document.createElement('div');
-            countEl.id = 'search-count-hint';
-            countEl.style = 'grid-column: 1/-1; font-size: 0.85rem; color: var(--text-soft); margin-bottom: -20px;';
-            container.prepend(countEl);
-        }
-        countEl.textContent = `找到 ${posts.length} 篇相关内容：`;
-    }
-}
-
-function logoutGithub() {
-    setCookie('github_token', '', -1);
-    updateAuthUI();
 }
 
 async function loadTemplate(id, file) {
     try {
         const response = await fetch(file);
-        if (!response.ok) throw new Error(`加载模板失败: ${file}`);
         const text = await response.text();
         const el = document.getElementById(id);
         if (el) el.innerHTML = text;
@@ -237,11 +166,10 @@ async function initAllTemplates() {
     ]);
     templatesLoaded = true;
     
-    // 初始化 publish.js 中的表单绑定逻辑
-    if (typeof initPublishForm === 'function') {
-        initPublishForm();
-    }
-    updateAuthUI();
+    if (typeof initPublishForm === 'function') initPublishForm();
+    
+    // 关键：模板加载完后，调用一次 login.js 里的更新逻辑
+    if (typeof updateAuthUI === 'function') await updateAuthUI();
 }
 
 function updateSidebarStats(count) {
@@ -256,32 +184,20 @@ async function fetchUserIP() {
         const ipEl = document.getElementById('sidebar-ip');
         if (ipEl) ipEl.textContent = data.ip;
     } catch (e) {
-        const ipEl = document.getElementById('sidebar-ip');
-        if (ipEl) ipEl.textContent = '未知';
+        if (document.getElementById('sidebar-ip')) document.getElementById('sidebar-ip').textContent = '未知';
     }
 }
 
 function updateBlogRunTime() {
     const startTime = new Date('2026-01-01');
     const now = new Date();
-    const diff = now - startTime;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const days = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
     
     const footerEl = document.getElementById('blog-run-time');
     if (footerEl) footerEl.textContent = `已运行: ${days} 天`;
     
     const sidebarEl = document.getElementById('sidebar-run-time');
     if (sidebarEl) sidebarEl.textContent = `${days} 天`;
-}
-
-// 统一更新 UI 的入口
-function updateAuthUI() {
-    // 基础鉴权 UI 逻辑（由 initAllTemplates 和登录回调调用）
-    fetchUserIP();
-    updateBlogRunTime();
-    if (allIssues.length > 0) {
-        updateSidebarStats(allIssues.length);
-    }
 }
 
 window.addEventListener('load', () => {
@@ -292,5 +208,3 @@ window.addEventListener('load', () => {
     if (typeof loadMusic === 'function') loadMusic();
     initAllTemplates();
 });
-
-setInterval(updateBlogRunTime, 3600000);

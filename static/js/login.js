@@ -28,61 +28,67 @@ async function exchangeCodeForToken(code) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code })
         });
-
-        if (!res.ok) throw new Error(`连接验证服务器失败 (状态码: ${res.status})`);
-
         const data = await res.json();
-        const token = data.access_token || data.token;
-
-        if (token) {
-            setCookie('github_token', token);
-            await updateAuthUI();
+        if (data.token) {
+            setCookie('github_token', data.token);
             showNotification('登录成功！', 'info');
+            await updateAuthUI(); // 登录后立即刷新
         } else {
-            throw new Error(data.error_description || data.error || 'GitHub 未能成功颁发令牌');
+            throw new Error(data.error || '获取 Token 失败');
         }
     } catch (e) {
-        showNotification(`登录失败: ${e.message}`, 'error');
+        showNotification(e.message, 'error');
     }
 }
 
+/**
+ * 核心修复：统一处理所有 UI 状态切换
+ */
 async function updateAuthUI() {
-    // 如果组件还没加载，等下再更新 UI，因为需要操作里面的 submit-btn
-    if (!templatesLoaded) {
-        setTimeout(updateAuthUI, 200);
-        return;
-    }
-
     const token = getCookie('github_token');
     const loginBtn = document.getElementById('github-login-btn');
     const userInfoArea = document.getElementById('user-info-display');
     const submitBtn = document.getElementById('submit-btn');
 
+    // 1. 同步非登录相关的基础信息
+    if (typeof fetchUserIP === 'function') fetchUserIP();
+    if (typeof updateBlogRunTime === 'function') updateBlogRunTime();
+    if (window.allIssues && typeof updateSidebarStats === 'function') {
+        updateSidebarStats(window.allIssues.length);
+    }
+
+    // 2. 处理登录状态 UI
     if (token) {
         try {
             const res = await fetch('https://api.github.com/user', {
                 headers: { 'Authorization': `token ${token}` }
             });
-            if (!res.ok) throw new Error('Token 已过期或无效');
+            if (!res.ok) throw new Error('Token 已过期');
             const user = await res.json();
             
+            // 隐藏登录按钮，显示用户信息
             if (loginBtn) loginBtn.style.display = 'none';
             if (userInfoArea) {
                 userInfoArea.style.display = 'flex';
-                document.getElementById('user-avatar').src = user.avatar_url;
-                document.getElementById('user-name').textContent = user.login;
+                const avatar = document.getElementById('user-avatar');
+                const name = document.getElementById('user-name');
+                if (avatar) avatar.src = user.avatar_url;
+                if (name) name.textContent = user.login;
             }
             
+            // 启用发布按钮
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.style.background = 'var(--accent)';
                 submitBtn.style.cursor = 'pointer';
-                submitBtn.textContent = '发布文章';
+                submitBtn.textContent = 'PUBLISH NOW';
             }
         } catch (e) {
+            console.warn("自动登录失败，清除无效 Token", e);
             logoutGithub();
         }
     } else {
+        // 未登录状态 UI 重置
         if (loginBtn) loginBtn.style.display = 'flex';
         if (userInfoArea) userInfoArea.style.display = 'none';
         if (submitBtn) {
@@ -92,4 +98,14 @@ async function updateAuthUI() {
             submitBtn.textContent = '请先登录';
         }
     }
+
+    // 同步 publish.js 内部可能存在的状态控制
+    if (typeof syncPublishButtonState === 'function') {
+        syncPublishButtonState();
+    }
+}
+
+function logoutGithub() {
+    setCookie('github_token', '', -1);
+    updateAuthUI();
 }

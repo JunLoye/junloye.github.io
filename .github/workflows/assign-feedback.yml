@@ -4,7 +4,6 @@ on:
   issues:
     types: [opened, edited]
 
-# 核心修复：显式声明权限
 permissions:
   contents: read
   issues: write
@@ -12,39 +11,55 @@ permissions:
 jobs:
   feedback-automation:
     runs-on: ubuntu-latest
-    # 只有当标题包含 [FEEDBACK] 时才运行
-    if: contains(github.event.issue.title, '[FEEDBACK]')
+    if: contains(github.event.issue.title, '[Feedback]')
     steps:
-      - name: Auto Assign and Label
+      - name: Auto Process Feedback
         uses: actions/github-script@v7
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issue_number = context.issue.number;
+            const currentIssue = github.event.issue;
+            const currentNumber = currentIssue.number;
 
-            // 1. 分配给负责人 JunLoye
-            try {
-              await github.rest.issues.addAssignees({
-                owner,
-                repo,
-                issue_number,
-                assignees: ['JunLoye']
-              });
-              console.log('Successfully assigned to JunLoye');
-            } catch (e) {
-              console.log('Assignment failed: ' + e.message);
-            }
-
-            // 2. 添加 FEEDBACK 标签
+            // 1. 给当前的反馈 Issue 添加 [FEEDBACK] 标签并分配负责人
             try {
               await github.rest.issues.addLabels({
-                owner,
-                repo,
-                issue_number,
+                owner, repo, issue_number: currentNumber,
                 labels: ['FEEDBACK']
               });
-              console.log('Successfully added FEEDBACK label');
-            } catch (e) {
-              console.log('Labeling failed: ' + e.message);
+              await github.rest.issues.addAssignees({
+                owner, repo, issue_number: currentNumber,
+                assignees: ['JunLoye']
+              });
+            } catch (e) { console.log('Basic setup failed: ' + e.message); }
+
+            // 2. 核心逻辑：给原文章添加 Argue 标签
+            // 假设反馈 Issue 的标题格式为 "[Feedback] 原文章标题" 
+            // 或者正文中包含 "Ref: #编号"
+            
+            // 策略 A：从正文中匹配 #编号 (推荐，最准确)
+            const refMatch = currentIssue.body.match(/#(\d+)/);
+            
+            if (refMatch) {
+              const originalIssueNumber = parseInt(refMatch[1]);
+              try {
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: originalIssueNumber,
+                  labels: ['Argue']
+                });
+                console.log(`Successfully added Argue label to original post #${originalIssueNumber}`);
+                
+                // 可选：在原文章下留言提醒
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: originalIssueNumber,
+                  body: `⚠️ 这篇文章收到了反馈建议，详情请见 #${currentNumber}。标签已更新为 Argue。`
+                });
+              } catch (e) {
+                console.log('Failed to label original issue: ' + e.message);
+              }
+            } else {
+              console.log('No original issue reference found in body.');
             }
