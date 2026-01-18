@@ -1,10 +1,12 @@
 #publish-modal .detail-container {
-    max-width: 1200px; /* 增加宽度以容纳双栏 */
+    max-width: 1200px;
+    /* 增加宽度以容纳双栏 */
     margin-top: 50px;
     padding: 30px;
     display: flex;
     flex-direction: column;
-    height: 80vh; /* 设置固定高度 */
+    height: 80vh;
+    /* 设置固定高度 */
 }
 
 .publish-header-grid {
@@ -84,7 +86,8 @@
     display: flex;
     gap: 30px;
     flex: 1;
-    overflow: hidden; /* 防止外层溢出 */
+    overflow: hidden;
+    /* 防止外层溢出 */
     margin-top: 20px;
 }
 
@@ -155,7 +158,24 @@
     background: #111;
 }
 
-/* --- 移动端适配 (屏幕宽度小于 768px) --- */
+#publish-reference {
+    width: 100%;
+    height: 80px;
+    resize: vertical;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#publish-reference:focus {
+    border-color: var(--accent);
+}
+
 @media screen and (max-width: 768px) {
     #publish-modal .detail-container {
         width: 100vw;
@@ -175,48 +195,65 @@
     .publish-header-grid, 
     .editor-header, 
     .publish-footer-grid {
-        grid-template-columns: 1fr; /* 全部改为单栏 */
+        grid-template-columns: 1fr;
         gap: 10px;
     }
 
     .publish-main-content {
-        flex-direction: column; /* 左右布局变为上下布局 */
-        overflow-y: auto; /* 允许纵向滚动查看内容 */
+        flex-direction: column;
+        overflow-y: auto;
         gap: 20px;
     }
 
     .editor-side, .preview-side {
-        flex: none; /* 取消弹性比例，让内容根据高度撑开或固定 */
+        flex: none;
         height: auto;
     }
 
     #publish-body {
-        min-height: 300px; /* 给编辑器一个最小高度 */
+        min-height: 300px;
     }
 
     #md-preview {
-        min-height: 200px; /* 给预览区域一个最小高度 */
+        min-height: 200px;
         margin-bottom: 20px;
     }
 
     .publish-footer-grid {
-        padding-bottom: 30px; /* 留出底部空间 */
+        padding-bottom: 30px;
     }
 
     .publish-footer-grid .publish-btn {
         width: 100%;
-        order: -1; /* 将发布按钮在视觉上移到最前 */
+        order: -1;
     }
 }
 
-/* --- publish.css 移动端适配 --- */
 @media screen and (max-width: 768px) {
     #publish-modal .detail-container {
-        width: 100vw; height: 100vh; max-height: 100vh;
-        margin-top: 0; padding: 15px; border-radius: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        margin-top: 0;
+        padding: 15px;
+        border-radius: 0;
     }
-    .publish-header-grid { grid-template-columns: 1fr; gap: 10px; }
-    .publish-main-content { flex-direction: column; overflow-y: auto; }
-    #publish-body { min-height: 300px; }
-    .publish-preview-side { border-top: 1px solid var(--line); padding-top: 20px; }
+    .publish-header-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .publish-main-content {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    #publish-body {
+        min-height: 300px;
+    }
+    .publish-preview-side {
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+    }
+    #publish-reference {
+        height: 100px;
+    }
 }

@@ -1,4 +1,3 @@
-/* --- Argue 标签警示条样式 --- */
 .argue-banner {
     background: #fff5e6;
     border: 1px solid #ff9800;
@@ -24,17 +23,28 @@
 }
 
 @keyframes bannerFadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes bannerPulse {
-    0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.2); }
-    70% { box-shadow: 0 0 0 6px rgba(255, 152, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.2);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(255, 152, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+    }
 }
 
-/* --- 原有样式保留 --- */
 .edit-btn {
     position: absolute;
     top: 20px;
@@ -73,7 +83,8 @@
 .edit-btn::before {
     content: attr(data-tooltip);
     position: absolute;
-    top: 52px; 
+    top: 52px;
+
     left: 50%;
     transform: translateX(-50%) translateY(-10px);
     background: var(--text);
@@ -96,7 +107,10 @@
 
 #correction-modal {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
     display: none;
@@ -112,6 +126,7 @@
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
+
 #correction-text {
     width: 100%;
     height: 150px;
@@ -125,11 +140,32 @@
     resize: none;
     outline: none;
 }
-.correction-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.correction-btns button { padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; border: none; }
-#submit-comment-btn { background: var(--accent); color: white; }
-#submit-issue-btn { background: var(--selection-bg); color: var(--accent); }
-#cancel-modal-btn { width: 100%; margin-top: 15px; background: transparent; color: var(--text-soft); cursor: pointer; border: none; }
+.correction-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.correction-btns button {
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+}
+
+#submit-issue-btn {
+    background: var(--selection-bg);
+    color: var(--accent);
+}
+
+#cancel-modal-btn {
+    width: 100%;
+    margin-top: 15px;
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+    border: none;
+}
 
 .comments-section {
     margin-top: 60px;
@@ -162,4 +198,94 @@
 
 .comment-main {
     flex: 1;
+}
+
+/* 文章末尾引用板块样式 */
+.post-references {
+    margin-top: 50px;
+    padding: 20px;
+    background: var(--bg);
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+}
+
+.references-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.references-list {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+}
+
+/* 优化引用列表中的链接样式 */
+.references-list a {
+    color: var(--accent);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.references-list a:hover {
+    text-decoration: underline;
+}
+
+/* 去掉引用列表自带的边距 */
+.references-list p, .references-list ul {
+    margin: 0;
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+    .post-references {
+        padding: 15px;
+        margin-top: 30px;
+    }
+}
+
+/* 正文中的引用链接样式 */
+.ref-link {
+    color: var(--accent);
+    font-size: 0.85em;
+    vertical-align: super; /* 表现为上标 */
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 2px;
+}
+
+.ref-link:hover {
+    text-decoration: underline;
+}
+
+/* 引用条目样式 */
+.reference-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.5s ease;
+    border-left: 3px solid transparent;
+}
+
+/* 跳转高亮效果 */
+.reference-item.highlight {
+    background: var(--selection-bg);
+    border-left-color: var(--accent);
+    animation: refPulse 2s ease-out;
+}
+
+@keyframes refPulse {
+    0% { transform: translateX(0); }
+    10% { transform: translateX(5px); }
+    20% { transform: translateX(0); }
+}
+
+/* 让引用列表内的 Markdown 段落与序号对齐 */
+.reference-item p {
+    display: inline;
+    margin: 0;
 }

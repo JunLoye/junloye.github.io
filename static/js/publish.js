@@ -72,7 +72,7 @@ async function uploadCoverToGithub(file, token) {
 }
 
 /**
- * 核心发布逻辑
+ * 核心发布逻辑 - 已补全 References
  */
 async function publishNewPost(e) {
     if (e) e.preventDefault();
@@ -82,6 +82,7 @@ async function publishNewPost(e) {
     const bodyVal = document.getElementById('publish-body').value.trim();
     const labelsVal = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
     const summaryVal = document.getElementById('publish-summary').value.trim();
+    const referenceVal = document.getElementById('publish-reference').value.trim(); // [补全] 获取引用内容
     let coverUrl = document.getElementById('publish-cover').value.trim();
     const coverFile = document.getElementById('publish-cover-upload').files[0];
     const progressEl = document.getElementById('publish-progress');
@@ -101,10 +102,14 @@ async function publishNewPost(e) {
             coverUrl = await uploadCoverToGithub(coverFile, token);
         }
 
-        // 构造 Issue 正文：去除 ### 标记，确保符合正则匹配
+        // 构造 Issue 正文
         let issueBody = "";
         if (coverUrl) issueBody += `[Cover] ${coverUrl}\n\n`;
         if (summaryVal) issueBody += `[Summary]\n${summaryVal}\n\n`;
+        
+        // [补全] 拼接引用板块
+        if (referenceVal) issueBody += `[References]\n${referenceVal}\n\n`;
+
         issueBody += `[Content]\n${bodyVal}`;
 
         const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues`, {
@@ -120,6 +125,11 @@ async function publishNewPost(e) {
         
         showNotification('发布成功！', 'info');
         e.target.reset();
+        
+        // [补全] 手动清除预览区域
+        const previewArea = document.getElementById('md-preview');
+        if (previewArea) previewArea.innerHTML = '';
+
         closePublishModal();
         if (typeof fetchPosts === 'function') setTimeout(fetchPosts, 2000);
 

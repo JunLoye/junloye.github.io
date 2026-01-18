@@ -1,8 +1,3 @@
-/**
- * 打开文章详情页
- * 匹配最新的 [Cover], [Summary], [Content] 表单结构
- * 增加对 Argue 标签的置顶标识检测
- */
 function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
@@ -39,13 +34,39 @@ function openPost(num, pushState = true) {
         </div>
     ` : '';
 
-    // 3. 正文清洗逻辑
-    let cleanBody = (issue.body || "")
+    // 3. 引用 (References) 解析逻辑 [新增]
+    const refMatch = issue.body?.match(/\[References\]([\s\S]*?)(?=\[Content\]|---|$)/);
+    const referenceRaw = refMatch ? refMatch[1].trim() : "";
+    let referenceHtml = "";
+
+    if (referenceRaw) {
+        const refLines = referenceRaw.split('\n').filter(line => line.trim() !== "");
+        const formattedRefs = refLines.map((line, index) => {
+            const refId = index + 1;
+            // 将每一行包装在带有 ID 的容器中以便跳转
+            const content = typeof marked !== 'undefined' ? marked.parse(line) : line;
+            return `<div id="ref-${refId}" class="reference-item">${content}</div>`;
+        }).join('');
+
+        referenceHtml = `
+            <div class="post-references">
+                <h3 class="references-title">References</h3>
+                <div class="references-list">${formattedRefs}</div>
+            </div>`;
+    }
+
+    // 4. 正文清洗与序号链接化 [增强]
+    let bodyRaw = (issue.body || "");
+    let cleanBody = bodyRaw
         .replace(/\[Cover\]\s*http\S*/g, "")
         .replace(/\[Summary\][\s\S]*?(?=\[Content\]|---|$)/, "")
+        .replace(/\[References\][\s\S]*?(?=\[Content\]|---|$)/, "") // 剔除引用板块
         .replace(/\[Content\]/g, "")
         .replace(/^\s*---\s*/gm, "")
         .trim();
+
+    // 自动将正文中的 [1] 替换为指向底部引用的锚点链接
+    cleanBody = cleanBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
 
     let htmlContent = "";
     try {
@@ -68,7 +89,7 @@ function openPost(num, pushState = true) {
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
-    // 渲染详情页内容：在最顶部插入 argueBannerHtml
+    // 5. 渲染页面
     area.innerHTML = `
         ${argueBannerHtml}
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
@@ -80,7 +101,8 @@ function openPost(num, pushState = true) {
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
         <div class="markdown-body">${htmlContent}</div>
-        <div id="comments-wrapper" class="comments-section" style="display:none;">
+        
+        ${referenceHtml} <div id="comments-wrapper" class="comments-section" style="display:none;">
             <div class="comments-header">💬 Comments</div>
             <div id="quick-reply-area" style="margin-bottom: 40px; display: none;">
                 <div style="display: flex; gap: 15px;">
@@ -118,9 +140,28 @@ function openPost(num, pushState = true) {
 
     setupReplyArea(num);
     fetchComments(num);
+    setupReferenceHighlighting(); // 初始化高亮监听 [新增]
 }
 
-// ... 保持 setupReplyArea, postComment, fetchComments 等后续函数不变 ...
+/**
+ * 监听哈希变化，为跳转到的引用条目添加高亮效果 [新增]
+ */
+function setupReferenceHighlighting() {
+    const handleHash = () => {
+        const hash = window.location.hash;
+        if (hash.startsWith('#ref-')) {
+            document.querySelectorAll('.reference-item').forEach(el => el.classList.remove('highlight'));
+            const target = document.querySelector(hash);
+            if (target) {
+                target.classList.add('highlight');
+                setTimeout(() => target.classList.remove('highlight'), 3000);
+            }
+        }
+    };
+    window.addEventListener('hashchange', handleHash);
+}
+
+// ... 后续 setupReplyArea, fetchComments, showCorrectionModal 等函数保持不变 ...
 
 async function setupReplyArea(num) {
     const replyArea = document.getElementById('quick-reply-area');
@@ -205,7 +246,7 @@ async function fetchComments(num) {
         const comments = await res.json();
         
         if (comments.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft); font-size:0.85rem;">暂无评论。</div>`;
+            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft); font-size:0.85rem;">暂无评论</div>`;
             return;
         }
 
