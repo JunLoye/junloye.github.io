@@ -1,3 +1,8 @@
+/**
+ * 打开文章详情页
+ * 匹配最新的 [Cover], [Summary], [Content] 表单结构
+ * 增加对 Argue 标签的置顶标识检测
+ */
 function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
@@ -18,9 +23,23 @@ function openPost(num, pushState = true) {
         ? CONFIG.defaultCover 
         : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
 
+    // 1. 匹配封面图
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
+    // 2. 检测 Argue 标签
+    const hasArgue = issue.labels.some(l => l.name.toLowerCase() === 'argue');
+    const argueBannerHtml = hasArgue ? `
+        <div class="argue-banner">
+            <span class="argue-banner-icon">⚠️</span>
+            <div class="argue-banner-text">
+                <strong>内容审议中</strong><br>
+                此文章已收到反馈，部分内容可能正在修正或存在争议，请谨慎参考。
+            </div>
+        </div>
+    ` : '';
+
+    // 3. 正文清洗逻辑
     let cleanBody = (issue.body || "")
         .replace(/\[Cover\]\s*http\S*/g, "")
         .replace(/\[Summary\][\s\S]*?(?=\[Content\]|---|$)/, "")
@@ -32,6 +51,7 @@ function openPost(num, pushState = true) {
     try {
         if (typeof marked !== 'undefined') {
             htmlContent = marked.parse(cleanBody);
+            // 渲染 GitHub 风格的 Alert
             htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
                 const t = type.toUpperCase();
                 return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${t === 'AI' ? 'AI Generated' : t}</p><div class="markdown-alert-content">${content.trim()}</div></div>`;
@@ -48,7 +68,9 @@ function openPost(num, pushState = true) {
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
+    // 渲染详情页内容：在最顶部插入 argueBannerHtml
     area.innerHTML = `
+        ${argueBannerHtml}
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
         <div class="detail-header">
             <div style="display: flex; justify-content: space-between; align-items: center; color:var(--text-soft); font-size:0.85rem;">
@@ -98,9 +120,8 @@ function openPost(num, pushState = true) {
     fetchComments(num);
 }
 
-/**
- * 评论区设置与获取 (保持原有逻辑)
- */
+// ... 保持 setupReplyArea, postComment, fetchComments 等后续函数不变 ...
+
 async function setupReplyArea(num) {
     const replyArea = document.getElementById('quick-reply-area');
     const avatarImg = document.getElementById('reply-user-avatar');
@@ -184,7 +205,7 @@ async function fetchComments(num) {
         const comments = await res.json();
         
         if (comments.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft); font-size:0.85rem;">暂无评论</div>`;
+            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft); font-size:0.85rem;">暂无评论。</div>`;
             return;
         }
 
@@ -238,7 +259,7 @@ function showCorrectionModal(num, title) {
 
     if (!token) {
         textarea.disabled = true;
-        textarea.placeholder = "请先登录 GitHub 后再提交反馈";
+        textarea.placeholder = "请先登录 GitHub 后再提交反馈...";
         if(cBtn) cBtn.style.opacity = "0.4";
         if(iBtn) iBtn.style.opacity = "0.4";
     } else {
@@ -260,7 +281,7 @@ async function submitCorrection(num, title, type) {
 
     const btn = document.getElementById(type === 'comment' ? 'submit-comment-btn' : 'submit-issue-btn');
     const originalText = btn.innerText;
-    btn.innerText = "Submitting...";
+    btn.innerText = "SUBMITTING...";
     btn.disabled = true;
 
     try {
@@ -282,7 +303,7 @@ async function submitCorrection(num, title, type) {
             bodyContent = { 
                 title: `[Feedback] ${title}`,
                 body: `Ref: #${num}\n\n---\n\n${text}`,
-                labels: ["Feedback"]
+                labels: ["FEEDBACK"]
             };
         }
 
