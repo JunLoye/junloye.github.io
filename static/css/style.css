@@ -104,7 +104,6 @@ nav {
 }
 
 /* 导航链接样式补充 */
-.qa-trigger,
 .about-trigger,
 .publish-trigger {
     position: relative;
@@ -117,7 +116,6 @@ nav {
     padding: 4px 0;
 }
 
-.qa-trigger::after,
 .about-trigger::after,
 .publish-trigger::after {
     content: '';
@@ -130,13 +128,11 @@ nav {
     transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.qa-trigger:hover,
 .about-trigger:hover,
 .publish-trigger:hover {
     color: var(--accent);
 }
 
-.qa-trigger:hover::after,
 .about-trigger:hover::after,
 .publish-trigger:hover::after {
     width: 100%;
@@ -679,7 +675,7 @@ mark.search-highlight {
         gap: 10px;
     }
 
-    .qa-trigger, .about-trigger, .publish-trigger {
+    .about-trigger, .publish-trigger {
         font-size: 0.75rem;
     }
 

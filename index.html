@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="static/css/markdown-body.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" defer>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" defer>
 </head>
 <body data-theme="light">
     <div id="notification-container"></div>
@@ -41,19 +40,17 @@
             </div>
             <div class="info-item">
                 <span class="info-label">Version</span>
-                <span class="info-value" id="sidebar-ip">Beta9.2</span>
+                <span class="info-value" id="sidebar-ip">Beta9.3</span>
             </div>
         </div>
     </aside>
 
     <nav>
         <div class="brand" onclick="location.reload()">
-            <!-- JUN LOYE <span class="version-badge">Beta8.3</span> -->
             JUN LOYE
         </div>
         
         <div class="nav-right">
-            <span class="qa-trigger" onclick="openQA()">Q&A</span>
             <span class="about-trigger" onclick="openAbout()">ABOUT</span>
             <span class="publish-trigger" onclick="openPublishModal()">PUBLISH</span>
             
@@ -74,8 +71,7 @@
 
     <div id="publish-modal" class="overlay"></div>
     <div id="about-overlay" class="overlay"></div>
-    <div id="qa-overlay" class="overlay"></div>
-    <div id="post-detail-overlay" class="overlay">
+    <div id="post-overlay" class="overlay">
     </div>
 
     <main class="post-grid" id="post-list-container"></main>
@@ -98,13 +94,11 @@
     <script src="static/js/search.js"></script>
     <script src="static/js/theme.js"></script>
 
-    <script src="static/js/post-detail.js"></script>
+    <script src="static/js/post.js"></script>
     <script src="static/js/about.js"></script>
     <script src="static/js/publish.js"></script>
-    <script src="static/js/qa.js"></script>
     <script src="static/js/script.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 </body>
 </html>

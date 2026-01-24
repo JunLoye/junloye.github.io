@@ -41,48 +41,30 @@ async function handleRouting() {
     const postId = urlParams.get('post');
     const hash = window.location.hash;
 
-    // 处理 OAuth 登录回调
     if (code) {
         window.history.replaceState({}, document.title, window.location.pathname);
         await exchangeCodeForToken(code);
     }
 
-    // 等待组件加载
     if (!templatesLoaded) {
         setTimeout(handleRouting, 100);
         return;
     }
 
-    // 路由分发
     if (postId) {
         const num = parseInt(postId);
         if (!isNaN(num)) openPost(num, false);
     } else if (hash === '#about') {
         openAbout(false);
-    } else if (hash === '#qa') {
-        openQA(false);
     }
 }
 
 window.addEventListener('popstate', () => {
     const detailArea = document.getElementById('content-area');
     const aboutContent = document.getElementById('about-content');
-    const qaContent = document.getElementById('qa-content');
-    
     const urlParams = new URLSearchParams(window.location.search);
-    const hasPostParam = urlParams.has('post');
-
-    // 如果当前 URL 既没有 post 参数也没有对应的 hash，则关闭所有弹窗
-    if (!hasPostParam) {
-        if (detailArea?.classList.contains('show')) realClosePost();
-    }
-    
-    if (!window.location.hash) {
-        if (aboutContent?.classList.contains('show')) realCloseAbout();
-        if (qaContent?.classList.contains('show')) realCloseQA();
-    }
-    
-    // 重新执行路由解析
+    if (!urlParams.has('post') && detailArea?.classList.contains('show')) realClosePost();
+    if (!window.location.hash && aboutContent?.classList.contains('show')) realCloseAbout();
     handleRouting();
 });
 
@@ -91,7 +73,6 @@ window.onkeydown = (e) => {
         if (typeof closePost === 'function') closePost();
         if (typeof closeAbout === 'function') closeAbout();
         if (typeof closePublishModal === 'function') closePublishModal();
-        if (typeof closeQA === 'function') closeQA();
     }
 };
 
@@ -109,23 +90,21 @@ async function fetchPosts() {
     }
 
     try {
-        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
-        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
-        
-        if (!res.ok) throw new Error("GitHub API 请求受限");
-        
-        const data = await res.json();
-        
-        allIssues = data.items.filter(issue => {
-            const isPR = !!issue.pull_request;
-            const hasFeedbackTitle = issue.title.toUpperCase().includes('[FEEDBACK]');
-            const hasFeedbackLabel = issue.labels.some(l => l.name.toUpperCase() === 'FEEDBACK');
-            
-            return !isPR && !hasFeedbackTitle && !hasFeedbackLabel;
-        });
+        // 优先读取 Actions 生成的清单文件
+        const manifestRes = await fetch('./manifest.json?t=' + Date.now());
+        if (manifestRes.ok) {
+            const manifestData = await manifestRes.json();
+            allIssues = manifestData.items || [];
+        } else {
+            // 只有清单不存在时才调用昂贵的 Search API
+            const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
+            const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
+            if (!res.ok) throw new Error("GitHub API 请求受限且清单文件不可用");
+            const data = await res.json();
+            allIssues = data.items.filter(issue => !issue.pull_request && !issue.title.toUpperCase().includes('[FEEDBACK]'));
+        }
         
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
-        
         renderPosts(allIssues);
         updateSidebarStats(allIssues.length);
         handleRouting();
@@ -137,25 +116,19 @@ async function fetchPosts() {
 function renderPosts(posts, highlightTerm = "") {
     const container = document.getElementById('post-list-container');
     if (!container) return;
-    
     container.innerHTML = posts.map(issue => {
         const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
         const cover = coverMatch ? coverMatch[1] : CONFIG.defaultCover;
-        
         const summaryMatch = issue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)/);
         const rawSummaryContent = summaryMatch ? summaryMatch[1] : "";
         const summaryRaw = rawSummaryContent.split('\n').map(l => l.trim()).filter(Boolean).slice(0, 3).join('\n');
-        
         let displayTitle = issue.title;
         let displaySummary = (typeof marked !== 'undefined') ? marked.parse(summaryRaw) : summaryRaw;
-
         if (highlightTerm) {
             const regex = new RegExp(`(${highlightTerm})`, 'gi');
             displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
         }
-
-        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
-
+        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${typeof l === 'string' ? l : l.name}</span>`).join('');
         return `<div class="post-card" onclick="openPost(${issue.number})">
             <div class="post-cover"><img src="${cover}" onerror="this.src='${CONFIG.defaultCover}'"></div>
             <h2 class="post-card-title">${displayTitle}</h2>
@@ -173,7 +146,6 @@ async function loadTemplate(id, file) {
         if (el) el.innerHTML = text;
         return true;
     } catch (e) {
-        console.error(e);
         return false;
     }
 }
@@ -181,21 +153,17 @@ async function loadTemplate(id, file) {
 async function initAllTemplates() {
     await Promise.all([
         loadTemplate('about-overlay', 'components/about.html'),
-        loadTemplate('post-detail-overlay', 'components/post-detail.html'),
-        loadTemplate('publish-modal', 'components/publish-form.html'),
-        loadTemplate('qa-overlay', 'components/qa.html')
+        loadTemplate('post-overlay', 'components/post.html'),
+        loadTemplate('publish-modal', 'components/publish.html')
     ]);
     templatesLoaded = true;
-    
     if (typeof initPublishForm === 'function') initPublishForm();
     if (typeof updateAuthUI === 'function') await updateAuthUI();
 }
 
 function updateSidebarStats(count) {
     const countEl = document.getElementById('sidebar-post-count');
-    if (countEl) {
-        countEl.textContent = `${count} 篇`;
-    }
+    if (countEl) countEl.textContent = `${count} 篇`;
 }
 
 async function fetchUserIP() {
@@ -213,10 +181,8 @@ function updateBlogRunTime() {
     const startTime = new Date('2026-01-01');
     const now = new Date();
     const days = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
-    
     const footerEl = document.getElementById('blog-run-time');
     if (footerEl) footerEl.textContent = `已运行: ${days} 天`;
-    
     const sidebarEl = document.getElementById('sidebar-run-time');
     if (sidebarEl) sidebarEl.textContent = `${days} 天`;
 }
@@ -224,7 +190,6 @@ function updateBlogRunTime() {
 window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
-    
     fetchPosts(); 
     if (typeof loadMusic === 'function') loadMusic();
     initAllTemplates();

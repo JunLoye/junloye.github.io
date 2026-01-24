@@ -2,7 +2,7 @@ function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
     const area = document.getElementById('content-area');
-    const overlay = document.getElementById('post-detail-overlay');
+    const overlay = document.getElementById('post-overlay');
 
     if (!issue || !area || !overlay) {
         console.error("Critical: DOM elements or Issue data missing.");
@@ -95,7 +95,9 @@ function openPost(num, pushState = true) {
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
 
-        <div class="markdown-body">${htmlContent}</div>
+        <div class="markdown-body">
+        ${htmlContent}
+        </div>
         
         ${referenceHtml} <div id="comments-wrapper" class="comments-section" style="display:none;">
             <div class="comments-header">💬 Comments</div>
@@ -396,7 +398,7 @@ function closePost() {
 
 function realClosePost() {
     const area = document.getElementById('content-area');
-    const overlay = document.getElementById('post-detail-overlay');
+    const overlay = document.getElementById('post-overlay');
     if (!area || !area.classList.contains('show')) return;
     
     document.title = (typeof ORIGINAL_TITLE !== 'undefined') ? ORIGINAL_TITLE : "Jun Loye";

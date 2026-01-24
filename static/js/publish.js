@@ -1,10 +1,8 @@
-/**
- * 初始化发布表单
- */
 function initPublishForm() {
     const form = document.getElementById('publish-form');
     const bodyInput = document.getElementById('publish-body');
     const previewArea = document.getElementById('md-preview');
+    const coverUpload = document.getElementById('publish-cover-upload');
 
     if (!form) return;
 
@@ -13,42 +11,101 @@ function initPublishForm() {
             if (typeof marked !== 'undefined') {
                 previewArea.innerHTML = marked.parse(bodyInput.value || '预览区域...');
             }
+            saveDraft();
+        };
+
+        bodyInput.onpaste = async (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf("image") !== -1) {
+                    const file = item.getAsFile();
+                    const token = getCookie('github_token');
+                    if (!token) {
+                        showNotification('请登录后粘贴图片', 'warning');
+                        return;
+                    }
+                    const statusEl = document.getElementById('publish-status');
+                    statusEl.innerText = '正在上传图片...';
+                    try {
+                        const imgUrl = await uploadCoverToGithub(file, token);
+                        const pos = bodyInput.selectionStart;
+                        const text = bodyInput.value;
+                        const imgMd = `\n![Image](${imgUrl})\n`;
+                        bodyInput.value = text.substring(0, pos) + imgMd + text.substring(bodyInput.selectionEnd);
+                        if (typeof marked !== 'undefined') previewArea.innerHTML = marked.parse(bodyInput.value);
+                        statusEl.innerText = '图片已就绪';
+                        saveDraft();
+                    } catch (err) {
+                        showNotification('图片上传失败', 'error');
+                    }
+                }
+            }
         };
     }
 
+    if (coverUpload) {
+        coverUpload.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const imgPreview = document.getElementById('publish-cover-preview');
+                    imgPreview.src = ev.target.result;
+                    imgPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+    }
+
+    loadDraft();
     form.onsubmit = publishNewPost;
     syncPublishButtonState();
 }
 
-/**
- * 同步按钮状态
- */
+function saveDraft() {
+    const draft = {
+        title: document.getElementById('publish-title').value,
+        body: document.getElementById('publish-body').value,
+        labels: document.getElementById('publish-labels').value,
+        summary: document.getElementById('publish-summary').value
+    };
+    localStorage.setItem('gh_post_draft', JSON.stringify(draft));
+}
+
+function loadDraft() {
+    const saved = localStorage.getItem('gh_post_draft');
+    if (saved) {
+        const data = JSON.parse(saved);
+        document.getElementById('publish-title').value = data.title || '';
+        document.getElementById('publish-body').value = data.body || '';
+        document.getElementById('publish-labels').value = data.labels || '';
+        document.getElementById('publish-summary').value = data.summary || '';
+        const bodyInput = document.getElementById('publish-body');
+        if (bodyInput) bodyInput.dispatchEvent(new Event('input'));
+    }
+}
+
 function syncPublishButtonState() {
     const token = getCookie('github_token');
     const submitBtn = document.getElementById('submit-btn');
     if (!submitBtn) return;
-
-    if (token) {
+    if (token && token !== 'undefined') {
         submitBtn.disabled = false;
         submitBtn.innerText = 'PUBLISH NOW';
-        submitBtn.style.background = '#333';
-        submitBtn.style.cursor = 'pointer';
+        submitBtn.style.background = 'var(--accent)';
     } else {
         submitBtn.disabled = true;
         submitBtn.innerText = '请先登录';
-        submitBtn.style.background = '#ccc';
-        submitBtn.style.cursor = 'not-allowed';
     }
 }
 
-/**
- * 上传图片
- */
 async function uploadCoverToGithub(file, token) {
     const timestamp = Date.now();
-    const ext = file.name.split('.').pop().toLowerCase();
-    const imgPath = `images/blog_${timestamp}/cover.${ext}`;
-    const apiUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${imgPath}`;
+    const fileName = `img_${timestamp}.${file.name ? file.name.split('.').pop() : 'png'}`;
+    const imgPath = `images/blog_${timestamp}/${fileName}`;
+    const targetRepo = "JunLoye/blog_files";
+    const apiUrl = `https://api.github.com/repos/${targetRepo}/contents/${imgPath}`;
 
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -57,104 +114,80 @@ async function uploadCoverToGithub(file, token) {
             try {
                 const res = await fetch(apiUrl, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: `Upload: ${imgPath}`, content: base64 })
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Upload asset: ${imgPath}`, content: base64, branch: "main" })
                 });
-                if (!res.ok) throw new Error('图片上传失败');
-                resolve(`https://github.com/${CONFIG.username}/${CONFIG.repo}/blob/main/${imgPath}?raw=true`);
+                if (!res.ok) throw new Error('Upload Failed');
+                resolve(`https://blog-images.loyejun.workers.dev/${imgPath}`);
             } catch (e) { reject(e); }
         };
         reader.readAsDataURL(file);
     });
 }
 
-/**
- * 核心发布逻辑 - 已补全 References
- */
 async function publishNewPost(e) {
     if (e) e.preventDefault();
-    
     const token = getCookie('github_token');
     const titleVal = document.getElementById('publish-title').value.trim();
     const bodyVal = document.getElementById('publish-body').value.trim();
     const labelsVal = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
     const summaryVal = document.getElementById('publish-summary').value.trim();
-    const referenceVal = document.getElementById('publish-reference').value.trim(); // [补全] 获取引用内容
     let coverUrl = document.getElementById('publish-cover').value.trim();
     const coverFile = document.getElementById('publish-cover-upload').files[0];
-    const progressEl = document.getElementById('publish-progress');
+    const submitBtn = document.getElementById('submit-btn');
 
     if (!token || !titleVal || !bodyVal) {
-        showNotification('请检查登录状态及必填项', 'warning');
+        showNotification('请填写必填项', 'warning');
         return;
     }
 
     try {
-        if (progressEl) {
-            progressEl.style.display = 'block';
-            progressEl.textContent = '正在处理...';
-        }
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'PUBLISHING...';
 
-        if (coverFile) {
-            coverUrl = await uploadCoverToGithub(coverFile, token);
-        }
+        if (coverFile) coverUrl = await uploadCoverToGithub(coverFile, token);
 
-        // 构造 Issue 正文
         let issueBody = "";
         if (coverUrl) issueBody += `[Cover] ${coverUrl}\n\n`;
         if (summaryVal) issueBody += `[Summary]\n${summaryVal}\n\n`;
-        
-        // [补全] 拼接引用板块
-        if (referenceVal) issueBody += `[References]\n${referenceVal}\n\n`;
-
         issueBody += `[Content]\n${bodyVal}`;
 
         const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues`, {
             method: 'POST',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: titleVal, body: issueBody, labels: labelsVal })
         });
 
-        if (!res.ok) throw new Error('GitHub 发布失败');
+        if (!res.ok) throw new Error('Issue 创建失败');
         
-        showNotification('发布成功！', 'info');
-        e.target.reset();
-        
-        // [补全] 手动清除预览区域
-        const previewArea = document.getElementById('md-preview');
-        if (previewArea) previewArea.innerHTML = '';
-
+        showNotification('发布成功！GitHub Actions 正在更新索引...', 'info');
+        localStorage.removeItem('gh_post_draft');
         closePublishModal();
-        if (typeof fetchPosts === 'function') setTimeout(fetchPosts, 2000);
+        setTimeout(() => location.reload(), 3000); 
 
     } catch (err) {
         showNotification(err.message, 'error');
-    } finally {
-        if (progressEl) progressEl.style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'PUBLISH NOW';
     }
 }
 
 function openPublishModal() {
     const modal = document.getElementById('publish-modal');
     const content = document.getElementById('publish-modal-content');
-    if (!modal || !content) return;
-    modal.style.display = 'block';
-    setTimeout(() => content.classList.add('show'), 50);
-    syncPublishButtonState();
+    if (modal && content) {
+        modal.style.display = 'block';
+        content.offsetHeight; 
+        content.classList.add('show');
+        initPublishForm();
+    }
 }
 
 function closePublishModal() {
     const modal = document.getElementById('publish-modal');
     const content = document.getElementById('publish-modal-content');
-    if (!content) return;
-    content.classList.remove('show');
-    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    if (content) content.classList.remove('show');
+    setTimeout(() => { if (modal) modal.style.display = 'none'; }, 300);
 }
 
 function getCookie(name) {

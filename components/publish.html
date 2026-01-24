@@ -1,0 +1,54 @@
+<button class="close-btn" onclick="closePublishModal()">← CLOSE</button>
+<div class="detail-container" id="publish-modal-content">
+    <div class="publish-header-bar">
+        <h2 style="margin:0;">NEW POST</h2>
+        <span id="publish-status" style="font-size:0.75rem; color:var(--accent);">Ready</span>
+    </div>
+    
+    <form id="publish-form" autocomplete="off" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="publish-top-grid">
+            <div class="form-group">
+                <label>[Title]</label>
+                <input type="text" id="publish-title" class="publish-input" required>
+            </div>
+            <div class="form-group">
+                <label>[Label]</label>
+                <input type="text" id="publish-labels" class="publish-input" placeholder="Tech, Life...">
+            </div>
+        </div>
+
+        <div class="publish-main-content">
+            <div class="editor-side">
+                <label>[Content] (支持直接粘贴图片)</label>
+                <textarea id="publish-body" placeholder="在此输入内容或粘贴图片..." required></textarea>
+            </div>
+            <div class="preview-side">
+                <div class="preview-label">Live Preview</div>
+                <div id="md-preview" class="markdown-body"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>[References]</label>
+            <textarea id="publish-reference" class="publish-input" style="height:60px;" placeholder="在此输入引用..."></textarea>
+        </div>
+
+        <div class="publish-bottom-grid">
+            <div class="form-group">
+                <label>[Cover]</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="text" id="publish-cover" class="publish-input">
+                    <input type="file" id="publish-cover-upload" accept="image/*" style="display:none">
+                    <button type="button" onclick="document.getElementById('publish-cover-upload').click()" class="publish-input" style="width:auto; cursor:pointer;">UPLOAD</button>
+                    <img id="publish-cover-preview">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>[Summary]</label>
+                <input type="text" id="publish-summary" class="publish-input">
+            </div>
+            <button type="submit" id="submit-btn" class="publish-btn" disabled>请先登录</button>
+        </div>
+    </form>
+    <div id="publish-progress" style="margin-top:10px;font-size:0.9rem;color:var(--accent);display:none;"></div>
+</div>
