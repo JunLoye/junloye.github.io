@@ -9,7 +9,6 @@ const CONFIG = {
 };
 
 const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
-
 let allIssues = [];
 const ORIGINAL_TITLE = document.title;
 let templatesLoaded = false;
@@ -25,12 +24,7 @@ function showNotification(msg, type = 'error') {
     const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '🌟';
     toast.innerHTML = `<span>${icon} ${msg}</span>`;
     container.appendChild(toast);
-    
-    const dismiss = () => {
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 400);
-    };
-    
+    const dismiss = () => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); };
     setTimeout(dismiss, 5000);
     toast.onclick = dismiss;
 }
@@ -40,23 +34,10 @@ async function handleRouting() {
     const code = urlParams.get('code');
     const postId = urlParams.get('post');
     const hash = window.location.hash;
-
-    if (code) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        await exchangeCodeForToken(code);
-    }
-
-    if (!templatesLoaded) {
-        setTimeout(handleRouting, 100);
-        return;
-    }
-
-    if (postId) {
-        const num = parseInt(postId);
-        if (!isNaN(num)) openPost(num, false);
-    } else if (hash === '#about') {
-        openAbout(false);
-    }
+    if (code) { window.history.replaceState({}, document.title, window.location.pathname); await exchangeCodeForToken(code); }
+    if (!templatesLoaded) { setTimeout(handleRouting, 100); return; }
+    if (postId) { const num = parseInt(postId); if (!isNaN(num)) openPost(num, false); }
+    else if (hash === '#about') { openAbout(false); }
 }
 
 window.addEventListener('popstate', () => {
@@ -80,7 +61,6 @@ async function fetchPosts() {
     const CACHE_KEY = 'blog_posts_cache';
     const CACHE_TIME = 5 * 60 * 1000; 
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
         renderPosts(allIssues);
@@ -88,22 +68,20 @@ async function fetchPosts() {
         handleRouting();
         return; 
     }
-
     try {
-        // 优先读取 Actions 生成的清单文件
+        // 策略：优先读取由 Actions 维护的静态清单文件，避免触发 GitHub API 限制
         const manifestRes = await fetch('./manifest.json?t=' + Date.now());
         if (manifestRes.ok) {
             const manifestData = await manifestRes.json();
             allIssues = manifestData.items || [];
         } else {
-            // 只有清单不存在时才调用昂贵的 Search API
+            // 降级：仅当清单文件不存在时调用 API
             const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open involves:${CONFIG.username}`);
             const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
-            if (!res.ok) throw new Error("GitHub API 请求受限且清单文件不可用");
+            if (!res.ok) throw new Error("GitHub API 请求受限");
             const data = await res.json();
             allIssues = data.items.filter(issue => !issue.pull_request && !issue.title.toUpperCase().includes('[FEEDBACK]'));
         }
-        
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
         renderPosts(allIssues);
         updateSidebarStats(allIssues.length);
@@ -120,15 +98,14 @@ function renderPosts(posts, highlightTerm = "") {
         const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
         const cover = coverMatch ? coverMatch[1] : CONFIG.defaultCover;
         const summaryMatch = issue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)/);
-        const rawSummaryContent = summaryMatch ? summaryMatch[1] : "";
-        const summaryRaw = rawSummaryContent.split('\n').map(l => l.trim()).filter(Boolean).slice(0, 3).join('\n');
+        const summaryRaw = summaryMatch ? summaryMatch[1].split('\n').filter(Boolean).slice(0, 3).join('\n') : "";
         let displayTitle = issue.title;
         let displaySummary = (typeof marked !== 'undefined') ? marked.parse(summaryRaw) : summaryRaw;
         if (highlightTerm) {
             const regex = new RegExp(`(${highlightTerm})`, 'gi');
             displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
         }
-        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${typeof l === 'string' ? l : l.name}</span>`).join('');
+        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
         return `<div class="post-card" onclick="openPost(${issue.number})">
             <div class="post-cover"><img src="${cover}" onerror="this.src='${CONFIG.defaultCover}'"></div>
             <h2 class="post-card-title">${displayTitle}</h2>
@@ -145,9 +122,7 @@ async function loadTemplate(id, file) {
         const el = document.getElementById(id);
         if (el) el.innerHTML = text;
         return true;
-    } catch (e) {
-        return false;
-    }
+    } catch (e) { return false; }
 }
 
 async function initAllTemplates() {
@@ -191,7 +166,6 @@ window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
     fetchPosts(); 
-    if (typeof loadMusic === 'function') loadMusic();
     initAllTemplates();
     fetchUserIP();
     updateBlogRunTime();
