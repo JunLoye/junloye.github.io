@@ -1,15 +1,17 @@
 <button class="close-btn" onclick="closePublishModal()">← CLOSE</button>
 <div class="detail-container" id="publish-modal-content">
     <div class="publish-header-bar">
-        <h2 style="margin:0;">NEW POST</h2>
-        <span id="publish-status" style="font-size:0.75rem; color:var(--accent);">就绪</span>
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+            <h2 style="margin:0; letter-spacing: 1px;">NEW POST</h2>
+            <span id="publish-status" style="font-size:0.75rem; color:var(--accent); opacity: 0.8;">就绪</span>
+        </div>
     </div>
     
-    <form id="publish-form" autocomplete="off" style="display: flex; flex-direction: column; height: 100%;">
+    <form id="publish-form" autocomplete="off" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
         <div class="publish-top-grid">
             <div class="form-group">
                 <label>[Title]</label>
-                <input type="text" id="publish-title" class="publish-input" required>
+                <input type="text" id="publish-title" class="publish-input" placeholder="文章标题..." required>
             </div>
             <div class="form-group">
                 <label>[Label]</label>
@@ -19,36 +21,38 @@
 
         <div class="publish-main-content">
             <div class="editor-side">
-                <label>[Content] (支持粘贴图片)</label>
-                <textarea id="publish-body" placeholder="在此输入内容或粘贴图片..." required></textarea>
+                <label>[Content]</label>
+                <textarea id="publish-body" placeholder="在此输入 Markdown 内容或粘贴图片..." required></textarea>
             </div>
             <div class="preview-side">
-                <div class="preview-label">Live Preview</div>
+                <label>Live Preview</label>
                 <div id="md-preview" class="markdown-body"></div>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 20px;">
             <label>[References]</label>
-            <textarea id="publish-reference" class="publish-input" style="height:60px;" placeholder="在此输入引用..."></textarea>
+            <textarea id="publish-reference" class="publish-input" style="height:60px; min-height: 60px; resize: vertical;" placeholder="在此输入引用链接..."></textarea>
         </div>
 
         <div class="publish-bottom-grid">
             <div class="form-group">
                 <label>[Cover]</label>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="text" id="publish-cover" class="publish-input">
+                    <input type="text" id="publish-cover" class="publish-input" placeholder="图片 URL">
                     <input type="file" id="publish-cover-upload" accept="image/*" style="display:none">
-                    <button type="button" onclick="document.getElementById('publish-cover-upload').click()" class="publish-input" style="width:auto; cursor:pointer;">UPLOAD</button>
-                    <img id="publish-cover-preview">
+                    <button type="button" onclick="document.getElementById('publish-cover-upload').click()" class="publish-input" style="width:auto; cursor:pointer; background: var(--line); border:none; white-space: nowrap;">UPLOAD</button>
+                    <img id="publish-cover-preview" alt="Preview">
                 </div>
             </div>
             <div class="form-group">
                 <label>[Summary]</label>
-                <input type="text" id="publish-summary" class="publish-input">
+                <input type="text" id="publish-summary" class="publish-input" placeholder="简短摘要...">
             </div>
-            <button type="submit" id="submit-btn" class="publish-btn" disabled>请先登录</button>
+            <div class="form-group">
+                <button type="submit" id="submit-btn" class="publish-btn" disabled>请先登录</button>
+            </div>
         </div>
     </form>
-    <div id="publish-progress" style="margin-top:10px;font-size:0.9rem;color:var(--accent);display:none;"></div>
+    <div id="publish-progress" style="margin-top:10px; font-size:0.85rem; color:var(--accent); font-weight: bold; display:none;"></div>
 </div>
