@@ -56,3 +56,19 @@ async function fetchGitHubCommits() {
         loadingText.textContent = "暂时无法获取记录";
     }
 }
+
+function closeAbout() {
+    if (window.location.hash === '#about') history.back();
+    else realCloseAbout();
+}
+
+function realCloseAbout() {
+    const overlay = document.getElementById('about-overlay');
+    const content = document.getElementById('about-content');
+    if (!content || !content.classList.contains('show')) return;
+    content.classList.remove('show');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 300);
+}
