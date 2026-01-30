@@ -1,0 +1,66 @@
+/* --- 更新日志样式优化 --- */
+.changelog-wrapper {
+    margin-top: 15px;
+    border-left: 2px solid var(--line);
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 增加间距以适应多行显示 */
+}
+
+.changelog-item {
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.changelog-item::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--line);
+    border: 2px solid var(--bg);
+    transition: all 0.3s ease;
+}
+
+.changelog-item:hover::before {
+    background: var(--accent);
+    transform: scale(1.2);
+}
+
+.changelog-date {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-family: monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.changelog-link {
+    text-decoration: none;
+    color: var(--text-soft);
+    background: var(--line);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+}
+
+.changelog-link:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.changelog-msg {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.6; /* 增加行高，多行阅读更舒适 */
+    word-break: break-word;
+    opacity: 0.9;
+}

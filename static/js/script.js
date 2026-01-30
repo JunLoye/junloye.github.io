@@ -170,3 +170,48 @@ window.addEventListener('load', () => {
     fetchUserIP();
     updateBlogRunTime();
 });
+
+/**
+ * Cookie 偏好管理逻辑
+ */
+function initCookieBanner() {
+    const cookieConsent = localStorage.getItem('cookie-consent');
+    const banner = document.getElementById('cookie-banner');
+    
+    // 如果用户从未设置过偏好，则在 2 秒后显示横幅
+    if (!cookieConsent && banner) {
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 2000);
+    }
+}
+
+function setCookiePreference(status) {
+    const banner = document.getElementById('cookie-banner');
+    localStorage.setItem('cookie-consent', status);
+    
+    if (banner) {
+        banner.classList.remove('show');
+    }
+    
+    if (status === 'accepted') {
+        showNotification('已接受 Cookie 政策', 'success');
+        // 这里可以触发 Google Analytics 或其他统计脚本的初始化
+    } else {
+        showNotification('已拒绝非必要 Cookie', 'warning');
+    }
+}
+
+// 修改原有的 window load 监听器，加入 initCookieBanner()
+window.addEventListener('load', () => {
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+    
+    fetchPosts(); 
+    initAllTemplates();
+    fetchUserIP();
+    updateBlogRunTime();
+    
+    // 初始化 Cookie 检查
+    initCookieBanner();
+});
