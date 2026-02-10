@@ -105,11 +105,11 @@ nav {
 
 /* 毛玻璃模式导航栏样式 */
 [data-frosted-glass="true"] nav {
-    background: rgba(255, 255, 255, 0.7);
+    background: url('image/blog_2/cover.png') no-repeat center center / cover;
     border-bottom-color: rgba(239, 239, 239, 0.5);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    will-change: transform;
 }
 
 [data-theme="dark"][data-frosted-glass="true"] nav {
@@ -303,13 +303,14 @@ nav {
 
 /* 毛玻璃模式卡片样式 */
 [data-frosted-glass="true"] .post-card {
-    background: rgba(255, 255, 255, 0.7);
+    background: url('../image/background.jpg') no-repeat center center / cover;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    will-change: transform;
 }
 
 [data-theme="dark"][data-frosted-glass="true"] .post-card {
@@ -359,9 +360,10 @@ nav {
 
 /* 毛玻璃模式 overlay 样式 */
 [data-frosted-glass="true"] .overlay {
-    background: rgba(255, 255, 255, 0.85);
+    background: url('../image/background.jpg') no-repeat center center / cover;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+    will-change: transform;
 }
 
 [data-theme="dark"][data-frosted-glass="true"] .overlay {
@@ -822,11 +824,12 @@ mark.search-highlight {
 
 /* 毛玻璃模式侧边栏样式 */
 [data-frosted-glass="true"] .sidebar-info {
-    background: rgba(255, 255, 255, 0.7);
+    background: url('../image/background.jpg') no-repeat center center / cover;
     border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    will-change: transform;
 }
 
 [data-theme="dark"][data-frosted-glass="true"] .sidebar-info {
