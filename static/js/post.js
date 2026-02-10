@@ -9,11 +9,9 @@ function openPost(num, pushState = true) {
         return;
     }
     
-    // 修改：支持 /post/num 格式的路径
+    // 修改：使用 Clean URL /post/num
     if (pushState) {
-        // 动态获取基础路径，避免在子路径下生成错误的绝对路径
-        const basePath = window.location.pathname.split('/post/')[0].replace(/\/$/, '');
-        const newPath = `${basePath}/post/${num}`;
+        const newPath = `/post/${num}`;
         history.pushState({ page: 'detail', id: num }, issue.title, newPath);
     }
     document.title = `${issue.title} | Jun Loye`;
@@ -64,7 +62,6 @@ function openPost(num, pushState = true) {
         .replace(/^\s*---\s*/gm, "")
         .trim();
 
-    // 渲染引用链接
     cleanBody = cleanBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
 
     let htmlContent = "";
@@ -97,12 +94,9 @@ function openPost(num, pushState = true) {
             </div>
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
-
-        <div class="markdown-body">
-        ${htmlContent}
-        </div>
-        
-        ${referenceHtml} <div id="comments-wrapper" class="comments-section" style="display:none;">
+        <div class="markdown-body">${htmlContent}</div>
+        ${referenceHtml} 
+        <div id="comments-wrapper" class="comments-section" style="display:none;">
             <div class="comments-header">💬 Comments</div>
             <div id="quick-reply-area" style="margin-bottom: 40px; display: none;">
                 <div style="display: flex; gap: 15px;">
@@ -164,9 +158,7 @@ async function setupReplyArea(num) {
     const avatarImg = document.getElementById('reply-user-avatar');
     const submitBtn = document.getElementById('submit-quick-reply-btn');
     const token = getGithubToken();
-
     if (!token || !replyArea) return;
-
     try {
         const res = await fetch('https://api.github.com/user', {
             headers: { 'Authorization': `token ${token}` }
@@ -175,35 +167,28 @@ async function setupReplyArea(num) {
             const userData = await res.json();
             avatarImg.src = userData.avatar_url;
             replyArea.style.display = 'block';
-            
             submitBtn.onclick = async () => {
                 const text = document.getElementById('quick-reply-text').value.trim();
                 if (!text) return;
-
                 submitBtn.innerText = "发送中...";
                 submitBtn.disabled = true;
-
                 const success = await postComment(num, text);
                 if (success) {
                     document.getElementById('quick-reply-text').value = '';
                     showSuccessToast("评论已发布！");
                     fetchComments(num);
                 }
-                
                 submitBtn.innerText = "发表评论";
                 submitBtn.disabled = false;
             };
         }
-    } catch (e) {
-        console.error("Failed to fetch user for comments", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 async function postComment(num, content) {
     const token = getGithubToken();
     const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
     const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-
     try {
         const res = await fetch(`https://api.github.com/repos/${username}/${repo}/issues/${num}/comments`, {
             method: 'POST',
@@ -215,44 +200,31 @@ async function postComment(num, content) {
             body: JSON.stringify({ body: content })
         });
         return res.ok;
-    } catch (e) {
-        console.error(e);
-        return false;
-    }
+    } catch (e) { return false; }
 }
 
 async function fetchComments(num) {
     const wrapper = document.getElementById('comments-wrapper');
     const list = document.getElementById('comments-list');
     if (!wrapper || !list) return;
-
     wrapper.style.display = 'block';
-    
     if (list.innerHTML === "") {
         list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-soft); font-size:0.9rem;">正在拉取评论...</div>`;
     }
-
     try {
         const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
         const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-        
         const res = await fetch(`https://api.github.com/repos/${username}/${repo}/issues/${num}/comments`);
-        if (!res.ok) throw new Error("GitHub API unreachable");
-        
         const comments = await res.json();
-        
         if (comments.length === 0) {
             list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft); font-size:0.85rem;">暂无评论</div>`;
             return;
         }
-
         list.innerHTML = comments.map(c => {
             const cDate = new Date(c.created_at).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             let content = (typeof marked !== 'undefined') ? marked.parse(c.body) : c.body;
-            
             const isFeedback = c.body.includes('### [Feedback]');
             const displayContent = isFeedback ? content.replace('### [Feedback]', '<span style="font-size:0.7rem; background:var(--accent); color:white; padding:2px 6px; border-radius:4px; margin-bottom:10px; display:inline-block;">FEEDBACK</span>') : content;
-
             return `
                 <div class="comment-item" style="margin-bottom: 25px; display: flex; gap: 12px; animation: fadeIn 0.4s ease;">
                     <img src="${c.user.avatar_url}" style="width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);">
@@ -261,15 +233,11 @@ async function fetchComments(num) {
                             <span style="font-weight: 700; color: var(--text);">${c.user.login}</span>
                             <span style="color: var(--text-soft); margin-left: 8px;">${cDate}</span>
                         </div>
-                        <div class="markdown-body comment-body" style="font-size: 0.9rem; background: var(--line); padding: 12px 15px; border-radius: 10px; color: var(--text);">
-                            ${displayContent}
-                        </div>
+                        <div class="markdown-body comment-body" style="font-size: 0.9rem; background: var(--line); padding: 12px 15px; border-radius: 10px; color: var(--text);">${displayContent}</div>
                     </div>
                 </div>`;
         }).join('');
-    } catch (e) {
-        list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft);">评论加载失败</div>`;
-    }
+    } catch (e) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft);">评论加载失败</div>`; }
 }
 
 function getGithubToken() {
@@ -286,14 +254,11 @@ function showCorrectionModal(num, title) {
     const modal = document.getElementById('correction-modal');
     const textarea = document.getElementById('correction-text');
     if (!modal || !textarea) return;
-
     modal.style.display = 'flex';
     textarea.value = '';
-    
     const token = getGithubToken();
     const cBtn = document.getElementById('submit-comment-btn');
     const iBtn = document.getElementById('submit-issue-btn');
-
     if (!token) {
         textarea.disabled = true;
         textarea.placeholder = "请先登录 GitHub 后再提交反馈...";
@@ -305,65 +270,35 @@ function showCorrectionModal(num, title) {
         if(cBtn) cBtn.style.opacity = "1";
         if(iBtn) iBtn.style.opacity = "1";
     }
-
     if (cBtn) cBtn.onclick = () => submitCorrection(num, title, 'comment');
     if (iBtn) iBtn.onclick = () => submitCorrection(num, title, 'issue');
     document.getElementById('cancel-modal-btn').onclick = () => modal.style.display = 'none';
 }
 
 async function submitCorrection(num, title, type) {
-    const token = getGithubToken();
-    const text = document.getElementById('correction-text').value.trim();
+    const token = getGithubToken(), text = document.getElementById('correction-text').value.trim();
     if (!token || !text) return;
-
     const btn = document.getElementById(type === 'comment' ? 'submit-comment-btn' : 'submit-issue-btn');
     const originalText = btn.innerText;
     btn.innerText = "SUBMITTING...";
     btn.disabled = true;
-
     try {
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-        const headers = {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-        };
-        
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye', repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
         let url = `https://api.github.com/repos/${username}/${repo}/issues`;
         let bodyContent = {};
-
         if (type === 'comment') {
             url += `/${num}/comments`;
             bodyContent = { body: `### [Feedback]\n\n${text}` };
         } else {
-            bodyContent = { 
-                title: `[Feedback] ${title}`,
-                body: `Ref: #${num}\n\n---\n\n${text}`,
-                labels: ["FEEDBACK"]
-            };
+            bodyContent = { title: `[Feedback] ${title}`, body: `Ref: #${num}\n\n---\n\n${text}`, labels: ["FEEDBACK"] };
         }
-
-        const res = await fetch(url, { 
-            method: 'POST', 
-            headers: headers, 
-            body: JSON.stringify(bodyContent) 
-        });
-
+        const res = await fetch(url, { method: 'POST', headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(bodyContent) });
         if (res.ok) {
             document.getElementById('correction-modal').style.display = 'none';
             showSuccessToast("提交成功！");
             if (type === 'comment') fetchComments(num);
-        } else {
-            const errorData = await res.json();
-            alert(`提交失败: ${errorData.message}`);
         }
-    } catch (e) {
-        alert("提交请求出现错误，请检查网络或登录状态。");
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
+    } catch (e) { alert("提交失败"); } finally { btn.innerText = originalText; btn.disabled = false; }
 }
 
 function showSuccessToast(message) {
@@ -380,12 +315,11 @@ function showSuccessToast(message) {
 }
 
 function closePost() {
-    const path = window.location.pathname;
-    const isPostPath = /\/post\/\d+/.test(path);
-    
-    if (isPostPath) {
-        // 如果是从 /post/51 这种路径点击关闭，直接回退
-        history.back();
+    // 检查当前路径是否包含 /post/
+    if (window.location.pathname.indexOf('/post/') !== -1) {
+        // 如果是直接访问的路径，关闭时返回首页
+        history.pushState({}, "", "/");
+        realClosePost();
     } else {
         realClosePost();
     }
@@ -395,12 +329,10 @@ function realClosePost() {
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
     if (!area || !area.classList.contains('show')) return;
-    
-    document.title = (typeof ORIGINAL_TITLE !== 'undefined') ? ORIGINAL_TITLE : "Jun Loye";
+    document.title = (typeof ORIGINAL_TITLE !== 'undefined') ? ORIGINAL_TITLE : "Blog | Jun Loye";
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";
-    
     setTimeout(() => {
         if (overlay) overlay.style.display = 'none'; 
         document.body.style.overflow = ''; 
