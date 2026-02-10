@@ -24,9 +24,10 @@ function initPublishForm() {
             for (const item of items) {
                 if (item.type.indexOf("image") !== -1) {
                     const file = item.getAsFile();
-                    const token = getCookie('github_token');
+                    const token = localStorage.getItem('github_key');
                     if (!token) {
-                        showNotification('请先登录以支持图片上传', 'warning');
+                        showNotification('请先在设置中配置 GitHub Key', 'warning');
+                        openSettingsModal();
                         return;
                     }
                     
@@ -94,31 +95,55 @@ function loadDraft() {
         document.getElementById('publish-body').value = draft.body || '';
         document.getElementById('publish-labels').value = draft.labels || '';
         document.getElementById('publish-summary').value = draft.summary || '';
-        // 触发预览更新
         const bodyInput = document.getElementById('publish-body');
         if (bodyInput) bodyInput.dispatchEvent(new Event('input'));
     }
 }
 
 /**
- * 同步发布按钮状态（严谨判断）
+ * 同步发布按钮状态
  */
 function syncPublishButtonState() {
-    const token = getCookie('github_token');
+    const token = localStorage.getItem('github_key');
     const submitBtn = document.getElementById('submit-btn');
     if (!submitBtn) return;
 
-    if (token && token !== 'undefined') {
+    if (token && token.trim().length > 0) {
         submitBtn.disabled = false;
         submitBtn.innerText = 'PUBLISH NOW';
         submitBtn.style.background = 'var(--accent)';
         submitBtn.style.cursor = 'pointer';
     } else {
         submitBtn.disabled = true;
-        submitBtn.innerText = '请先登录';
+        submitBtn.innerText = '请先配置 Key';
         submitBtn.style.background = 'var(--line)';
         submitBtn.style.cursor = 'not-allowed';
     }
+}
+
+/**
+ * 设置模态框逻辑
+ */
+function openSettingsModal() {
+    const modal = document.getElementById('settings-modal');
+    const input = document.getElementById('settings-key-input');
+    if (modal) {
+        modal.style.display = 'flex';
+        input.value = localStorage.getItem('github_key') || '';
+    }
+}
+
+function closeSettingsModal() {
+    const modal = document.getElementById('settings-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function saveSettings() {
+    const key = document.getElementById('settings-key-input').value.trim();
+    localStorage.setItem('github_key', key);
+    showNotification('设置已保存', 'info');
+    closeSettingsModal();
+    syncPublishButtonState();
 }
 
 /**
@@ -161,7 +186,7 @@ async function uploadCoverToGithub(file, token) {
 async function publishNewPost(e) {
     if (e) e.preventDefault();
     
-    const token = getCookie('github_token');
+    const token = localStorage.getItem('github_key');
     const titleVal = document.getElementById('publish-title').value.trim();
     const bodyVal = document.getElementById('publish-body').value.trim();
     const labelsVal = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
@@ -173,7 +198,7 @@ async function publishNewPost(e) {
     const submitBtn = document.getElementById('submit-btn');
 
     if (!token || !titleVal || !bodyVal) {
-        showNotification('请检查内容完整性', 'warning');
+        showNotification('请检查内容完整性或 Key 配置', 'warning');
         return;
     }
 
@@ -204,10 +229,10 @@ async function publishNewPost(e) {
             body: JSON.stringify({ title: titleVal, body: issueBody, labels: labelsVal })
         });
 
-        if (!res.ok) throw new Error('GitHub API 调用失败');
+        if (!res.ok) throw new Error('GitHub API 调用失败，请检查 Key 权限');
         
         showNotification('发布成功！', 'info');
-        localStorage.removeItem('gh_post_draft'); // 成功后清除草稿
+        localStorage.removeItem('gh_post_draft'); 
         
         closePublishModal();
         if (typeof fetchPosts === 'function') setTimeout(fetchPosts, 1500);
@@ -221,16 +246,12 @@ async function publishNewPost(e) {
     }
 }
 
-/**
- * 弹窗开启逻辑修复
- */
 function openPublishModal() {
     const modal = document.getElementById('publish-modal');
     const content = document.getElementById('publish-modal-content');
     if (!modal || !content) return;
     
     modal.style.display = 'block';
-    // 强制重绘后再添加 class 以触发动画
     content.getBoundingClientRect();
     content.classList.add('show');
     
@@ -246,11 +267,4 @@ function closePublishModal() {
     setTimeout(() => { 
         modal.style.display = 'none'; 
     }, 300);
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
 }

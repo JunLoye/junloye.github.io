@@ -94,9 +94,8 @@ function openPost(num, pushState = true) {
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
         <div id="post-body-content" class="markdown-body">${htmlContent}</div>
-        ${referenceHtml} 
-        <div id="comments-wrapper" class="comments-section" style="display:none;">
-            <div class="comments-header">💬 Comments</div>
+        ${referenceHtml+'<br>'} 
+        <div id="comments-wrapper" class="comments-section">
             <div id="comments-list"></div>
         </div>`;
     
@@ -158,8 +157,6 @@ async function setupReplyArea(num) {
     const replyArea = document.getElementById('quick-reply-area');
     const avatarImg = document.getElementById('reply-user-avatar');
     const submitBtn = document.getElementById('submit-quick-reply-btn');
-    const token = getGithubToken();
-    if (!token || !replyArea) return;
     try {
         const res = await fetch('https://api.github.com/user', {
             headers: { 'Authorization': `token ${token}` }
@@ -184,24 +181,6 @@ async function setupReplyArea(num) {
             };
         }
     } catch (e) { console.error(e); }
-}
-
-async function postComment(num, content) {
-    const token = getGithubToken();
-    const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
-    const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-    try {
-        const res = await fetch(`https://api.github.com/repos/${username}/${repo}/issues/${num}/comments`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ body: content })
-        });
-        return res.ok;
-    } catch (e) { return false; }
 }
 
 async function fetchComments(num) {
@@ -235,7 +214,6 @@ async function fetchComments(num) {
 }
 
 async function submitCorrection(num, title, type) {
-    const token = getGithubToken(), text = document.getElementById('correction-text').value.trim();
     if (!token || !text) return;
     const btn = document.getElementById(type === 'comment' ? 'submit-comment-btn' : 'submit-issue-btn');
     const originalText = btn.innerText;

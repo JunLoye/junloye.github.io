@@ -105,7 +105,7 @@ nav {
 
 /* 毛玻璃模式导航栏样式 */
 [data-frosted-glass="true"] nav {
-    background: url('image/blog_2/cover.png') no-repeat center center / cover;
+    background: cover;
     border-bottom-color: rgba(239, 239, 239, 0.5);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -180,27 +180,6 @@ nav {
 .about-trigger:hover::after,
 .publish-trigger:hover::after {
     width: 100%;
-}
-
-.nav-login-btn {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-    background: var(--bg);
-    color: var(--text-soft);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    transition: all 0.2s ease;
-}
-
-.nav-login-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--selection-bg);
 }
 
 .user-profile-compact {
