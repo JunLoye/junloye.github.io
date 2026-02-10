@@ -2,15 +2,15 @@ name: Issue to Post Converter
 
 on:
   issues:
-    types: [opened, edited, labeled]
+    types: [opened, edited, labeled, deleted, closed]
 
 jobs:
   build:
-    # 只有当 issue 包含 "article" 标签时才运行（可选，防止普通反馈也被转成文章）
     if: contains(github.event.issue.labels.*.name, 'article')
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: read
 
     steps:
       - name: Checkout code
@@ -24,48 +24,45 @@ jobs:
       - name: Install dependencies
         run: npm install marked
 
-      - name: Generate Post HTML
+      - name: Process Issues and Generate Files
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             const marked = require('marked');
 
-            const issue = context.payload.issue;
-            const issueNumber = issue.number;
-            const issueTitle = issue.title;
-            const issueBody = issue.body;
+            // 获取所有带 article 标签的 Issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'article',
+              state: 'open'
+            });
 
-            // 将 Markdown 转为 HTML
-            const htmlContent = marked.parse(issueBody);
+            const templatePath = 'components/post.html';
+            let template = fs.readFileSync(templatePath, 'utf8');
+            
+            // 严谨修复：确保模板内部的资源也是绝对路径
+            template = template.replace(/href="static/g, 'href="/static').replace(/src="static/g, 'src="/static');
 
-            // 读取你的模板文件 post.html
-            let template = fs.readFileSync('components/post.html', 'utf8');
+            for (const issue of issues.data) {
+              const postDir = path.join('post', issue.number.toString());
+              if (!fs.existsSync(postDir)) fs.mkdirSync(postDir, { recursive: true });
 
-            // 这里的逻辑是将内容注入到模板中
-            // 假设你在 post.html 中有一个 <div id="detail-content-area"></div>
-            // 我们通过字符串替换的方式填充内容
-            const finalHtml = template.replace(
-              '<div id="detail-content-area"></div>',
-              `<div id="detail-content-area">
-                <h1>${issueTitle}</h1>
-                <div class="markdown-body">${htmlContent}</div>
-              </div>`
-            );
-
-            // 确保目录存在
-            if (!fs.existsSync('post')) {
-              fs.mkdirSync('post');
+              // 此处不注入具体内容，由 script.js 在前端根据 manifest 动态渲染
+              // 但生成该文件是为了让 GitHub Pages 在访问 /post/数字 时不返回 404
+              // 我们直接拷贝 index.html 作为底板，或者生成一个带标记的模板
+              fs.writeFileSync(path.join(postDir, 'index.html'), fs.readFileSync('index.html', 'utf8'));
             }
 
-            // 写入文件，例如 post/1.html
-            fs.writeFileSync(`post/${issueNumber}.html`, finalHtml);
-            console.log(`Successfully generated post/${issueNumber}.html`);
+            // 生成供前端使用的清单
+            fs.writeFileSync('manifest.json', JSON.stringify({ items: issues.data }, null, 2));
 
       - name: Commit and Push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add post/*.html
-          git commit -m "Auto-generate post from issue #${{ github.event.issue.number }}" || echo "No changes to commit"
+          git add post/ manifest.json
+          git commit -m "Auto-generate post directories and manifest" || echo "No changes"
           git push
