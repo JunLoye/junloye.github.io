@@ -1,7 +1,14 @@
 <body>
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="reading-progress"></div>
+    </div>
+
     <button class="close-btn" onclick="closePost()">← CLOSE</button>
+    
+    <div id="post-toc" class="post-toc"></div>
+
     <button class="edit-btn" id="edit-post-btn" data-tooltip="通过 GitHub 提交反馈">
-        <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
         文章有问题
@@ -19,6 +26,5 @@
     </div>
 
     <div class="detail-container" id="content-area">
-        <div id="detail-content-area"></div>
-    </div>
+        </div>
 </body>

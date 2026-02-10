@@ -33,8 +33,15 @@ window.addEventListener('popstate', () => {
     const detailArea = document.getElementById('content-area');
     const aboutContent = document.getElementById('about-content');
     const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.has('post') && detailArea?.classList.contains('show')) realClosePost();
-    if (!window.location.hash && aboutContent?.classList.contains('show')) realCloseAbout();
+    
+    // 如果 URL 中不再有 post 参数，且详情页开启，则关闭
+    if (!urlParams.has('post') && detailArea?.classList.contains('show')) {
+        realClosePost();
+    }
+    
+    if (!window.location.hash && aboutContent?.classList.contains('show')) {
+        realCloseAbout();
+    }
     handleRouting();
 });
 
@@ -79,18 +86,28 @@ async function fetchPosts() {
 }
 
 async function handleRouting() {
-    const path = window.location.pathname;
-    const postMatch = path.match(/\/post\/(\d+)/);
-    
-    if (!templatesLoaded) { setTimeout(handleRouting, 100); return; }
+    if (!templatesLoaded) { 
+        setTimeout(handleRouting, 100); 
+        return; 
+    }
 
-    if (postMatch) {
-        const num = parseInt(postMatch[1]);
-        if (!isNaN(num)) openPost(num, false);
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('post');
+
+    // 处理旧版路径重定向（可选：如果有人收藏了 /post/1）
+    const pathMatch = window.location.pathname.match(/\/post\/(\d+)/);
+    
+    if (postId) {
+        openPost(parseInt(postId), false);
+    } else if (pathMatch) {
+        // 自动将 /post/1 这种路径规范化为 ?post=1 并打开
+        openPost(parseInt(pathMatch[1]), false);
     } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('post');
-        if (postId) openPost(parseInt(postId), false);
+        // 如果没有 post 参数且详情页开着，执行关闭（通常在后退时发生）
+        const detailArea = document.getElementById('content-area');
+        if (detailArea?.classList.contains('show')) {
+            realClosePost();
+        }
     }
 }
 
@@ -109,6 +126,8 @@ function renderPosts(posts, highlightTerm = "") {
             displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
         }
         const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
+        
+        // 点击调用 openPost
         return `<div class="post-card" onclick="openPost(${issue.number})">
             <div class="post-cover"><img src="${cover}" onerror="this.src='${CONFIG.defaultCover}'"></div>
             <h2 class="post-card-title">${displayTitle}</h2>

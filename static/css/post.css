@@ -1,3 +1,82 @@
+.post-toc {
+    position: fixed;
+    left: 20px;
+    top: 100px;
+    width: 240px; /* 适当调宽 */
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 15px;
+    background: var(--bg);
+    border-left: 2px solid var(--line);
+    font-size: 0.85rem;
+    z-index: 100;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.post-toc.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.post-toc-title {
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.toc-link {
+    display: block;
+    color: var(--text-soft);
+    text-decoration: none;
+    padding: 6px 0; /* 增加点击区域 */
+    line-height: 1.5;
+    transition: all 0.2s;
+    word-break: break-all; /* 允许在任意字符间断开以防止溢出 */
+    border-left: 2px solid transparent;
+    margin-left: -17px; /* 补偿父容器 padding 使其紧贴边框 */
+    padding-left: 15px;
+}
+
+.toc-link:hover {
+    color: var(--accent);
+    background: var(--line); /* 悬停背景提示 */
+}
+
+.toc-h1 { font-weight: 700; color: var(--text); }
+.toc-h2 { padding-left: 25px; font-weight: 600; }
+.toc-h3 { padding-left: 35px; font-size: 0.8rem; }
+
+/* 移动端适配 */
+@media (max-width: 1200px) {
+    .post-toc {
+        display: none; 
+    }
+}
+
+/* 进度条 */
+.progress-bar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: transparent;
+    z-index: 9999;
+}
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.1s ease;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+/* 警告横幅 */
 .argue-banner {
     background: #fff5e6;
     border: 1px solid #ff9800;
@@ -7,44 +86,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    animation: bannerFadeIn 0.5s ease, bannerPulse 2s infinite;
 }
 
-.argue-banner-icon {
-    font-size: 1.2rem;
-    color: #ff9800;
-}
+.argue-banner-icon { font-size: 1.2rem; color: #ff9800; }
+.argue-banner-text { font-size: 0.9rem; color: #855d00; line-height: 1.4; font-weight: 500; }
 
-.argue-banner-text {
-    font-size: 0.9rem;
-    color: #855d00;
-    line-height: 1.4;
-    font-weight: 500;
-}
-
-@keyframes bannerFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes bannerPulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.2);
-    }
-    70% {
-        box-shadow: 0 0 0 6px rgba(255, 152, 0, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
-    }
-}
-
+/* 按钮及弹窗 */
 .edit-btn {
     position: absolute;
     top: 20px;
@@ -55,54 +102,7 @@
     border: 1px solid var(--line);
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
     z-index: 10;
-}
-.edit-btn:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-}
-@media (max-width: 600px) {
-    .edit-btn {
-        right: 90px;
-        padding: 6px 10px;
-        font-size: 0.75rem;
-    }
-}
-
-.edit-btn:active {
-    transform: translateY(0);
-}
-
-.edit-btn::before {
-    content: attr(data-tooltip);
-    position: absolute;
-    top: 52px;
-
-    left: 50%;
-    transform: translateX(-50%) translateY(-10px);
-    background: var(--text);
-    color: var(--bg);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s;
-    pointer-events: none;
-}
-
-.edit-btn:hover::before {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
 }
 
 #correction-modal {
@@ -111,105 +111,13 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5); /* removed blur for performance */
+    background: rgba(0,0,0,0.5);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 2000;
 }
-.correction-content {
-    background: var(--bg);
-    width: 90%;
-    max-width: 500px;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
 
-#correction-text {
-    width: 100%;
-    height: 150px;
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--line);
-    color: var(--text);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    font-family: inherit;
-    resize: none;
-    outline: none;
-}
-.correction-btns {
-    display: grid;
-    grid-template-columns: 1fr; /* 修正为单行铺满或保持双列 */
-    gap: 15px;
-}
-.correction-btns button {
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    border: none;
-    transition: opacity 0.2s;
-}
-
-.correction-btns button:hover {
-    opacity: 0.9;
-}
-
-/* 修复按钮颜色逻辑 */
-#submit-issue-btn {
-    background: var(--accent);
-    color: white;
-}
-
-#cancel-modal-btn {
-    width: 100%;
-    margin-top: 15px;
-    background: transparent;
-    color: var(--text-soft);
-    cursor: pointer;
-    border: none;
-}
-
-#cancel-modal-btn:hover {
-    color: var(--text);
-}
-
-.comments-section {
-    margin-top: 60px;
-    padding-top: 40px;
-    border-top: 2px solid var(--line);
-}
-
-.comments-header {
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.comment-item {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-    animation: fadeIn 0.5s ease;
-}
-
-.comment-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-}
-
-.comment-main {
-    flex: 1;
-}
-
-/* 文章末尾引用板块样式 */
 .post-references {
     margin-top: 50px;
     padding: 20px;
@@ -218,92 +126,7 @@
     border-radius: 12px;
 }
 
-.references-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.references-list {
-    font-size: 0.9rem;
-    color: var(--text-soft);
-    line-height: 1.6;
-}
-
-/* 优化引用列表中的链接样式 */
-.references-list a {
-    color: var(--accent);
-    text-decoration: none;
-    word-break: break-all;
-}
-
-.references-list a:hover {
-    text-decoration: underline;
-}
-
-/* 去掉引用列表自带的边距 */
-.references-list p, .references-list ul {
-    margin: 0;
-}
-
-/* 移动端适配 */
-@media (max-width: 600px) {
-    .post-references {
-        padding: 15px;
-        margin-top: 30px;
-    }
-}
-
-/* 正文中的引用链接样式 */
-.ref-link {
-    color: var(--accent);
-    font-size: 0.85em;
-    vertical-align: super; /* 表现为上标 */
-    text-decoration: none;
-    font-weight: bold;
-    margin: 0 2px;
-}
-
-.ref-link:hover {
-    text-decoration: underline;
-}
-
-/* 引用条目样式 */
-.reference-item {
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: background 0.5s ease;
-    border-left: 3px solid transparent;
-}
-
-/* 跳转高亮效果 */
 .reference-item.highlight {
     background: var(--selection-bg);
-    border-left-color: var(--accent);
-    animation: refPulse 2s ease-out;
-}
-
-@keyframes refPulse {
-    0% { transform: translateX(0); }
-    10% { transform: translateX(5px); }
-    20% { transform: translateX(0); }
-}
-
-/* 让引用列表内的 Markdown 段落与序号对齐 */
-.reference-item p {
-    display: inline;
-    margin: 0;
-}
-
-.inline-box {
-    display: inline-block; /* 核心：使其既能设置宽高又不换行 */
-    width: 4ch;            /* 宽度随字体字符宽度变化 */
-    height: 1em;           /* 高度随当前行高变化 */
-    background: black;     /* 颜色 */
-    vertical-align: middle; /* 优化：使色块与文字中心对齐，防止视觉上偏下 */
-    line-height: normal;   /* 确保内部不影响行高 */
+    border-left: 3px solid var(--accent);
 }

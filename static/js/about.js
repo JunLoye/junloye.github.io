@@ -16,10 +16,6 @@ async function openAbout(pushState = true) {
 
     const content = document.getElementById('about-content');
     if (!content) return;
-
-    if (pushState) {
-        history.pushState({ page: 'about' }, "About | Jun Loye", "#about");
-    }
     
     overlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -51,7 +47,13 @@ async function fetchGitHubCommits() {
         
         listContainer.className = "changelog-wrapper"; 
         
-        const displayCommits = commits; 
+        // 核心修改：筛选逻辑
+        // 1. 保留索引为 0 的提交（最新的一个）
+        // 2. 保留包含换行符 \n 的提交（多行提交）
+        const displayCommits = commits.filter((item, index) => {
+            if (index === 0) return true; 
+            return item.commit.message.includes('\n');
+        });
 
         if (displayCommits.length === 0) {
             if (loadingText) {
@@ -69,6 +71,7 @@ async function fetchGitHubCommits() {
                 minute: '2-digit'
             });
             
+            // 处理消息：转义 HTML 字符并保留换行符
             const fullMsg = item.commit.message
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
@@ -97,14 +100,6 @@ async function fetchGitHubCommits() {
 }
 
 function closeAbout() {
-    if (window.location.hash === '#about') {
-        history.back();
-    } else {
-        realCloseAbout();
-    }
-}
-
-function realCloseAbout() {
     const overlay = document.getElementById('about-overlay');
     const content = document.getElementById('about-content');
     if (!content) return;
@@ -116,10 +111,11 @@ function realCloseAbout() {
     }, 300);
 }
 
+// 监听浏览器前进后退
 window.addEventListener('popstate', (e) => {
     if (e.state && e.state.page === 'about') {
         openAbout(false);
     } else {
-        realCloseAbout();
+        closeAbout();
     }
 });

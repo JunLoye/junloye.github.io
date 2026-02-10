@@ -9,9 +9,9 @@ function openPost(num, pushState = true) {
         return;
     }
     
-    // 修改：使用美化的路径 /post/num
+    // 修改：推送 URL 格式为 ?post=num
     if (pushState) {
-        history.pushState({ page: 'detail', id: num }, issue.title, `/post/${num}`);
+        history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
     }
     document.title = `${issue.title} | Jun Loye`;
 
@@ -93,7 +93,7 @@ function openPost(num, pushState = true) {
             </div>
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
-        <div class="markdown-body">${htmlContent}</div>
+        <div id="post-body-content" class="markdown-body">${htmlContent}</div>
         ${referenceHtml} 
         <div id="comments-wrapper" class="comments-section" style="display:none;">
             <div class="comments-header">💬 Comments</div>
@@ -118,7 +118,20 @@ function openPost(num, pushState = true) {
         area.style.opacity = "1";
         area.style.transform = "translateY(0)";
         area.classList.add('show');
+        // 渲染后生成目录
+        generateTOC();
     }, 50);
+
+    const progressBar = document.getElementById('reading-progress');
+    const overlayScroll = document.getElementById('post-overlay'); 
+    if (progressBar && overlayScroll) {
+        overlayScroll.onscroll = () => {
+            const winScroll = overlayScroll.scrollTop;
+            const height = overlayScroll.scrollHeight - overlayScroll.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + "%";
+        };
+    }
 
     setupReplyArea(num);
     fetchComments(num);
@@ -191,31 +204,26 @@ async function postComment(num, content) {
     } catch (e) { return false; }
 }
 
-/**
- * 修改后的 fetchComments 函数：改为加载 Giscus
- */
 async function fetchComments(num) {
     const wrapper = document.getElementById('comments-wrapper');
     const list = document.getElementById('comments-list');
     if (!wrapper || !list) return;
 
     wrapper.style.display = 'block';
-    list.innerHTML = ''; // 清空之前的评论内容
+    list.innerHTML = ''; 
 
-    // 创建 Giscus 脚本元素
     const script = document.createElement('script');
     script.src = "https://giscus.app/client.js";
     script.setAttribute('data-repo', "JunLoye/junloye.github.io");
     script.setAttribute('data-repo-id', "R_kgDOPi0ylw");
     script.setAttribute('data-category', "General");
     script.setAttribute('data-category-id', "DIC_kwDOPi0yl84C2H9l");
-    script.setAttribute('data-mapping', "pathname"); // 根据路径匹配评论
+    script.setAttribute('data-mapping', "pathname"); 
     script.setAttribute('data-strict', "0");
     script.setAttribute('data-reactions-enabled', "0");
     script.setAttribute('data-emit-metadata', "0");
     script.setAttribute('data-input-position', "top");
     
-    // 主题适配：根据当前页面 body 的主题自动切换
     const currentTheme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     script.setAttribute('data-theme', currentTheme);
     
@@ -223,7 +231,6 @@ async function fetchComments(num) {
     script.crossOrigin = "anonymous";
     script.async = true;
 
-    // 将脚本注入到评论列表容器中
     list.appendChild(script);
 }
 
@@ -302,30 +309,74 @@ function showSuccessToast(message) {
 }
 
 function closePost() {
-    // 修改：如果当前在 /post/ID 路径下，关闭时需返回首页
-    if (window.location.pathname.includes('/post/')) {
-        history.pushState({}, "Blog | Jun Loye", "/");
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('post')) {
+        history.pushState({}, "Blog | Jun Loye", window.location.pathname);
         realClosePost();
     } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('post')) {
-            history.back();
-        } else {
-            realClosePost();
-        }
+        realClosePost();
     }
 }
 
 function realClosePost() {
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
+    const progressBar = document.getElementById('reading-progress');
+    const toc = document.getElementById('post-toc');
     if (!area || !area.classList.contains('show')) return;
+    
     document.title = "Blog | Jun Loye";
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";
+    
+    if (progressBar) progressBar.style.width = "0%";
+    if (toc) toc.classList.remove('show');
+    
     setTimeout(() => {
         if (overlay) overlay.style.display = 'none'; 
         document.body.style.overflow = ''; 
     }, 300);
+}
+
+function generateTOC() {
+    const postBody = document.getElementById('post-body-content');
+    const tocContainer = document.getElementById('post-toc');
+    if (!postBody || !tocContainer) return;
+
+    tocContainer.innerHTML = '';
+
+    const headings = postBody.querySelectorAll('h1, h2, h3');
+    if (headings.length === 0) {
+        tocContainer.classList.remove('show');
+        return;
+    }
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'post-toc-title';
+    titleEl.textContent = 'CONTENTS';
+    tocContainer.appendChild(titleEl);
+
+    headings.forEach((heading, index) => {
+        const id = `heading-${index}`;
+        heading.setAttribute('id', id);
+        
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.className = `toc-link toc-${heading.tagName.toLowerCase()}`;
+        link.textContent = heading.textContent;
+        
+        link.onclick = (e) => {
+            e.preventDefault();
+            const overlay = document.getElementById('post-overlay');
+            overlay.scrollTo({
+                top: heading.offsetTop - 20,
+                behavior: 'smooth'
+            });
+        };
+        
+        tocContainer.appendChild(link);
+    });
+
+    tocContainer.classList.add('show');
 }
