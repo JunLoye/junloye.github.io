@@ -9,7 +9,6 @@ function openPost(num, pushState = true) {
         return;
     }
     
-    // 修改：推送 URL 格式为 ?post=num
     if (pushState) {
         history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
     }
@@ -21,17 +20,6 @@ function openPost(num, pushState = true) {
 
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
-
-    const hasArgue = issue.labels.some(l => l.name.toLowerCase() === 'argue');
-    const argueBannerHtml = hasArgue ? `
-        <div class="argue-banner">
-            <span class="argue-banner-icon">⚠️</span>
-            <div class="argue-banner-text">
-                <strong>内容审议中</strong><br>
-                此文章已收到反馈，部分内容可能正在修正或存在争议，请谨慎参考。
-            </div>
-        </div>
-    ` : '';
 
     const refMatch = issue.body?.match(/\[References\]([\s\S]*?)(?=\[Content\]|---|$)/);
     const referenceRaw = refMatch ? refMatch[1].trim() : "";
@@ -84,7 +72,6 @@ function openPost(num, pushState = true) {
     document.body.style.overflow = 'hidden';
 
     area.innerHTML = `
-        ${argueBannerHtml}
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
         <div class="detail-header">
             <div style="display: flex; justify-content: space-between; align-items: center; color:var(--text-soft); font-size:0.85rem;">
@@ -105,11 +92,15 @@ function openPost(num, pushState = true) {
 
     const editBtn = document.getElementById('edit-post-btn');
     if (editBtn) {
-        editBtn.style.display = 'flex';
-        editBtn.onclick = (e) => {
-            e.stopPropagation();
-            showCorrectionModal(num, issue.title);
-        };
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
+        
+        const issueTitle = encodeURIComponent(`[Feedback] ${issue.title}`);
+        const templateFile = "feedback.yml"; 
+        const refValue = encodeURIComponent(`Ref: #${num}`);
+        
+        editBtn.href = `https://github.com/${username}/${repo}/issues/new?template=${templateFile}&title=${issueTitle}&ref_id=${refValue}`;
+        editBtn.style.display = 'inline-block';
     }
 
     setTimeout(() => {
@@ -117,7 +108,6 @@ function openPost(num, pushState = true) {
         area.style.opacity = "1";
         area.style.transform = "translateY(0)";
         area.classList.add('show');
-        // 渲染后生成目录
         generateTOC();
     }, 50);
 
@@ -157,6 +147,7 @@ async function setupReplyArea(num) {
     const replyArea = document.getElementById('quick-reply-area');
     const avatarImg = document.getElementById('reply-user-avatar');
     const submitBtn = document.getElementById('submit-quick-reply-btn');
+    if (!replyArea) return;
     try {
         const res = await fetch('https://api.github.com/user', {
             headers: { 'Authorization': `token ${token}` }
@@ -214,6 +205,8 @@ async function fetchComments(num) {
 }
 
 async function submitCorrection(num, title, type) {
+    const textEl = document.getElementById('correction-text');
+    const text = textEl ? textEl.value.trim() : "";
     if (!token || !text) return;
     const btn = document.getElementById(type === 'comment' ? 'submit-comment-btn' : 'submit-issue-btn');
     const originalText = btn.innerText;
@@ -266,6 +259,8 @@ function realClosePost() {
     const overlay = document.getElementById('post-overlay');
     const progressBar = document.getElementById('reading-progress');
     const toc = document.getElementById('post-toc');
+    const editBtn = document.getElementById('edit-post-btn');
+
     if (!area || !area.classList.contains('show')) return;
     
     document.title = "Blog | Jun Loye";
@@ -275,6 +270,7 @@ function realClosePost() {
     
     if (progressBar) progressBar.style.width = "0%";
     if (toc) toc.classList.remove('show');
+    if (editBtn) editBtn.style.display = 'none';
     
     setTimeout(() => {
         if (overlay) overlay.style.display = 'none'; 

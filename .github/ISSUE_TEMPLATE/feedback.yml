@@ -1,7 +1,6 @@
 name: "🛠️ 内容纠错与反馈"
 description: "报告文章中的错别字、代码错误或提供修改建议"
-title: "[Feedback] #"
-labels: ["FEEDBACK"]
+title: "[Feedback]"
 body:
   - type: markdown
     attributes:
@@ -11,7 +10,7 @@ body:
     id: ref_id
     attributes:
       label: "📌 文章编号"
-      description: "对应文章的 Issue ID（例如：#5）"
+      description: "对应文章的 ID"
       placeholder: "Ref: #xx"
     validations:
       required: true
@@ -29,7 +28,7 @@ body:
     id: priority
     attributes:
       label: "🚨 严重程度"
-      description: "请勾选该问题影响的范围（多选框不支持强制必选）"
+      description: "请勾选该问题影响的范围"
       options:
         - label: "🔥 紧急：敏感信息或严重安全问题"
         - label: "💥 致命错误：代码无法运行或链接失效"
@@ -40,6 +39,6 @@ body:
   - type: textarea
     id: env_info
     attributes:
-      label: "🌐 环境信息 (可选)"
+      label: "🌐 环境信息"
       description: "如果是显示或交互问题，请提供您的浏览器和设备信息"
       placeholder: "例如：Chrome / Android 14"

@@ -34,7 +34,6 @@ window.addEventListener('popstate', () => {
     const aboutContent = document.getElementById('about-content');
     const urlParams = new URLSearchParams(window.location.search);
     
-    // 如果 URL 中不再有 post 参数，且详情页开启，则关闭
     if (!urlParams.has('post') && detailArea?.classList.contains('show')) {
         realClosePost();
     }
@@ -93,17 +92,13 @@ async function handleRouting() {
 
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('post');
-
-    // 处理旧版路径重定向（可选：如果有人收藏了 /post/1）
     const pathMatch = window.location.pathname.match(/\/post\/(\d+)/);
     
     if (postId) {
         openPost(parseInt(postId), false);
     } else if (pathMatch) {
-        // 自动将 /post/1 这种路径规范化为 ?post=1 并打开
         openPost(parseInt(pathMatch[1]), false);
     } else {
-        // 如果没有 post 参数且详情页开着，执行关闭（通常在后退时发生）
         const detailArea = document.getElementById('content-area');
         if (detailArea?.classList.contains('show')) {
             realClosePost();
@@ -127,7 +122,6 @@ function renderPosts(posts, highlightTerm = "") {
         }
         const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
         
-        // 点击调用 openPost
         return `<div class="post-card" onclick="openPost(${issue.number})">
             <div class="post-cover"><img src="${cover}" onerror="this.src='${CONFIG.defaultCover}'"></div>
             <h2 class="post-card-title">${displayTitle}</h2>
@@ -221,10 +215,15 @@ function initCookieBanner() {
     }
 }
 
+// 修复点：确保 Banner 能被准确隐藏
 function setCookiePreference(status) {
     const banner = document.getElementById('cookie-banner');
     localStorage.setItem('cookie-consent', status);
-    if (banner) banner.classList.remove('show');
+    
+    if (banner) {
+        banner.classList.remove('show');
+    }
+
     if (status === 'accepted') {
         showNotification('已接受 Cookie 政策', 'success');
     } else {
