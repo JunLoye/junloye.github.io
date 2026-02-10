@@ -1,6 +1,6 @@
 name: "🛠️ 内容纠错与反馈"
 description: "报告文章中的错别字、代码错误或提供修改建议"
-title: ""
+title: "[Feedback] #"
 labels: ["FEEDBACK"]
 body:
   - type: markdown
@@ -29,21 +29,17 @@ body:
     id: priority
     attributes:
       label: "🚨 严重程度"
-      description: "请勾选该问题影响的范围"
+      description: "请勾选该问题影响的范围（多选框不支持强制必选）"
       options:
-        - label: "🔥 紧急：敏感问题"
+        - label: "🔥 紧急：敏感信息或严重安全问题"
         - label: "💥 致命错误：代码无法运行或链接失效"
         - label: "📝 内容错误：技术性误导或描述错误"
         - label: "🎨 视觉/排版：样式混乱、图片缺失或显示异常"
         - label: "🔍 轻微瑕疵：错别字、标点错误或翻译不准"
         - label: "💡 优化建议：内容扩充或更好的实现方案"
-      validations:
-        required: false
   - type: textarea
     id: env_info
     attributes:
-      label: "🌐 环境信息"
+      label: "🌐 环境信息 (可选)"
       description: "如果是显示或交互问题，请提供您的浏览器和设备信息"
-      placeholder: "例如：Chrome / Windows 10"
-    validations:
-      required: false
+      placeholder: "例如：Chrome / Android 14"
