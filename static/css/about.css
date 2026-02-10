@@ -1,22 +1,53 @@
-/* --- 更新日志样式优化 --- */
+/* --- 容器与基础布局 --- */
+.detail-container#about-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    color: var(--text);
+    position: relative;
+}
+
+/* 顶部返回按钮 */
+.close-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--line);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.close-btn:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* --- 更新日志时间轴样式 --- */
 .changelog-wrapper {
-    margin-top: 15px;
+    margin-top: 20px;
+    margin-left: 10px;
     border-left: 2px solid var(--line);
-    padding-left: 20px;
+    padding-left: 25px;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* 增加间距以适应多行显示 */
+    gap: 25px;
 }
 
 .changelog-item {
     position: relative;
-    padding-bottom: 5px;
 }
 
+/* 时间轴上的圆点 */
 .changelog-item::before {
     content: '';
     position: absolute;
-    left: -27px;
+    left: -32px; /* 对应 padding-left 并居中 */
     top: 6px;
     width: 12px;
     height: 12px;
@@ -32,67 +63,74 @@
 }
 
 .changelog-date {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 6px;
-    font-family: monospace;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 8px;
 }
 
-.changelog-link {
-    text-decoration: none;
-    color: var(--text-soft);
+.commit-date-text {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+}
+
+/* --- Git 版本标签 (Version) --- */
+.git-version-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     background: var(--line);
-    padding: 1px 6px;
-    border-radius: 4px;
+    color: var(--text-soft) !important;
+    padding: 2px 8px;
+    border-radius: 6px;
     font-size: 0.7rem;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    text-decoration: none !important; /* 隐藏底部横条 */
+    border: 1px solid transparent;
     transition: all 0.2s ease;
 }
 
-.changelog-link:hover {
+.git-version-tag:hover {
     background: var(--accent);
-    color: #fff;
+    color: #ffffff !important;
+    border-color: var(--accent);
 }
 
+.git-icon {
+    opacity: 0.8;
+}
+
+/* --- 链接样式修复（隐藏底部横条） --- */
+.markdown-body a,
+.changelog-link,
+.git-version-tag {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* --- 更新日志内容 --- */
 .changelog-msg {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
     color: var(--text);
-    line-height: 1.6; /* 增加行高，多行阅读更舒适 */
     word-break: break-word;
-    opacity: 0.9;
 }
 
 /* --- 设置面板样式 --- */
 .settings-panel {
     background: var(--line);
+    padding: 20px;
     border-radius: 12px;
-    padding: 15px;
-    margin: 15px 0;
-    border: 1px solid var(--line);
+    margin: 20px 0;
 }
 
 .setting-item {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    flex-direction: column;
     cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.setting-item:hover {
-    opacity: 0.8;
-}
-
-.setting-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    margin-top: 2px;
-    cursor: pointer;
-    accent-color: var(--accent);
 }
 
 .setting-label {
@@ -110,42 +148,36 @@
     font-size: 0.65rem;
     font-weight: 800;
     border-radius: 4px;
-    letter-spacing: 0.5px;
 }
 
 .setting-description {
-    display: block;
     font-size: 0.8rem;
     color: var(--text-soft);
-    margin-left: 32px;
+    margin-left: 28px;
     margin-top: 4px;
-    line-height: 1.4;
 }
 
-/* 毛玻璃模式设置面板样式（性能优化） */
+/* --- 毛玻璃质感模式适配 --- */
 [data-frosted-glass="true"] .settings-panel {
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    position: relative;
-    overflow: hidden;
-    --frost-blur: var(--frost-blur-card);
-}
-
-[data-frosted-glass="true"] .settings-panel::before {
-    content: "";
-    position: absolute;
-    inset: -10px;
-    background-image: var(--bg-image);
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    filter: blur(var(--frost-blur));
-    transform: translateZ(0);
-    z-index: -1;
-    pointer-events: none;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 [data-theme="dark"][data-frosted-glass="true"] .settings-panel {
     background: rgba(30, 30, 30, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-} 
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .detail-container#about-content {
+        padding: 20px 15px;
+    }
+    
+    .changelog-date {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}

@@ -9,7 +9,7 @@ function openPost(num, pushState = true) {
         return;
     }
     
-    // 修改：使用 /post/num 格式的路径
+    // 修改：使用美化的路径 /post/num
     if (pushState) {
         history.pushState({ page: 'detail', id: num }, issue.title, `/post/${num}`);
     }
@@ -314,13 +314,11 @@ function showSuccessToast(message) {
 }
 
 function closePost() {
-    const path = window.location.pathname;
-    if (path.indexOf('/post/') !== -1) {
-        // 如果是从 Clean URL 状态下关闭，返回首页路径
-        history.pushState({}, ORIGINAL_TITLE, "/");
+    // 修改：如果当前在 /post/ID 路径下，关闭时需返回首页
+    if (window.location.pathname.includes('/post/')) {
+        history.pushState({}, "Blog | Jun Loye", "/");
         realClosePost();
     } else {
-        // 传统的 ?post= 格式处理
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('post')) {
             history.back();
@@ -334,7 +332,7 @@ function realClosePost() {
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
     if (!area || !area.classList.contains('show')) return;
-    document.title = (typeof ORIGINAL_TITLE !== 'undefined') ? ORIGINAL_TITLE : "Jun Loye";
+    document.title = "Blog | Jun Loye";
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";
