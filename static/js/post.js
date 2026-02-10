@@ -97,17 +97,6 @@ function openPost(num, pushState = true) {
         ${referenceHtml} 
         <div id="comments-wrapper" class="comments-section" style="display:none;">
             <div class="comments-header">💬 Comments</div>
-            <div id="quick-reply-area" style="margin-bottom: 40px; display: none;">
-                <div style="display: flex; gap: 15px;">
-                    <img id="reply-user-avatar" src="" style="width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);">
-                    <div style="flex: 1;">
-                        <textarea id="quick-reply-text" placeholder="以此账号发表评论..." style="width: 100%; height: 100px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); outline: none; font-family: inherit; resize: vertical;"></textarea>
-                        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                            <button id="submit-quick-reply-btn" style="padding: 8px 20px; border-radius: 8px; background: var(--accent); color: white; border: none; font-weight: 600; cursor: pointer;">发表评论</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div id="comments-list"></div>
         </div>`;
     
@@ -202,41 +191,40 @@ async function postComment(num, content) {
     } catch (e) { return false; }
 }
 
+/**
+ * 修改后的 fetchComments 函数：改为加载 Giscus
+ */
 async function fetchComments(num) {
     const wrapper = document.getElementById('comments-wrapper');
     const list = document.getElementById('comments-list');
     if (!wrapper || !list) return;
+
     wrapper.style.display = 'block';
-    if (list.innerHTML === "") {
-        list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-soft); font-size:0.9rem;">正在拉取评论...</div>`;
-    }
-    try {
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-        const res = await fetch(`https://api.github.com/repos/${username}/${repo}/issues/${num}/comments`);
-        const comments = await res.json();
-        if (comments.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft); font-size:0.85rem;">暂无评论</div>`;
-            return;
-        }
-        list.innerHTML = comments.map(c => {
-            const cDate = new Date(c.created_at).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            let content = (typeof marked !== 'undefined') ? marked.parse(c.body) : c.body;
-            const isFeedback = c.body.includes('### [Feedback]');
-            const displayContent = isFeedback ? content.replace('### [Feedback]', '<span style="font-size:0.7rem; background:var(--accent); color:white; padding:2px 6px; border-radius:4px; margin-bottom:10px; display:inline-block;">FEEDBACK</span>') : content;
-            return `
-                <div class="comment-item" style="margin-bottom: 25px; display: flex; gap: 12px; animation: fadeIn 0.4s ease;">
-                    <img src="${c.user.avatar_url}" style="width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);">
-                    <div style="flex: 1;">
-                        <div style="font-size: 0.8rem; margin-bottom: 4px;">
-                            <span style="font-weight: 700; color: var(--text);">${c.user.login}</span>
-                            <span style="color: var(--text-soft); margin-left: 8px;">${cDate}</span>
-                        </div>
-                        <div class="markdown-body comment-body" style="font-size: 0.9rem; background: var(--line); padding: 12px 15px; border-radius: 10px; color: var(--text);">${displayContent}</div>
-                    </div>
-                </div>`;
-        }).join('');
-    } catch (e) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-soft);">评论加载失败</div>`; }
+    list.innerHTML = ''; // 清空之前的评论内容
+
+    // 创建 Giscus 脚本元素
+    const script = document.createElement('script');
+    script.src = "https://giscus.app/client.js";
+    script.setAttribute('data-repo', "JunLoye/junloye.github.io");
+    script.setAttribute('data-repo-id', "R_kgDOPi0ylw");
+    script.setAttribute('data-category', "General");
+    script.setAttribute('data-category-id', "DIC_kwDOPi0yl84C2H9l");
+    script.setAttribute('data-mapping', "pathname"); // 根据路径匹配评论
+    script.setAttribute('data-strict', "0");
+    script.setAttribute('data-reactions-enabled', "0");
+    script.setAttribute('data-emit-metadata', "0");
+    script.setAttribute('data-input-position', "top");
+    
+    // 主题适配：根据当前页面 body 的主题自动切换
+    const currentTheme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    script.setAttribute('data-theme', currentTheme);
+    
+    script.setAttribute('data-lang', "zh-CN");
+    script.crossOrigin = "anonymous";
+    script.async = true;
+
+    // 将脚本注入到评论列表容器中
+    list.appendChild(script);
 }
 
 function getGithubToken() {

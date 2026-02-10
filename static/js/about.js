@@ -1,11 +1,7 @@
-/**
- * 打开 About 界面
- */
 async function openAbout(pushState = true) {
     const overlay = document.getElementById('about-overlay');
     if (!overlay) return;
 
-    // 1. 确保内容已加载
     if (overlay.innerHTML.trim() === "") {
         try {
             const resp = await fetch('/about.html');
@@ -21,7 +17,6 @@ async function openAbout(pushState = true) {
     const content = document.getElementById('about-content');
     if (!content) return;
 
-    // 2. 切换显示状态
     if (pushState) {
         history.pushState({ page: 'about' }, "About | Jun Loye", "#about");
     }
@@ -33,7 +28,6 @@ async function openAbout(pushState = true) {
         content.classList.add('show');
     }, 50);
 
-    // 3. 触发获取更新日志
     fetchGitHubCommits();
 }
 
@@ -49,14 +43,25 @@ async function fetchGitHubCommits() {
     };
 
     try {
-        const response = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/commits?sha=${cfg.branch}&per_page=15`);
+        const response = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/commits?sha=${cfg.branch}&per_page=30`); 
         if (!response.ok) throw new Error("API Limit");
         
         const commits = await response.json();
         if (loadingText) loadingText.style.display = 'none';
         
         listContainer.className = "changelog-wrapper"; 
-        listContainer.innerHTML = commits.map(item => {
+        
+        const displayCommits = commits; 
+
+        if (displayCommits.length === 0) {
+            if (loadingText) {
+                loadingText.style.display = 'block';
+                loadingText.textContent = "暂无更新记录";
+            }
+            return;
+        }
+
+        listContainer.innerHTML = displayCommits.map(item => {
             const date = new Date(item.commit.author.date).toLocaleDateString('zh-CN', {
                 month: '2-digit',
                 day: '2-digit',
@@ -91,9 +96,6 @@ async function fetchGitHubCommits() {
     }
 }
 
-/**
- * 关闭 About 界面
- */
 function closeAbout() {
     if (window.location.hash === '#about') {
         history.back();
@@ -114,7 +116,6 @@ function realCloseAbout() {
     }, 300);
 }
 
-// 监听浏览器前进后退
 window.addEventListener('popstate', (e) => {
     if (e.state && e.state.page === 'about') {
         openAbout(false);

@@ -59,14 +59,12 @@ async function fetchPosts() {
         return; 
     }
     try {
-        // 优先读取 Action 生成的静态清单
         const manifestRes = await fetch('/manifest.json?t=' + Date.now());
         if (manifestRes.ok) {
             const data = await manifestRes.json();
             allIssues = data.items || [];
         } else {
-            // 降级：调用 API (仅作兜底)
-            const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open label:article`);
+            const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open`);
             const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
             const data = await res.json();
             allIssues = data.items || [];
@@ -80,7 +78,6 @@ async function fetchPosts() {
     }
 }
 
-// 路由处理也需要增加对 /post/数字 路径的识别
 async function handleRouting() {
     const path = window.location.pathname;
     const postMatch = path.match(/\/post\/(\d+)/);
@@ -158,6 +155,33 @@ async function fetchUserIP() {
     }
 }
 
+async function fetchLatestVersion() {
+    const versionEl = document.getElementById('sidebar-version');
+    if (!versionEl) return;
+
+    try {
+        const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/commits?per_page=10`);
+        if (!res.ok) throw new Error('Network error');
+        
+        const commits = await res.json();
+        const versionRegex = /v?\d+\.\d+/i;
+        
+        let latestVersion = 'Error';
+
+        for (const commit of commits) {
+            const match = commit.commit.message.match(versionRegex);
+            if (match) {
+                latestVersion = match[0].toLowerCase().startsWith('v') ? match[0] : `v${match[0]}`;
+                break;
+            }
+        }
+        versionEl.textContent = latestVersion;
+    } catch (e) {
+        console.error("Failed to fetch version:", e);
+        versionEl.textContent = 'Error';
+    }
+}
+
 function updateBlogRunTime() {
     const startTime = new Date('2026-01-01');
     const now = new Date();
@@ -168,23 +192,9 @@ function updateBlogRunTime() {
     if (sidebarEl) sidebarEl.textContent = `${days} 天`;
 }
 
-window.addEventListener('load', () => {
-    const yearEl = document.getElementById('year');
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
-    fetchPosts(); 
-    initAllTemplates();
-    fetchUserIP();
-    updateBlogRunTime();
-});
-
-/**
- * Cookie 偏好管理逻辑
- */
 function initCookieBanner() {
     const cookieConsent = localStorage.getItem('cookie-consent');
     const banner = document.getElementById('cookie-banner');
-    
-    // 如果用户从未设置过偏好，则在 2 秒后显示横幅
     if (!cookieConsent && banner) {
         setTimeout(() => {
             banner.classList.add('show');
@@ -195,20 +205,14 @@ function initCookieBanner() {
 function setCookiePreference(status) {
     const banner = document.getElementById('cookie-banner');
     localStorage.setItem('cookie-consent', status);
-    
-    if (banner) {
-        banner.classList.remove('show');
-    }
-    
+    if (banner) banner.classList.remove('show');
     if (status === 'accepted') {
         showNotification('已接受 Cookie 政策', 'success');
-        // 这里可以触发 Google Analytics 或其他统计脚本的初始化
     } else {
         showNotification('已拒绝非必要 Cookie', 'warning');
     }
 }
 
-// 修改原有的 window load 监听器，加入 initCookieBanner()
 window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -216,8 +220,7 @@ window.addEventListener('load', () => {
     fetchPosts(); 
     initAllTemplates();
     fetchUserIP();
+    fetchLatestVersion();
     updateBlogRunTime();
-    
-    // 初始化 Cookie 检查
     initCookieBanner();
 });
