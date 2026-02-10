@@ -64,3 +64,88 @@
     word-break: break-word;
     opacity: 0.9;
 }
+
+/* --- 设置面板样式 --- */
+.settings-panel {
+    background: var(--line);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    border: 1px solid var(--line);
+}
+
+.setting-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.setting-item:hover {
+    opacity: 0.8;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    margin-top: 2px;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+.setting-label {
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.beta-badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.setting-description {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    margin-left: 32px;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* 毛玻璃模式设置面板样式（性能优化） */
+[data-frosted-glass="true"] .settings-panel {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    --frost-blur: var(--frost-blur-card);
+}
+
+[data-frosted-glass="true"] .settings-panel::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(var(--frost-blur));
+    transform: translateZ(0);
+    z-index: -1;
+    pointer-events: none;
+}
+
+[data-theme="dark"][data-frosted-glass="true"] .settings-panel {
+    background: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+} 
