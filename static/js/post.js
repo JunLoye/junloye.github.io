@@ -9,10 +9,9 @@ function openPost(num, pushState = true) {
         return;
     }
     
-    // 修改：使用 Clean URL /post/num
+    // 修改：使用 /post/num 格式的路径
     if (pushState) {
-        const newPath = `/post/${num}`;
-        history.pushState({ page: 'detail', id: num }, issue.title, newPath);
+        history.pushState({ page: 'detail', id: num }, issue.title, `/post/${num}`);
     }
     document.title = `${issue.title} | Jun Loye`;
 
@@ -315,13 +314,19 @@ function showSuccessToast(message) {
 }
 
 function closePost() {
-    // 检查当前路径是否包含 /post/
-    if (window.location.pathname.indexOf('/post/') !== -1) {
-        // 如果是直接访问的路径，关闭时返回首页
-        history.pushState({}, "", "/");
+    const path = window.location.pathname;
+    if (path.indexOf('/post/') !== -1) {
+        // 如果是从 Clean URL 状态下关闭，返回首页路径
+        history.pushState({}, ORIGINAL_TITLE, "/");
         realClosePost();
     } else {
-        realClosePost();
+        // 传统的 ?post= 格式处理
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('post')) {
+            history.back();
+        } else {
+            realClosePost();
+        }
     }
 }
 
@@ -329,7 +334,7 @@ function realClosePost() {
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
     if (!area || !area.classList.contains('show')) return;
-    document.title = (typeof ORIGINAL_TITLE !== 'undefined') ? ORIGINAL_TITLE : "Blog | Jun Loye";
+    document.title = (typeof ORIGINAL_TITLE !== 'undefined') ? ORIGINAL_TITLE : "Jun Loye";
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";

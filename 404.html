@@ -9,7 +9,7 @@
             var l = window.location;
             // 匹配以 /post/ 开头的路径
             if (l.pathname.indexOf('/post/') !== -1) {
-                var segmentCount = 0; // 根目录部署设为 0
+                var segmentCount = 0; // 根目录部署
                 var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
                     l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
                     l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
@@ -89,7 +89,6 @@
         document.getElementById('request-path').textContent = window.location.pathname;
         updateTimestamp();
         setInterval(updateTimestamp, 1000);
-        checkHoliday();
     }
     function updateTimestamp() {
         const now = new Date();

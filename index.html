@@ -40,7 +40,7 @@
             </div>
             <div class="info-item">
                 <span class="info-label">Version</span>
-                <span class="info-value">beta10.4</span>
+                <span class="info-value">beta10.5</span>
             </div>
         </div>
     </aside>
@@ -117,20 +117,20 @@
         const redirectPath = urlParams.get('p');
         if (redirectPath) {
             const cleanPath = decodeURIComponent(redirectPath.replace(/~and~/g, '&'));
-            // 将浏览器地址栏静默修改为 /post/43
+            // 立即修正地址栏，将 ?p=/post/51 恢复为 /post/51
             window.history.replaceState(null, null, cleanPath + window.location.hash);
             
             const match = cleanPath.match(/\/post\/(\d+)/);
             if (match) {
                 const postId = parseInt(match[1]);
-                // 轮询检查数据是否加载完成，加载完成后自动打开
+                // 轮询检查文章数据是否已加载
                 const checkData = setInterval(() => {
                     if (typeof allIssues !== 'undefined' && allIssues.length > 0) {
                         openPost(postId, false);
                         clearInterval(checkData);
                     }
                 }, 100);
-                setTimeout(() => clearInterval(checkData), 5000); // 5秒超时
+                setTimeout(() => clearInterval(checkData), 5000);
             }
         }
     })();
