@@ -167,30 +167,6 @@
         };
         updateClock();
         setInterval(updateClock, 1000);
-
-        // 2. 节日自动检测
-        const checkHoliday = () => {
-            const now = new Date();
-            const m = now.getMonth() + 1;
-            const d = now.getDate();
-            const styleLink = document.getElementById('holiday-style');
-            const body = document.body;
-            
-            let holiday = null;
-            // 圣诞逻辑: 12.24 - 12.26
-            if (m === 12 && (d >= 24 && d <= 26)) holiday = "christmas";
-            // 愚人节: 4.1
-            else if (m === 4 && d === 1) holiday = "april-fools";
-            // 春节示例: 2.15 - 2.20
-            else if (m === 2 && (d >= 15 && d <= 20)) holiday = "cny";
-
-            if (holiday) {
-                styleLink.href = holiday + ".css";
-                body.setAttribute('data-holiday', holiday);
-                console.log("[System] Holiday theme active: " + holiday);
-            }
-        };
-        checkHoliday();
     }
 
     // 严谨调用：确保 DOM 加载后执行且函数已定义

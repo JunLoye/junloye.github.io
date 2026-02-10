@@ -9,9 +9,12 @@ function openPost(num, pushState = true) {
         return;
     }
     
-    // 使用查询参数 ?post=
+    // 修改：支持 /post/num 格式的路径
     if (pushState) {
-        history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
+        // 动态获取基础路径，避免在子路径下生成错误的绝对路径
+        const basePath = window.location.pathname.split('/post/')[0].replace(/\/$/, '');
+        const newPath = `${basePath}/post/${num}`;
+        history.pushState({ page: 'detail', id: num }, issue.title, newPath);
     }
     document.title = `${issue.title} | Jun Loye`;
 
@@ -153,7 +156,6 @@ function setupReferenceHighlighting() {
         }
     };
     window.addEventListener('hashchange', handleHash);
-    // 初始检查一次
     handleHash();
 }
 
@@ -378,18 +380,11 @@ function showSuccessToast(message) {
 }
 
 function closePost() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasPostParam = urlParams.has('post');
-    const hasHash = !!window.location.hash;
-
-    if (hasPostParam && hasHash) {
-        // 如果同时有 post 参数和 hash（说明点击过引用），直接返回首页
-        // 或者是 history.go(-2) 取决于你希望的体验
-        // 这里推荐直接替换状态回到首页，确保一次关闭
-        history.pushState({}, ORIGINAL_TITLE, window.location.pathname);
-        realClosePost();
-    } else if (hasPostParam) {
-        // 只有 post 参数，正常返回
+    const path = window.location.pathname;
+    const isPostPath = /\/post\/\d+/.test(path);
+    
+    if (isPostPath) {
+        // 如果是从 /post/51 这种路径点击关闭，直接回退
         history.back();
     } else {
         realClosePost();
