@@ -234,41 +234,6 @@ async function fetchComments(num) {
     list.appendChild(script);
 }
 
-function getGithubToken() {
-    const name = "github_token=";
-    const ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-        let c = ca[i].trim();
-        if (c.indexOf(name) === 0) return decodeURIComponent(c.substring(name.length, c.length));
-    }
-    return "";
-}
-
-function showCorrectionModal(num, title) {
-    const modal = document.getElementById('correction-modal');
-    const textarea = document.getElementById('correction-text');
-    if (!modal || !textarea) return;
-    modal.style.display = 'flex';
-    textarea.value = '';
-    const token = getGithubToken();
-    const cBtn = document.getElementById('submit-comment-btn');
-    const iBtn = document.getElementById('submit-issue-btn');
-    if (!token) {
-        textarea.disabled = true;
-        textarea.placeholder = "请先登录 GitHub 后再提交反馈...";
-        if(cBtn) cBtn.style.opacity = "0.4";
-        if(iBtn) iBtn.style.opacity = "0.4";
-    } else {
-        textarea.disabled = false;
-        textarea.placeholder = "发现错别字或有建议？请告诉我们...";
-        if(cBtn) cBtn.style.opacity = "1";
-        if(iBtn) iBtn.style.opacity = "1";
-    }
-    if (cBtn) cBtn.onclick = () => submitCorrection(num, title, 'comment');
-    if (iBtn) iBtn.onclick = () => submitCorrection(num, title, 'issue');
-    document.getElementById('cancel-modal-btn').onclick = () => modal.style.display = 'none';
-}
-
 async function submitCorrection(num, title, type) {
     const token = getGithubToken(), text = document.getElementById('correction-text').value.trim();
     if (!token || !text) return;
