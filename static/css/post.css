@@ -138,3 +138,7 @@
     background: var(--selection-bg);
     border-left: 3px solid var(--accent);
 }
+
+#reference-content a {
+    color: var(--selection-color);
+}

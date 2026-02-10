@@ -81,7 +81,7 @@ function openPost(num, pushState = true) {
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
         <div id="post-body-content" class="markdown-body">${htmlContent}</div>
-        ${referenceHtml+'<br>'} 
+        <dic id="reference-content">${referenceHtml+'<br>'} 
         <div id="comments-wrapper" class="comments-section">
             <div id="comments-list"></div>
         </div>`;

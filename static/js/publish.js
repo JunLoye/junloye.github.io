@@ -146,9 +146,6 @@ function saveSettings() {
     syncPublishButtonState();
 }
 
-/**
- * 上传图片核心函数
- */
 async function uploadCoverToGithub(file, token) {
     const timestamp = Date.now();
     const ext = file.name ? file.name.split('.').pop().toLowerCase() : 'png';
@@ -180,9 +177,6 @@ async function uploadCoverToGithub(file, token) {
     return `https://blog-images.loyejun.workers.dev/${imgPath}`;
 }
 
-/**
- * 核心发布逻辑
- */
 async function publishNewPost(e) {
     if (e) e.preventDefault();
     
@@ -217,8 +211,8 @@ async function publishNewPost(e) {
         let issueBody = "";
         if (coverUrl) issueBody += `[Cover] ${coverUrl}\n\n`;
         if (summaryVal) issueBody += `[Summary]\n${summaryVal}\n\n`;
-        if (referenceVal) issueBody += `[References]\n${referenceVal}\n\n`;
         issueBody += `[Content]\n${bodyVal}`;
+        if (referenceVal) issueBody += `[References]\n${referenceVal}\n\n`;
 
         const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues`, {
             method: 'POST',

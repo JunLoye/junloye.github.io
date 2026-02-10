@@ -147,7 +147,6 @@ nav {
     color: var(--accent);
 }
 
-/* 导航链接样式补充 */
 .about-trigger,
 .publish-trigger {
     position: relative;
@@ -851,7 +850,6 @@ mark.search-highlight {
     word-break: break-all;
 }
 
-/* 响应式：屏幕不够宽时隐藏，避免重叠内容 */
 @media screen and (max-width: 1400px) {
     .sidebar-info {
         display: none;
