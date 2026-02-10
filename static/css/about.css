@@ -28,6 +28,95 @@
     color: #fff;
 }
 
+/* --- 鸣谢列表样式 --- */
+.credits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.credit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--line);
+    border-radius: 10px;
+    text-decoration: none !important;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.credit-item:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+}
+
+.credit-item:hover .credit-name,
+.credit-item:hover .credit-desc {
+    color: #fff;
+}
+
+.credit-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.credit-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.credit-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.credit-desc {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+}
+
+/* --- GitHub 底部徽标 --- */
+.about-github-footer {
+    margin-top: 60px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.github-badge-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none !important;
+}
+
+.github-icon-large {
+    width: 32px;
+    height: 32px;
+    fill: var(--text);
+}
+
+.github-badge-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.badge-line-1 {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.badge-line-2 {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+}
+
 /* --- 更新日志时间轴样式 --- */
 .changelog-wrapper {
     margin-top: 20px;
@@ -43,11 +132,10 @@
     position: relative;
 }
 
-/* 时间轴上的圆点 */
 .changelog-item::before {
     content: '';
     position: absolute;
-    left: -32px; /* 对应 padding-left 并居中 */
+    left: -32px;
     top: 6px;
     width: 12px;
     height: 12px;
@@ -76,7 +164,6 @@
     font-family: monospace;
 }
 
-/* --- Git 版本标签 (Version) --- */
 .git-version-tag {
     display: inline-flex;
     align-items: center;
@@ -87,7 +174,7 @@
     border-radius: 6px;
     font-size: 0.7rem;
     font-family: 'Cascadia Code', 'Fira Code', monospace;
-    text-decoration: none !important; /* 隐藏底部横条 */
+    text-decoration: none !important;
     border: 1px solid transparent;
     transition: all 0.2s ease;
 }
@@ -98,26 +185,19 @@
     border-color: var(--accent);
 }
 
-.git-icon {
-    opacity: 0.8;
-}
-
-/* --- 链接样式修复（隐藏底部横条） --- */
-.markdown-body a,
-.changelog-link,
-.git-version-tag {
+/* --- 链接样式修复 --- */
+.markdown-body a {
     text-decoration: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
+    border-bottom: 1px solid var(--accent);
+    color: var(--accent);
 }
 
-/* --- 更新日志内容 --- */
 .changelog-msg {
     font-size: 0.95rem;
     line-height: 1.6;
     color: var(--text);
     word-break: break-word;
-    white-space: pre-wrap;  /* 备用方案，确保原始换行符也被尊重 */
+    white-space: pre-wrap;
 }
 
 /* --- 设置面板样式 --- */
@@ -159,15 +239,20 @@
 }
 
 /* --- 毛玻璃质感模式适配 --- */
-[data-frosted-glass="true"] .settings-panel {
+[data-frosted-glass="true"] .settings-panel,
+[data-frosted-glass="true"] .credit-item,
+[data-frosted-glass="true"] .about-github-footer {
     background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-[data-theme="dark"][data-frosted-glass="true"] .settings-panel {
+[data-theme="dark"][data-frosted-glass="true"] .settings-panel,
+[data-theme="dark"][data-frosted-glass="true"] .credit-item,
+[data-theme="dark"][data-frosted-glass="true"] .about-github-footer {
     background: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* 响应式调整 */
@@ -180,5 +265,9 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
+    }
+
+    .credits-grid {
+        grid-template-columns: 1fr;
     }
 }

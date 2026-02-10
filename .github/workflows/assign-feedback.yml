@@ -11,7 +11,6 @@ permissions:
 jobs:
   feedback-automation:
     runs-on: ubuntu-latest
-    # 确保只有标题包含 [Feedback] 且确实是 issue 事件时才运行
     if: contains(github.event.issue.title, '[Feedback]')
     steps:
       - name: Auto Process Feedback
@@ -21,7 +20,6 @@ jobs:
             const { owner, repo } = context.repo;
             const issue = context.payload.issue;
 
-            // 严谨性检查：确保 issue 对象存在
             if (!issue) {
               console.log("No issue object found in event payload. Skipping.");
               return;
@@ -32,7 +30,6 @@ jobs:
 
             console.log(`Processing Feedback for Issue #${currentNumber}`);
 
-            // 1. 给当前的反馈 Issue 打标并分配负责人
             try {
               await github.rest.issues.addLabels({
                 owner, repo, issue_number: currentNumber,
@@ -40,19 +37,17 @@ jobs:
               });
               await github.rest.issues.addAssignees({
                 owner, repo, issue_number: currentNumber,
-                assignees: ['JunLoye'] // 请确保这是你的精确 GitHub ID
+                assignees: ['JunLoye']
               });
             } catch (e) {
               console.log('Setup current issue failed: ' + e.message);
             }
 
-            // 2. 寻找并标记原文章 (Ref: #编号)
             const refMatch = body.match(/Ref: #(\d+)/i);
             
             if (refMatch) {
               const originalIssueNumber = parseInt(refMatch[1]);
               try {
-                // 给原文章添加 Argue 标签
                 await github.rest.issues.addLabels({
                   owner, repo, issue_number: originalIssueNumber,
                   labels: ['Argue']
