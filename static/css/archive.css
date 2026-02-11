@@ -77,9 +77,12 @@ body {
 
 /* 主题切换 */
 #theme-toggle-btn { position: fixed; bottom: 25px; left: 25px; width: 48px; height: 48px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: var(--shadow); }
-#theme-icon { width: 20px; height: 20px; fill: currentColor; }
+#theme-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
 
-/* GitHub 警告框内容微调 */
 .gh-alert .alert-content p {
     margin: 4px 0 0 0;
     font-size: 0.9rem;
@@ -90,7 +93,6 @@ body {
     background: rgba(255, 255, 255, 0.03) !important;
 }
 
-/* 确保解析后的内容中列表间距正常 */
 .markdown-body .gh-alert ul {
     margin-top: 8px;
     margin-bottom: 0;

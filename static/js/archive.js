@@ -1,4 +1,3 @@
-// archive.js
 document.addEventListener('DOMContentLoaded', () => {
     const fileDetailContainer = document.getElementById('file-detail');
     const CONFIG_SOURCE = '/data/archive.json';
@@ -36,9 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * GitHub Alert 解析器 (修复 [!CAUTION] 等)
-     */
     function parseGitHubAlerts(text) {
         const alertTypes = {
             'NOTE': { icon: 'ℹ️', color: '#0969da' },
@@ -59,24 +55,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * 文本预处理器：修复 --- 和 ## 无法解析的问题
-     */
     function preProcessMarkdown(text) {
         if (!text) return "";
 
         return text
-            // 1. 修复分割线：确保 --- 前后有换行，否则会被识别为普通文本或上标题的下划线
             .replace(/^---$/gm, '\n---\n')
             
-            // 2. 修复标题：确保 # 后面有空格，且 # 前面有换行（GitHub 原始文本常缺失换行）
             .replace(/^#+(?=[^#\s])/gm, (match) => match + ' ') 
             .replace(/([^\n])\n(#+\s)/g, '$1\n\n$2')
 
-            // 3. 移除特殊的回车符 (\r\n 转 \n)，防止解析器对多行识别失效
             .replace(/\r\n/g, '\n')
 
-            // 4. 过滤 README 干扰
             .replace(/^#\s*README.*$/gim, "")
             .trim();
     }
@@ -98,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (repoInfo.hideBody) {
             htmlContent = '<p style="color:var(--text-soft); font-style:italic;">更新日志已隐藏</p>';
         } else {
-            // 依次执行：文本预处理 -> GitHub Alert 处理 -> Markdown 渲染
             rawBody = preProcessMarkdown(rawBody);
             rawBody = parseGitHubAlerts(rawBody);
             

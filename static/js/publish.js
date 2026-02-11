@@ -1,6 +1,3 @@
-/**
- * 初始化发布表单与事件监听
- */
 function initPublishForm() {
     const form = document.getElementById('publish-form');
     const bodyInput = document.getElementById('publish-body');
@@ -9,7 +6,6 @@ function initPublishForm() {
 
     if (!form) return;
 
-    // 1. 实时预览
     if (bodyInput && previewArea) {
         bodyInput.oninput = () => {
             if (typeof marked !== 'undefined') {
@@ -18,7 +14,6 @@ function initPublishForm() {
             saveDraft();
         };
 
-        // 2. 粘贴图片自动上传功能
         bodyInput.onpaste = async (e) => {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (const item of items) {
@@ -32,7 +27,7 @@ function initPublishForm() {
                     }
                     
                     const statusEl = document.getElementById('publish-status');
-                    statusEl.innerText = '正在上传粘贴的图片...';
+                    if (statusEl) statusEl.innerText = '正在上传粘贴的图片...';
                     
                     try {
                         const imgUrl = await uploadCoverToGithub(file, token);
@@ -43,9 +38,9 @@ function initPublishForm() {
                         if (typeof marked !== 'undefined') {
                             previewArea.innerHTML = marked.parse(bodyInput.value);
                         }
-                        statusEl.innerText = '图片上传成功';
+                        if (statusEl) statusEl.innerText = '图片上传成功';
                     } catch (err) {
-                        statusEl.innerText = '图片上传失败';
+                        if (statusEl) statusEl.innerText = '图片上传失败';
                         showNotification(err.message, 'error');
                     }
                 }
@@ -53,7 +48,6 @@ function initPublishForm() {
         };
     }
 
-    // 3. 封面文件选择预览
     if (coverUpload) {
         coverUpload.onchange = (e) => {
             const file = e.target.files[0];
@@ -61,8 +55,10 @@ function initPublishForm() {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const preview = document.getElementById('publish-cover-preview');
-                    preview.src = ev.target.result;
-                    preview.style.display = 'block';
+                    if (preview) {
+                        preview.src = ev.target.result;
+                        preview.style.display = 'block';
+                    }
                 };
                 reader.readAsDataURL(file);
             }
@@ -74,15 +70,19 @@ function initPublishForm() {
     syncPublishButtonState();
 }
 
-/**
- * 草稿持久化
- */
 function saveDraft() {
+    const titleEl = document.getElementById('publish-title');
+    const bodyEl = document.getElementById('publish-body');
+    const labelsEl = document.getElementById('publish-labels');
+    const summaryEl = document.getElementById('publish-summary');
+
+    if (!titleEl || !bodyEl) return;
+
     const draft = {
-        title: document.getElementById('publish-title').value,
-        body: document.getElementById('publish-body').value,
-        labels: document.getElementById('publish-labels').value,
-        summary: document.getElementById('publish-summary').value
+        title: titleEl.value,
+        body: bodyEl.value,
+        labels: labelsEl ? labelsEl.value : '',
+        summary: summaryEl ? summaryEl.value : ''
     };
     localStorage.setItem('gh_post_draft', JSON.stringify(draft));
 }
@@ -91,18 +91,19 @@ function loadDraft() {
     const saved = localStorage.getItem('gh_post_draft');
     if (saved) {
         const draft = JSON.parse(saved);
-        document.getElementById('publish-title').value = draft.title || '';
-        document.getElementById('publish-body').value = draft.body || '';
-        document.getElementById('publish-labels').value = draft.labels || '';
-        document.getElementById('publish-summary').value = draft.summary || '';
-        const bodyInput = document.getElementById('publish-body');
-        if (bodyInput) bodyInput.dispatchEvent(new Event('input'));
+        const titleEl = document.getElementById('publish-title');
+        const bodyEl = document.getElementById('publish-body');
+        const labelsEl = document.getElementById('publish-labels');
+        const summaryEl = document.getElementById('publish-summary');
+
+        if (titleEl) titleEl.value = draft.title || '';
+        if (bodyEl) bodyEl.value = draft.body || '';
+        if (labelsEl) labelsEl.value = draft.labels || '';
+        if (summaryEl) summaryEl.value = draft.summary || '';
+        if (bodyEl) bodyEl.dispatchEvent(new Event('input'));
     }
 }
 
-/**
- * 同步发布按钮状态
- */
 function syncPublishButtonState() {
     const token = localStorage.getItem('github_key');
     const submitBtn = document.getElementById('submit-btn');
@@ -121,15 +122,12 @@ function syncPublishButtonState() {
     }
 }
 
-/**
- * 设置模态框逻辑
- */
 function openSettingsModal() {
     const modal = document.getElementById('settings-modal');
     const input = document.getElementById('settings-key-input');
     if (modal) {
         modal.style.display = 'flex';
-        input.value = localStorage.getItem('github_key') || '';
+        if (input) input.value = localStorage.getItem('github_key') || '';
     }
 }
 
@@ -139,7 +137,9 @@ function closeSettingsModal() {
 }
 
 function saveSettings() {
-    const key = document.getElementById('settings-key-input').value.trim();
+    const input = document.getElementById('settings-key-input');
+    if (!input) return;
+    const key = input.value.trim();
     localStorage.setItem('github_key', key);
     showNotification('设置已保存', 'info');
     closeSettingsModal();
@@ -147,34 +147,42 @@ function saveSettings() {
 }
 
 async function uploadCoverToGithub(file, token) {
+    const base64Content = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = (e) => reject(new Error('文件读取失败'));
+        reader.readAsDataURL(file);
+    });
+
     const timestamp = Date.now();
     const ext = file.name ? file.name.split('.').pop().toLowerCase() : 'png';
     const fileName = `img_${timestamp}.${ext}`;
+    
     const imgPath = `images/blog_${timestamp}/${fileName}`;
-    const targetRepo = "JunLoye/blog_files";
+    const targetRepo = "JunLoye/junloye.github.io"; 
+    const targetBranch = "image";
     const apiUrl = `https://api.github.com/repos/${targetRepo}/contents/${imgPath}`;
-
-    const reader = new FileReader();
-    const base64Content = await new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.readAsDataURL(file);
-    });
 
     const res = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
             'Authorization': `token ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json'
         },
         body: JSON.stringify({ 
-            message: `Upload asset: ${imgPath}`, 
+            message: `Upload image: ${fileName}`, 
             content: base64Content,
-            branch: "main" 
+            branch: targetBranch
         })
     });
     
-    if (!res.ok) throw new Error('GitHub 上传失败');
-    return `https://blog-images.loyejun.workers.dev/${imgPath}`;
+    if (!res.ok) {
+        const errorDetail = await res.json();
+        throw new Error(`GitHub 上传失败: ${errorDetail.message || res.statusText}`);
+    }
+
+    return `https://raw.githubusercontent.com/${targetRepo}/${targetBranch}/${imgPath}`;
 }
 
 async function publishNewPost(e) {
@@ -185,9 +193,10 @@ async function publishNewPost(e) {
     const bodyVal = document.getElementById('publish-body').value.trim();
     const labelsVal = document.getElementById('publish-labels').value.split(',').map(l => l.trim()).filter(Boolean);
     const summaryVal = document.getElementById('publish-summary').value.trim();
-    const referenceVal = document.getElementById('publish-reference').value.trim(); 
-    let coverUrl = document.getElementById('publish-cover').value.trim();
-    const coverFile = document.getElementById('publish-cover-upload').files[0];
+    const referenceVal = document.getElementById('publish-reference') ? document.getElementById('publish-reference').value.trim() : ''; 
+    let coverUrl = document.getElementById('publish-cover') ? document.getElementById('publish-cover').value.trim() : '';
+    const coverUploadEl = document.getElementById('publish-cover-upload');
+    const coverFile = coverUploadEl ? coverUploadEl.files[0] : null;
     const progressEl = document.getElementById('publish-progress');
     const submitBtn = document.getElementById('submit-btn');
 
@@ -212,7 +221,7 @@ async function publishNewPost(e) {
         if (coverUrl) issueBody += `[Cover] ${coverUrl}\n\n`;
         if (summaryVal) issueBody += `[Summary]\n${summaryVal}\n\n`;
         issueBody += `[Content]\n${bodyVal}`;
-        if (referenceVal) issueBody += `[References]\n${referenceVal}\n\n`;
+        if (referenceVal) issueBody += `\n\n[References]\n${referenceVal}`;
 
         const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/issues`, {
             method: 'POST',
@@ -223,7 +232,10 @@ async function publishNewPost(e) {
             body: JSON.stringify({ title: titleVal, body: issueBody, labels: labelsVal })
         });
 
-        if (!res.ok) throw new Error('GitHub API 调用失败，请检查 Key 权限');
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'GitHub API 调用失败');
+        }
         
         showNotification('发布成功！', 'info');
         localStorage.removeItem('gh_post_draft'); 

@@ -46,10 +46,7 @@ async function fetchGitHubCommits() {
         if (loadingText) loadingText.style.display = 'none';
         
         listContainer.className = "changelog-wrapper"; 
-        
-        // 核心修改：筛选逻辑
-        // 1. 保留索引为 0 的提交（最新的一个）
-        // 2. 保留包含换行符 \n 的提交（多行提交）
+
         const displayCommits = commits.filter((item, index) => {
             if (index === 0) return true; 
             return item.commit.message.includes('\n');
@@ -111,7 +108,6 @@ function closeAbout() {
     }, 300);
 }
 
-// 监听浏览器前进后退
 window.addEventListener('popstate', (e) => {
     if (e.state && e.state.page === 'about') {
         openAbout(false);

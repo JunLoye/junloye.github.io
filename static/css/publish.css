@@ -164,18 +164,17 @@
     display: none;
 }
 
-/* --- 移动端支持 (响应式补充) --- */
 @media screen and (max-width: 768px) {
     #publish-modal .detail-container {
         width: 100vw;
         height: 100vh;
         margin: 0;
         border-radius: 0;
-        padding: 20px 15px 15px; /* 顶部留出关闭按钮空间 */
+        padding: 20px 15px 15px;
     }
 
     .publish-header-bar {
-        margin-top: 40px; /* 避免遮挡 CLOSE 按钮 */
+        margin-top: 40px;
     }
     
     .publish-top-grid, 
@@ -189,7 +188,7 @@
     }
 
     .preview-side { 
-        display: none; /* 移动端隐藏预览，确保编辑器全屏输入 */
+        display: none;
     }
 
     .publish-bottom-grid {
@@ -202,7 +201,7 @@
     }
 
     #publish-body {
-        font-size: 16px; /* 防止 iOS 自动缩放 */
+        font-size: 16px;
     }
 }
 

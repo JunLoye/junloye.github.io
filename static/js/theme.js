@@ -19,7 +19,6 @@ function toggleDarkMode() {
     updateThemeIcon();
 }
 
-// 毛玻璃模式相关函数
 function toggleFrostedGlass() {
     const body = document.body;
     const isFrosted = body.getAttribute('data-frosted-glass') === 'true';
@@ -28,13 +27,11 @@ function toggleFrostedGlass() {
     body.setAttribute('data-frosted-glass', newFrosted);
     localStorage.setItem('frosted-glass', newFrosted);
     
-    // 更新设置页的开关状态
     const checkbox = document.getElementById('frosted-glass-toggle');
     if (checkbox) {
         checkbox.checked = newFrosted;
     }
     
-    // 显示提示
     showNotification(newFrosted ? '毛玻璃模式已启用' : '毛玻璃模式已禁用');
 }
 
@@ -51,7 +48,6 @@ function applyFrostedGlassMode(enabled) {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
     
-    // 应用保存的毛玻璃模式设置
     const savedFrostedGlass = localStorage.getItem('frosted-glass') === 'true';
     applyFrostedGlassMode(savedFrostedGlass);
 })();

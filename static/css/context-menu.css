@@ -2,11 +2,9 @@
     position: fixed;
     display: none;
     min-width: 180px;
-    /* 玻璃态核心：半透明背景 + 模糊 + 饱和度 */
     background: rgba(255, 255, 255, 0.7); 
     backdrop-filter: blur(15px) saturate(180%);
     -webkit-backdrop-filter: blur(15px) saturate(180%);
-    /* 极细的白色边框模拟玻璃边缘光泽 */
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 

@@ -527,7 +527,7 @@ mark.search-highlight {
     }
 
     .post-grid {
-        grid-template-columns: 1fr; /* 窄屏改为单列布局 */
+        grid-template-columns: 1fr;
         gap: 25px;
     }
 
@@ -536,7 +536,7 @@ mark.search-highlight {
     }
 
     .detail-hero-img {
-        height: 240px; /* 缩减手机端封面高度 */
+        height: 240px;
         border-radius: 12px;
     }
 
