@@ -264,15 +264,6 @@
     gap: 8px;
 }
 
-.beta-badge {
-    background: var(--accent);
-    color: #fff;
-    padding: 2px 6px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    border-radius: 4px;
-}
-
 .setting-description {
     font-size: 0.8rem;
     color: var(--text-soft);
@@ -280,7 +271,6 @@
     margin-top: 4px;
 }
 
-/* --- 毛玻璃质感模式适配 --- */
 [data-frosted-glass="true"] .settings-panel,
 [data-frosted-glass="true"] .credit-item,
 [data-frosted-glass="true"] .about-github-footer {

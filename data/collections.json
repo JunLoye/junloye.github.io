@@ -1,0 +1,17 @@
+[
+    {
+        "id": "frontend-dev",
+        "title": "前端开发",
+        "description": "关于前端开发技术和最佳实践的文章集合。"
+    },
+    {
+        "id": "backend-dev",
+        "title": "后端开发",
+        "description": "关于后端开发、API设计和数据库技术的文章集合。"
+    },
+    {
+        "id": "data-science",
+        "title": "数据科学",
+        "description": "机器学习、数据分析和可视化方面的文章。"
+    }
+]

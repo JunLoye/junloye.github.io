@@ -8,3 +8,12 @@
 @import "/static/css/context-menu.css";
 
 @import "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css";
+
+.beta-badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    border-radius: 5px;
+}
