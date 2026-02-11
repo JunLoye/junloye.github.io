@@ -145,20 +145,18 @@ function initLinkPreview() {
             const targetIssue = issuesSource.find(i => i.number === num);
             
             if (targetIssue) {
-                // 1. 根据文章模板提取预览文本
                 let rawExcerpt = "";
                 const contentMatch = targetIssue.body?.match(/\[Content\]\s*([\s\S]*?)(?=\[References\]|---|$)/);
                 const summaryMatch = targetIssue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\[Content\]|---|$)/);
                 
                 if (contentMatch && contentMatch[1].trim()) {
-                    rawExcerpt = contentMatch[1].trim().substring(0, 800); // 截取前500字以保证 MD 结构完整
+                    rawExcerpt = contentMatch[1].trim().substring(0, 800);
                 } else if (summaryMatch) {
                     rawExcerpt = summaryMatch[1].trim();
                 } else {
                     rawExcerpt = targetIssue.body?.substring(0, 200);
                 }
 
-                // 2. 渲染 Markdown 并处理预览中的 Alert (含 AI)
                 let renderedExcerpt = "";
                 try {
                     if (typeof marked !== 'undefined') {
@@ -198,7 +196,6 @@ function initLinkPreview() {
                 const rect = link.getBoundingClientRect();
                 const cardHeight = previewCard.offsetHeight;
                 
-                // 计算位置
                 let top = rect.top - cardHeight - 15;
                 if (top < 10) top = rect.bottom + 15;
                 

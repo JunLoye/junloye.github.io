@@ -180,10 +180,8 @@
     opacity: 0;
     transform: translateY(8px);
     overflow-y: auto;
-    /* 内容多时支持滚动 */
 }
 
-/* 隐藏滚动条 */
 #link-preview-card::-webkit-scrollbar {
     width: 4px;
 }
@@ -198,7 +196,6 @@
     transform: translateY(0);
 }
 
-/* 预览内容样式 */
 #link-preview-card .preview-excerpt.markdown-body {
     font-size: 0.85rem;
     line-height: 1.6;
@@ -255,7 +252,6 @@
     border-radius: 4px;
 }
 
-/* 文章引用链接样式 */
 .post-ref-link {
     display: inline-flex;
     align-items: center;
@@ -274,7 +270,6 @@
     color: white !important;
 }
 
-/* 原有 TOC 和其他样式 */
 .post-toc {
     position: fixed;
     left: 20px;

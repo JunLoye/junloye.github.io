@@ -120,7 +120,8 @@ nav {
 }
 
 .about-trigger,
-.publish-trigger {
+.publish-trigger,
+.archive-trigger {
     position: relative;
     cursor: pointer;
     font-size: 0.85rem;
@@ -132,7 +133,8 @@ nav {
 }
 
 .about-trigger::after,
-.publish-trigger::after {
+.publish-trigger::after,
+.archive-trigger::after {
     content: '';
     position: absolute;
     width: 0;
@@ -144,12 +146,14 @@ nav {
 }
 
 .about-trigger:hover,
-.publish-trigger:hover {
+.publish-trigger:hover,
+.archive-trigger:hover {
     color: var(--accent);
 }
 
 .about-trigger:hover::after,
-.publish-trigger:hover::after {
+.publish-trigger:hover::after,
+.archive-trigger:hover::after {
     width: 100%;
 }
 
@@ -510,7 +514,7 @@ mark.search-highlight {
         gap: 10px;
     }
 
-    .about-trigger, .publish-trigger {
+    .about-trigger, .publish-trigger, .archive-trigger {
         font-size: 0.75rem;
     }
 
