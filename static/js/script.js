@@ -6,9 +6,9 @@ const CONFIG = {
     proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
     defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png',
     nodes: [
-        { name: '主站 (GitHub)', url: 'https://github.com' },
+        { name: '主站 (GitHub)', url: 'https://junloye.github.io' },
         { name: '备用站1 (Vercel)', url: 'https://junloye.vercel.app' },
-        { name: '备用站2 (Cloudfare)', url: 'https://blog.loyejun.workers.dev' },
+        { name: '备用站2 (Cloudflare)', url: 'https://blog.loyejun.workers.dev' },
         { name: 'API 服务', url: 'https://api.github.com' }
     ]
 };
@@ -252,7 +252,7 @@ function initNodeList() {
 
         return `
             <div class="info-item node-item ${extraClass}" ${clickAttr}>
-                <span class="info-label">${node.name} ${isCurrent ? ' (当前)' : ''}</span>
+                <span class="info-label">${node.name} ${isCurrent ? '' : ''}</span>
                 <span class="info-value node-latency" id="node-${index}">- ms</span>
             </div>
         `;
