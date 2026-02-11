@@ -35,19 +35,12 @@
 │   │   ├── cookie.css
 │   │   ├── main.css
 │   │   ├── markdown.css
-│   │   ├── music-player.css
-│   │   ├── post.css
-│   │   ├── publish.css
-│   │   ├── sidebar.css
-│   │   └── style.css
+│   │   ...
 │   └── js/
 │       ├── about.js
-│       ├── music-player.js
 │       ├── post.js
 │       ├── publish.js
-│       ├── script.js
-│       ├── search.js
-│       └── theme.js
+│       ...
 ```
 
 ## 主要功能说明
