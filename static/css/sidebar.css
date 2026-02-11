@@ -119,6 +119,10 @@
 }
 
 @media (max-width: 768px) {
+    .sidebar-info {
+        display: none;
+    }
+
     .back-to-top {
         bottom: 90px;
         right: 20px;
