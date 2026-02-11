@@ -91,6 +91,20 @@
         <p>© <span id="year"></span> JUN LOYE</p>
     </footer>
 
+    <div id="custom-context-menu" class="context-menu">
+        <div id="menu-text-group" style="display: none;">
+            <div class="menu-item" onclick="copySelectedText()">复制选中内容</div>
+            <div class="menu-item" onclick="searchSelectedText()">谷歌搜索</div>
+            <div class="menu-divider"></div>
+        </div>
+
+        <div class="menu-item" onclick="window.location.reload()">刷新页面</div>
+        <div class="menu-item" onclick="scrollToTop()">回到顶部</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="window.open('https://github.com/JunLoye/junloye.github.io')">项目源码</div>
+        <div class="menu-item" onclick="showNotification('已复制本页链接', 'success'); navigator.clipboard.writeText(window.location.href)">复制本页链接</div>
+    </div>
+
     <script src="/static/js/login.js"></script>
     <script src="/static/js/search.js"></script>
     <script src="/static/js/theme.js"></script>

@@ -6,17 +6,17 @@ const CONFIG = {
     proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
     defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png',
     nodes: [
-        { name: '主站 (GitHub)', url: 'https://junloye.github.io' },
-        { name: '备用站1 (Vercel)', url: 'https://junloye.vercel.app' },
-        { name: '备用站2 (Cloudflare)', url: 'https://blog.loyejun.workers.dev' },
-        { name: 'API 服务', url: 'https://api.github.com' }
+        { name: '主站 (GitHub)', url: 'https://junloye.github.io'},
+        { name: '备用站1 (Vercel)', url: 'https://junloye.vercel.app'},
+        { name: '备用站2 (Cloudflare)', url: 'https://blog.loyejun.workers.dev'},
+        { name: 'API 服务', url: 'https://api.github.com'}
     ]
 };
 
-const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
 let allIssues = [];
 const ORIGINAL_TITLE = document.title;
 let templatesLoaded = false;
+let lastSelectedText = ""; // 记忆选中文本
 
 window.onerror = (msg) => showNotification(`代码错误: ${msg}`, 'error');
 window.onunhandledrejection = (event) => showNotification(`异步请求失败: ${event.reason}`, 'error');
@@ -32,6 +32,77 @@ function showNotification(msg, type = 'error') {
     const dismiss = () => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); };
     setTimeout(dismiss, 5000);
     toast.onclick = dismiss;
+}
+
+// 修复后的复制功能
+async function copySelectedText() {
+    const textToCopy = lastSelectedText || window.getSelection().toString().trim();
+    if (!textToCopy) return;
+
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+        showNotification('已复制到剪贴板', 'success');
+    } catch (err) {
+        // Fallback
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('已复制到剪贴板', 'success');
+    }
+}
+
+// 搜索选中文本
+function searchSelectedText() {
+    const text = lastSelectedText || window.getSelection().toString().trim();
+    if (text) {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`, '_blank');
+    }
+}
+
+// 初始化右键菜单
+function initContextMenu() {
+    const menu = document.getElementById('custom-context-menu');
+    const textGroup = document.getElementById('menu-text-group');
+    if (!menu) return;
+
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        
+        // 捕获选中文本
+        lastSelectedText = window.getSelection().toString().trim();
+        if (lastSelectedText.length > 0) {
+            textGroup.style.display = 'block';
+        } else {
+            textGroup.style.display = 'none';
+        }
+
+        let x = e.clientX;
+        let y = e.clientY;
+
+        // 临时显示以获取尺寸
+        menu.style.display = 'block';
+        const menuWidth = menu.offsetWidth;
+        const menuHeight = menu.offsetHeight;
+
+        // 边界检测
+        if (x + menuWidth > window.innerWidth) x -= menuWidth;
+        if (y + menuHeight > window.innerHeight) y -= menuHeight;
+
+        menu.style.left = `${x}px`;
+        menu.style.top = `${y}px`;
+    });
+
+    // 点击其他地方隐藏
+    document.addEventListener('click', () => {
+        menu.style.display = 'none';
+    });
+
+    window.addEventListener('scroll', () => {
+        menu.style.display = 'none';
+    }, { passive: true });
 }
 
 window.addEventListener('popstate', () => {
@@ -54,6 +125,8 @@ window.onkeydown = (e) => {
         if (typeof closePost === 'function') closePost();
         if (typeof closeAbout === 'function') closeAbout();
         if (typeof closePublishModal === 'function') closePublishModal();
+        const menu = document.getElementById('custom-context-menu');
+        if (menu) menu.style.display = 'none';
     }
 };
 
@@ -334,6 +407,9 @@ window.addEventListener('load', () => {
     
     initNodeList();
     setTimeout(checkLatency, 1000);
+    
+    // 初始化右键菜单
+    initContextMenu();
 
     window.addEventListener('scroll', handleScroll);
     const postOverlay = document.getElementById('post-overlay');

@@ -1,0 +1,63 @@
+.context-menu {
+    position: fixed;
+    display: none;
+    min-width: 180px;
+    /* 玻璃态核心：半透明背景 + 模糊 + 饱和度 */
+    background: rgba(255, 255, 255, 0.7); 
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    /* 极细的白色边框模拟玻璃边缘光泽 */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    z-index: 10000;
+    padding: 6px;
+    transform-origin: top left;
+    transition: transform 0.1s ease-out;
+    animation: menuFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes menuFadeIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+[data-theme='dark'] .context-menu {
+    background: rgba(28, 28, 30, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.menu-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #1d1d1f;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s ease;
+}
+
+[data-theme='dark'] .menu-item { color: #f5f5f7; }
+
+.menu-item:hover {
+    background-color: var(--accent, #007aff);
+    color: white !important;
+}
+
+.menu-item span {
+    font-size: 16px;
+    width: 16px;
+    text-align: center;
+}
+
+.menu-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08);
+    margin: 6px 8px;
+}
+
+[data-theme='dark'] .menu-divider { background: rgba(255, 255, 255, 0.15); }
