@@ -6,6 +6,39 @@
     position: relative;
 }
 
+/* 新增：头部 Flex 布局 */
+.about-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.about-title-group {
+    text-align: left;
+}
+
+.about-avatar-wrapper {
+    margin-bottom: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.about-avatar {
+    width: 110px;
+    height: auto;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--line);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.about-avatar:hover {
+    transform: scale(1.08) rotate(2deg);
+    border-color: var(--accent);
+}
+
 .close-btn {
     position: fixed;
     top: 20px;
@@ -271,6 +304,17 @@
         padding: 20px 15px;
     }
     
+    /* 移动端改为垂直居中排列 */
+    .about-header-flex {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .about-title-group {
+        text-align: center;
+    }
+
     .changelog-date {
         flex-direction: column;
         align-items: flex-start;
@@ -279,5 +323,10 @@
 
     .credits-grid {
         grid-template-columns: 1fr;
+    }
+
+    .about-avatar {
+        width: 80px;
+        height: 80px;
     }
 }
