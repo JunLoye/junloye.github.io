@@ -1,8 +1,9 @@
 @import "/static/css/style.css";
+@import "/static/css/sidebar.css";
 @import "/static/css/music-player.css";
 @import "/static/css/publish.css";
 @import "/static/css/post.css";
-@import "/static/css/markdown-body.css";
+@import "/static/css/markdown.css";
 @import "/static/css/cookie.css";
 
 @import "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css";

@@ -1,0 +1,94 @@
+.sidebar-info {
+    position: fixed;
+    left: 40px;
+    top: 120px;
+    width: 200px;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar-section {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: var(--shadow);
+}
+
+.sidebar-header {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.sidebar-title {
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.info-item {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 线路列表专用微调 */
+#node-list .info-item {
+    margin-bottom: 6px; 
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* 可点击线路的悬停效果 */
+.node-clickable {
+    cursor: pointer;
+}
+
+.node-clickable:hover {
+    background-color: var(--line);
+    transform: translateX(4px);
+}
+
+/* 当前选中节点的样式 */
+.node-active {
+    background-color: var(--accent) !important;
+    cursor: default;
+}
+
+.node-active .info-label, 
+.node-active .info-value {
+    color: white !important; /* 让文字在主题色背景下更清晰 */
+}
+
+/* 禁用点击的样式 */
+.node-disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.info-label {
+    font-size: 0.7rem;
+    color: var(--text-soft);
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.latency-low {
+    color: #52c41a;
+}
+.latency-mid {
+    color: #faad14;
+}
+.latency-high {
+    color: #f5222d;
+}

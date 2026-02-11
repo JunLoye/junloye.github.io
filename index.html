@@ -16,26 +16,35 @@
     <button id="theme-toggle-btn" onclick="toggleDarkMode()"><svg id="theme-icon" viewBox="0 0 24 24"></svg></button>
 
     <aside class="sidebar-info" id="sidebar-info">
-        <div class="sidebar-header">
-            <span class="sidebar-title">Blog Info</span>
+        <div class="sidebar-section">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Blog Info</span>
+            </div>
+            <div class="sidebar-content">
+                <div class="info-item">
+                    <span class="info-label">博文总数</span>
+                    <span class="info-value" id="sidebar-post-count">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">运行时间</span>
+                    <span class="info-value" id="sidebar-run-time">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">您的 IP</span>
+                    <span class="info-value" id="sidebar-ip">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Version</span>
+                    <span class="info-value" id="sidebar-version">-</span>
+                </div>
+            </div>
         </div>
-        <div class="sidebar-content">
-            <div class="info-item">
-                <span class="info-label">博文总数</span>
-                <span class="info-value" id="sidebar-post-count">-</span>
+
+        <div class="sidebar-section">
+            <div class="sidebar-header">
+                <span class="sidebar-title">线路选择</span>
             </div>
-            <div class="info-item">
-                <span class="info-label">运行时间</span>
-                <span class="info-value" id="sidebar-run-time">-</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">您的 IP</span>
-                <span class="info-value" id="sidebar-ip">-</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Version</span>
-                <span class="info-value" id="sidebar-version">-</span>
-            </div>
+            <div class="sidebar-content" id="node-list"></div>
         </div>
     </aside>
 

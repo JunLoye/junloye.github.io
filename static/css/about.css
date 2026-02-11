@@ -77,31 +77,45 @@
     color: var(--text-soft);
 }
 
-/* --- GitHub 底部徽标 --- */
-.about-github-footer {
-    margin-top: 60px;
-    padding: 20px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
 .github-badge-container {
     display: flex;
     align-items: center;
     gap: 15px;
-    text-decoration: none !important;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.github-badge-container:hover {
+    border-color: var(--accent);
+    background: var(--selection-bg);
+    transform: translateY(-2px);
 }
 
 .github-icon-large {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     fill: var(--text);
 }
 
 .github-badge-text {
     display: flex;
     flex-direction: column;
+    text-align: left;
+}
+
+.about-github-footer {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
 .badge-line-1 {

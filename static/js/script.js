@@ -5,7 +5,13 @@ const CONFIG = {
     musicFolder: 'music',
     clientId: 'Ov23licJrsWm5hKFYAxj',
     proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
-    defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png'
+    defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png',
+    nodes: [
+        { name: '主站 (GitHub)', url: 'https://github.com' },
+        { name: '备用站1 (Vercel)', url: 'https://junloye.vercel.app' },
+        { name: '备用站2 (Cloudfare)', url: 'https://blog.loyejun.workers.dev' },
+        { name: 'API 服务', url: 'https://api.github.com' }
+    ]
 };
 
 const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
@@ -215,7 +221,6 @@ function initCookieBanner() {
     }
 }
 
-// 修复点：确保 Banner 能被准确隐藏
 function setCookiePreference(status) {
     const banner = document.getElementById('cookie-banner');
     localStorage.setItem('cookie-consent', status);
@@ -231,6 +236,69 @@ function setCookiePreference(status) {
     }
 }
 
+// --- 线路选择与延迟检测逻辑 ---
+
+function initNodeList() {
+    const container = document.getElementById('node-list');
+    if (!container) return;
+    
+    // 获取当前访问的域名
+    const currentHost = window.location.hostname;
+
+    let html = CONFIG.nodes.map((node, index) => {
+        const isApi = node.name.includes('API');
+        const nodeUrl = new URL(node.url);
+        
+        // 判断当前节点是否正在被访问
+        const isCurrent = currentHost === nodeUrl.hostname;
+        
+        const clickAttr = (isApi || isCurrent) ? '' : `onclick="window.location.href='${node.url}'"`;
+        const extraClass = isApi ? 'node-disabled' : (isCurrent ? 'node-active' : 'node-clickable');
+
+        return `
+            <div class="info-item node-item ${extraClass}" ${clickAttr}>
+                <span class="info-label">${node.name} ${isCurrent ? ' (当前)' : ''}</span>
+                <span class="info-value node-latency" id="node-${index}">- ms</span>
+            </div>
+        `;
+    }).join('');
+    
+    html += `
+        <div class="info-item node-item node-clickable" style="margin-top: 5px; border-top: 1px dashed var(--line); padding-top: 10px;" onclick="checkLatency()">
+            <span class="info-label" style="color: var(--accent)">重新检测</span>
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+async function checkLatency() {
+    CONFIG.nodes.forEach(async (node, index) => {
+        const el = document.getElementById(`node-${index}`);
+        if (el) el.textContent = 'Testing';
+        
+        const start = Date.now();
+        try {
+            await fetch(node.url, { mode: 'no-cors', cache: 'no-cache' });
+            const latency = Date.now() - start;
+            updateLatencyUI(el, latency);
+        } catch (e) {
+            if (el) {
+                el.textContent = 'Timeout';
+                el.className = 'info-value node-latency latency-high';
+            }
+        }
+    });
+}
+
+function updateLatencyUI(el, ms) {
+    if (!el) return;
+    el.textContent = `${ms} ms`;
+    el.className = 'info-value node-latency';
+    if (ms < 200) el.classList.add('latency-low');
+    else if (ms < 500) el.classList.add('latency-mid');
+    else el.classList.add('latency-high');
+}
+
 window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -241,4 +309,7 @@ window.addEventListener('load', () => {
     fetchLatestVersion();
     updateBlogRunTime();
     initCookieBanner();
+    
+    initNodeList();
+    setTimeout(checkLatency, 1000);
 });
