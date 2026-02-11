@@ -45,6 +45,11 @@
     transition: all 0.2s ease;
 }
 
+/* 基础样式，确保颜色可以被覆盖 */
+#node-list .node-item .info-label {
+    color: var(--text-soft);
+}
+
 /* 可点击线路的悬停效果 */
 .node-clickable {
     cursor: pointer;
@@ -55,15 +60,17 @@
     transform: translateX(4px);
 }
 
-/* 当前选中节点的样式 */
-.node-active {
+/* 当前选中节点的样式：提升权重 */
+#node-list .node-item.node-active {
     background-color: var(--accent) !important;
     cursor: default;
+    transform: none;
 }
 
-.node-active .info-label, 
-.node-active .info-value {
-    color: white !important; /* 让文字在主题色背景下更清晰 */
+/* 高亮时的文字颜色强制更新 */
+#node-list .node-active .info-label, 
+#node-list .node-active .info-value {
+    color: #ffffff !important;
 }
 
 /* 禁用点击的样式 */
@@ -74,7 +81,6 @@
 
 .info-label {
     font-size: 0.7rem;
-    color: var(--text-soft);
     font-weight: 600;
 }
 
@@ -83,12 +89,7 @@
     font-weight: 700;
 }
 
-.latency-low {
-    color: #52c41a;
-}
-.latency-mid {
-    color: #faad14;
-}
-.latency-high {
-    color: #f5222d;
-}
+/* 延迟颜色 */
+.latency-low { color: #52c41a; }
+.latency-mid { color: #faad14; }
+.latency-high { color: #f5222d; }

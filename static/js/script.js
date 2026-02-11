@@ -7,9 +7,9 @@ const CONFIG = {
     proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
     defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png',
     nodes: [
-        { name: '主站 (GitHub)', url: 'https://github.com' },
-        { name: '备用站1 (Vercel)', url: 'https://junloye.vercel.app' },
-        { name: '备用站2 (Cloudfare)', url: 'https://blog.loyejun.workers.dev' },
+        { name: '主站 (GitHub)', url: 'https://junloye.github.io' },
+        { name: '备用1 (Vercel)', url: 'https://junloye.vercel.app' },
+        { name: '备站2 (Cloudflare)', url: 'https://blog.loyejun.workers.dev' },
         { name: 'API 服务', url: 'https://api.github.com' }
     ]
 };
@@ -236,28 +236,28 @@ function setCookiePreference(status) {
     }
 }
 
-// --- 线路选择与延迟检测逻辑 ---
-
 function initNodeList() {
     const container = document.getElementById('node-list');
     if (!container) return;
     
-    // 获取当前访问的域名
     const currentHost = window.location.hostname;
 
     let html = CONFIG.nodes.map((node, index) => {
         const isApi = node.name.includes('API');
-        const nodeUrl = new URL(node.url);
-        
-        // 判断当前节点是否正在被访问
-        const isCurrent = currentHost === nodeUrl.hostname;
+        let isCurrent = false;
+        try {
+            const nodeUrl = new URL(node.url);
+            isCurrent = currentHost === nodeUrl.hostname;
+        } catch(e) {
+            isCurrent = false;
+        }
         
         const clickAttr = (isApi || isCurrent) ? '' : `onclick="window.location.href='${node.url}'"`;
         const extraClass = isApi ? 'node-disabled' : (isCurrent ? 'node-active' : 'node-clickable');
 
         return `
             <div class="info-item node-item ${extraClass}" ${clickAttr}>
-                <span class="info-label">${node.name} ${isCurrent ? ' (当前)' : ''}</span>
+                <span class="info-label">${node.name} ${isCurrent ? '' : ''}</span>
                 <span class="info-value node-latency" id="node-${index}">- ms</span>
             </div>
         `;
