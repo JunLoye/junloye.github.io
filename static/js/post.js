@@ -21,6 +21,36 @@ function openPost(num, pushState = true) {
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
+    // --- 争议提示逻辑：获取反馈 Issue 编号 ---
+    const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === 'ARGUE');
+    let argueBannerHtml = "";
+    if (hasArgueTag) {
+        // 使用正则搜索正文中包含 Ref: #文章编号 的反馈 Issue
+        const refRegex = new RegExp(`Ref:\\s*#${num}\\b`);
+        const feedbackIssue = issuesSource.find(i => 
+            i.labels.some(l => l.name === 'Feedback') && 
+            refRegex.test(i.body || "")
+        );
+
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
+        
+        // 核心修复：如果找到反馈 Issue，链接和显示的 ID 都使用反馈 Issue 的 number
+        const displayId = feedbackIssue ? feedbackIssue.number : num;
+        const feedbackUrl = feedbackIssue 
+            ? `https://github.com/${username}/${repo}/issues/${feedbackIssue.number}`
+            : `https://github.com/${username}/${repo}/issues?q=${encodeURIComponent(`is:issue label:Feedback "Ref: #${num}"`)}`;
+
+        argueBannerHtml = `
+            <div class="argue-banner">
+                <span class="argue-banner-icon">⚠️</span>
+                <div class="argue-banner-text">
+                    此文章内容存在争议。点击此处查看纠错详情 
+                    <a href="${feedbackUrl}" target="_blank" class="post-ref-link" data-num="${displayId}">#${displayId}</a>
+                </div>
+            </div>`;
+    }
+
     const refMatch = issue.body?.match(/\[References\]([\s\S]*?)(?=\[Content\]|---|$)/);
     const referenceRaw = refMatch ? refMatch[1].trim() : "";
     let referenceHtml = "";
@@ -56,7 +86,7 @@ function openPost(num, pushState = true) {
     try {
         if (typeof marked !== 'undefined') {
             htmlContent = marked.parse(cleanBody);
-            // 核心解析：处理正文中的 > [!NOTE] 和 > [!AI]
+            // 转换 Alert 标签
             htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
                 const t = type.toUpperCase();
                 const title = t === 'AI' ? 'AI Generated' : t;
@@ -83,6 +113,7 @@ function openPost(num, pushState = true) {
             </div>
             <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
         </div>
+        ${argueBannerHtml}
         <div id="post-body-content" class="markdown-body">${htmlContent}</div>
         <div id="reference-content">${referenceHtml+'<br>'} 
         <div id="comments-wrapper" class="comments-section">
@@ -125,7 +156,7 @@ function openPost(num, pushState = true) {
 
     fetchComments(num);
     setupReferenceHighlighting();
-    initLinkPreview(); // 初始化预览
+    initLinkPreview();
 }
 
 function initLinkPreview() {
@@ -140,16 +171,22 @@ function initLinkPreview() {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
 
     links.forEach(link => {
+        if (link.dataset.previewBound) return;
+        link.dataset.previewBound = "true";
+
         link.onmouseenter = (e) => {
             const num = parseInt(link.getAttribute('data-num'));
             const targetIssue = issuesSource.find(i => i.number === num);
             
             if (targetIssue) {
                 let rawExcerpt = "";
+                const feedbackSummaryMatch = targetIssue.body?.match(/### 🔍 错误描述与建议\s*([\s\S]*?)(?=###|$)/);
                 const contentMatch = targetIssue.body?.match(/\[Content\]\s*([\s\S]*?)(?=\[References\]|---|$)/);
                 const summaryMatch = targetIssue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\[Content\]|---|$)/);
                 
-                if (contentMatch && contentMatch[1].trim()) {
+                if (feedbackSummaryMatch) {
+                    rawExcerpt = feedbackSummaryMatch[1].trim().substring(0, 500);
+                } else if (contentMatch && contentMatch[1].trim()) {
                     rawExcerpt = contentMatch[1].trim().substring(0, 800);
                 } else if (summaryMatch) {
                     rawExcerpt = summaryMatch[1].trim();
@@ -216,6 +253,9 @@ function initLinkPreview() {
         };
 
         link.onclick = (e) => {
+            const href = link.getAttribute('href');
+            if (href && (href.startsWith('http') || href.includes('/issues/'))) return;
+            
             e.preventDefault();
             const num = parseInt(link.getAttribute('data-num'));
             previewCard.style.display = 'none';
@@ -263,19 +303,6 @@ async function fetchComments(num) {
     script.crossOrigin = "anonymous";
     script.async = true;
     list.appendChild(script);
-}
-
-function showSuccessToast(message) {
-    let toast = document.getElementById('success-toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'success-toast';
-        toast.className = 'success-toast';
-        document.body.appendChild(toast);
-    }
-    toast.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> ${message}`;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 function closePost() {

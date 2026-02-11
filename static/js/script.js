@@ -129,25 +129,42 @@ async function fetchPosts() {
     
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
-        renderPosts(allIssues);
-        updateSidebarStats(allIssues.length);
+        // 渲染时排除 Feedback 和非作者
+        const displayIssues = allIssues.filter(issue => {
+            const isAuthor = issue.user && issue.user.login === CONFIG.username;
+            const hasFeedbackTag = issue.labels.some(l => l.name === 'Feedback');
+            return isAuthor && !hasFeedbackTag;
+        });
+        renderPosts(displayIssues);
+        updateSidebarStats(displayIssues.length);
         handleRouting();
         return; 
     }
     try {
+        let rawIssues = [];
         const manifestRes = await fetch('/manifest.json?t=' + Date.now());
         if (manifestRes.ok) {
             const data = await manifestRes.json();
-            allIssues = data.items || [];
+            rawIssues = data.items || [];
         } else {
             const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open`);
             const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
             const data = await res.json();
-            allIssues = data.items || [];
+            rawIssues = data.items || [];
         }
+
+        // 保存完整列表（包含反馈 Issue），用于后续 Argue Banner 查找
+        allIssues = rawIssues;
+
+        const displayIssues = allIssues.filter(issue => {
+            const isAuthor = issue.user && issue.user.login === CONFIG.username;
+            const hasFeedbackTag = issue.labels.some(l => l.name === 'Feedback');
+            return isAuthor && !hasFeedbackTag;
+        });
+
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
-        renderPosts(allIssues);
-        updateSidebarStats(allIssues.length);
+        renderPosts(displayIssues);
+        updateSidebarStats(displayIssues.length);
         handleRouting();
     } catch (e) {
         showNotification("文章列表同步失败", 'error');

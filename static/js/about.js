@@ -68,7 +68,6 @@ async function fetchGitHubCommits() {
                 minute: '2-digit'
             });
             
-            // 处理消息：转义 HTML 字符并保留换行符
             const fullMsg = item.commit.message
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")

@@ -32,7 +32,7 @@ function toggleFrostedGlass() {
         checkbox.checked = newFrosted;
     }
     
-    showNotification(newFrosted ? '毛玻璃模式已启用' : '毛玻璃模式已禁用');
+    showNotification(newFrosted ? '毛玻璃模式已启用' : '毛玻璃模式已禁用', "success");
 }
 
 function applyFrostedGlassMode(enabled) {
