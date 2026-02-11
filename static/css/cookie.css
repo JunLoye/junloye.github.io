@@ -1,6 +1,6 @@
 .cookie-banner {
     position: fixed;
-    bottom: -100px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 40px);
@@ -11,10 +11,13 @@
     border-radius: 20px;
     padding: 20px 25px;
     z-index: 3000;
-    transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* 毛玻璃模式 Cookie Banner 样式 */
 [data-frosted-glass="true"] .cookie-banner {
     background: rgba(255, 255, 255, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -30,7 +33,9 @@
 }
 
 .cookie-banner.show {
-    bottom: 30px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .cookie-content {
@@ -84,7 +89,6 @@
     opacity: 0.9;
 }
 
-/* 移动端适配 */
 @media screen and (max-width: 600px) {
     .cookie-content {
         flex-direction: column;

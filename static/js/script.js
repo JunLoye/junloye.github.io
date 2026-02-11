@@ -2,14 +2,13 @@ const CONFIG = {
     username: 'JunLoye',
     repo: 'junloye.github.io',
     branch: 'main',
-    musicFolder: 'music',
     clientId: 'Ov23licJrsWm5hKFYAxj',
     proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
     defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png',
     nodes: [
-        { name: '主站 (GitHub)', url: 'https://junloye.github.io' },
-        { name: '备用1 (Vercel)', url: 'https://junloye.vercel.app' },
-        { name: '备站2 (Cloudflare)', url: 'https://blog.loyejun.workers.dev' },
+        { name: '主站 (GitHub)', url: 'https://github.com' },
+        { name: '备用站1 (Vercel)', url: 'https://junloye.vercel.app' },
+        { name: '备用站2 (Cloudfare)', url: 'https://blog.loyejun.workers.dev' },
         { name: 'API 服务', url: 'https://api.github.com' }
     ]
 };
@@ -236,28 +235,24 @@ function setCookiePreference(status) {
     }
 }
 
+
 function initNodeList() {
     const container = document.getElementById('node-list');
     if (!container) return;
-    
     const currentHost = window.location.hostname;
 
     let html = CONFIG.nodes.map((node, index) => {
         const isApi = node.name.includes('API');
-        let isCurrent = false;
-        try {
-            const nodeUrl = new URL(node.url);
-            isCurrent = currentHost === nodeUrl.hostname;
-        } catch(e) {
-            isCurrent = false;
-        }
+        const nodeUrl = new URL(node.url);
+        
+        const isCurrent = currentHost === nodeUrl.hostname;
         
         const clickAttr = (isApi || isCurrent) ? '' : `onclick="window.location.href='${node.url}'"`;
         const extraClass = isApi ? 'node-disabled' : (isCurrent ? 'node-active' : 'node-clickable');
 
         return `
             <div class="info-item node-item ${extraClass}" ${clickAttr}>
-                <span class="info-label">${node.name} ${isCurrent ? '' : ''}</span>
+                <span class="info-label">${node.name} ${isCurrent ? ' (当前)' : ''}</span>
                 <span class="info-value node-latency" id="node-${index}">- ms</span>
             </div>
         `;
@@ -299,6 +294,33 @@ function updateLatencyUI(el, ms) {
     else el.classList.add('latency-high');
 }
 
+function scrollToTop() {
+    const postOverlay = document.getElementById('post-overlay');
+    if (postOverlay && postOverlay.style.display === 'block') {
+        postOverlay.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function handleScroll() {
+    const btn = document.getElementById('back-to-top');
+    const postOverlay = document.getElementById('post-overlay');
+    
+    let scrollTop = 0;
+    if (postOverlay && postOverlay.style.display === 'block') {
+        scrollTop = postOverlay.scrollTop;
+    } else {
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    }
+
+    if (scrollTop > 300) {
+        btn.classList.add('show');
+    } else {
+        btn.classList.remove('show');
+    }
+}
+
 window.addEventListener('load', () => {
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -312,4 +334,8 @@ window.addEventListener('load', () => {
     
     initNodeList();
     setTimeout(checkLatency, 1000);
+
+    window.addEventListener('scroll', handleScroll);
+    const postOverlay = document.getElementById('post-overlay');
+    if (postOverlay) postOverlay.addEventListener('scroll', handleScroll);
 });

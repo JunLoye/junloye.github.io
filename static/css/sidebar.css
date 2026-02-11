@@ -37,7 +37,6 @@
     align-items: center;
 }
 
-/* 线路列表专用微调 */
 #node-list .info-item {
     margin-bottom: 6px; 
     padding: 6px 8px;
@@ -45,12 +44,6 @@
     transition: all 0.2s ease;
 }
 
-/* 基础样式，确保颜色可以被覆盖 */
-#node-list .node-item .info-label {
-    color: var(--text-soft);
-}
-
-/* 可点击线路的悬停效果 */
 .node-clickable {
     cursor: pointer;
 }
@@ -60,20 +53,16 @@
     transform: translateX(4px);
 }
 
-/* 当前选中节点的样式：提升权重 */
 #node-list .node-item.node-active {
     background-color: var(--accent) !important;
     cursor: default;
-    transform: none;
 }
 
-/* 高亮时的文字颜色强制更新 */
 #node-list .node-active .info-label, 
 #node-list .node-active .info-value {
-    color: #ffffff !important;
+    color: white !important;
 }
 
-/* 禁用点击的样式 */
 .node-disabled {
     cursor: default;
     opacity: 0.5;
@@ -81,6 +70,7 @@
 
 .info-label {
     font-size: 0.7rem;
+    color: var(--text-soft);
     font-weight: 600;
 }
 
@@ -89,7 +79,50 @@
     font-weight: 700;
 }
 
-/* 延迟颜色 */
 .latency-low { color: #52c41a; }
 .latency-mid { color: #faad14; }
 .latency-high { color: #f5222d; }
+
+.back-to-top {
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    width: 45px;
+    height: 45px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: var(--shadow);
+}
+
+.back-to-top.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: translateY(-5px);
+}
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 90px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+    }
+}

@@ -18,7 +18,7 @@
     <aside class="sidebar-info" id="sidebar-info">
         <div class="sidebar-section">
             <div class="sidebar-header">
-                <span class="sidebar-title">Blog Info</span>
+                <span class="sidebar-title">博客信息</span>
             </div>
             <div class="sidebar-content">
                 <div class="info-item">
@@ -67,14 +67,12 @@
 
     <main class="post-grid" id="post-list-container"></main>
 
-    <div class="music-player-container">
-        <div class="playlist-menu" id="playlist-menu"></div>
-        <div id="player-bar" class="music-player">
-            <div class="music-info" onclick="togglePlaylist()"><span id="track-name" style="font-size: 0.75rem; font-weight: 600;">Music</span></div>
-            <div class="disc" id="music-btn"><svg viewBox="0 0 24 24"><path id="btn-icon-path" d="M8 5v14l11-7z"/></svg></div>
-            <audio id="bg-audio"></audio>
-        </div>
-    </div>
+
+    <button id="back-to-top" class="back-to-top" onclick="scrollToTop()">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
+        </svg>
+    </button>
 
     <div id="cookie-banner" class="cookie-banner">
         <div class="cookie-content">
@@ -94,7 +92,6 @@
     </footer>
 
     <script src="/static/js/login.js"></script>
-    <script src="/static/js/music-player.js"></script>
     <script src="/static/js/search.js"></script>
     <script src="/static/js/theme.js"></script>
     <script src="/static/js/post.js"></script>
