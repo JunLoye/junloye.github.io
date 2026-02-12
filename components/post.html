@@ -1,21 +1,10 @@
-<head>
-    <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
-</head>
-<body>
+<div class="detail-post" id="post-content">
     <div class="progress-bar-container">
         <div class="progress-bar" id="reading-progress"></div>
     </div>
-
     <button class="close-btn" onclick="closePost()">← CLOSE</button>
-    
-    <a id="edit-post-btn" class="edit-btn" target="_blank" style="display: none; text-decoration: none; text-align: center;">
-       纠错 / 反馈
-    </a>
-
+    <a id="edit-post-btn" class="edit-btn" target="_blank" style="display: none; text-decoration: none;">纠错 / 反馈</a>
     <div id="post-toc" class="post-toc"></div>
-
     <div class="detail-container" id="content-area"></div>
-
-    <script src="https://unpkg.com/@waline/client@v3/dist/waline.js"></script>
     <script src="post.js"></script>
-</body>
+</div>

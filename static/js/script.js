@@ -6,9 +6,9 @@ const CONFIG = {
     proxyUrl: 'https://github-oauth-worker.loyejun.workers.dev',
     defaultCover: 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png',
     nodes: [
-        { name: '主站 (GitHub)', url: 'https://junloye.github.io'},
-        { name: '备用1 (Vercel)', url: 'https://junloye.vercel.app'},
-        { name: '备用2 (Cloudflare)', url: 'https://blog.loyejun.workers.dev'},
+        { name: 'GitHub', url: 'https://junloye.github.io'},
+        { name: 'Vercel', url: 'https://junloye.vercel.app'},
+        { name: 'Cloudflare', url: 'https://blog.loyejun.workers.dev'},
         { name: 'GitHub API', url: 'https://api.github.com'}
     ]
 };
@@ -130,7 +130,6 @@ async function fetchPosts() {
     
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
-        // 渲染时排除 Feedback 和非作者
         const displayIssues = allIssues.filter(issue => {
             const isAuthor = issue.user && issue.user.login === CONFIG.username;
             const hasFeedbackTag = issue.labels.some(l => l.name === 'Feedback');
@@ -154,7 +153,6 @@ async function fetchPosts() {
             rawIssues = data.items || [];
         }
 
-        // 保存完整列表（包含反馈 Issue），用于后续 Argue Banner 查找
         allIssues = rawIssues;
 
         const displayIssues = allIssues.filter(issue => {
@@ -291,8 +289,6 @@ function updateBlogRunTime() {
     const startTime = new Date('2026-01-01');
     const now = new Date();
     const days = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
-    const footerEl = document.getElementById('blog-run-time');
-    if (footerEl) footerEl.textContent = `已运行: ${days} 天`;
     const sidebarEl = document.getElementById('sidebar-run-time');
     if (sidebarEl) sidebarEl.textContent = `${days} 天`;
 }
@@ -328,6 +324,9 @@ function initNodeList() {
     if (!container) return;
     const currentHost = window.location.hostname;
 
+    // 线路图标：使用了带有指向性的网页/连接图标
+    const nodeIconSvg = `<svg class="node-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>`;
+
     let html = CONFIG.nodes.map((node, index) => {
         const isApi = node.name.includes('API');
         const nodeUrl = new URL(node.url);
@@ -339,7 +338,10 @@ function initNodeList() {
 
         return `
             <div class="info-item node-item ${extraClass}" ${clickAttr}>
-                <span class="info-label">${node.name} ${isCurrent ? '' : ''}</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    ${nodeIconSvg}
+                    <span class="info-label">${node.name}</span>
+                </div>
                 <span class="info-value node-latency" id="node-${index}">- ms</span>
             </div>
         `;
@@ -347,7 +349,10 @@ function initNodeList() {
     
     html += `
         <div class="info-item node-item node-clickable" style="margin-top: 5px; border-top: 1px dashed var(--line); padding-top: 10px;" onclick="checkLatency()">
-            <span class="info-label" style="color: var(--accent)">重新检测</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg class="node-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                <span class="info-label" style="color: var(--accent)">重新检测</span>
+            </div>
         </div>
     `;
     container.innerHTML = html;

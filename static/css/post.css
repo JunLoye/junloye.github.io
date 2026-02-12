@@ -291,65 +291,108 @@
     color: white !important;
 }
 
-/* --- 前文原有代码保持不变 --- */
-
+/* 评论区基础样式 */
 .comments-section {
-    margin-top: 60px;
-    padding-top: 40px;
+    margin-top: 50px;
+    padding: 40px 20px;
     border-top: 1px solid var(--line);
-    margin-bottom: 50px;
 }
 
 .comments-title {
-    font-size: 1.5rem;
-    font-weight: 800;
     margin-bottom: 25px;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.comment-form {
+    margin-bottom: 40px; /* 增加表单与列表的间距 */
+}
+
+#comments-list {
+    border-top: 1px dashed var(--line); /* 在列表上方增加虚线分割 */
+    padding-top: 30px;
+}
+
+.comment-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    animation: fadeIn 0.5s ease backwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-info {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+}
+
+.comment-info strong {
     color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    margin-right: 8px;
 }
 
-/* Waline 主题适配 */
-:root {
-  --waline-theme-color: var(--accent);
-  --waline-active-color: var(--accent);
-  --waline-badge-color: var(--accent);
-  --waline-border-color: var(--line);
-  --waline-bgcolor: var(--bg);
-  --waline-bgcolor-light: var(--line);
-  --waline-info-bgcolor: var(--line);
-  --waline-text-color: var(--text);
-  --waline-info-color: var(--text-soft);
+.comment-body {
+    background: var(--line);
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text);
 }
 
-/* 隐藏 Waline 版权信息以保持极简 */
-.wl-power { display: none !important; }
-
-/* 调整评论框圆角与整体风格统一 */
-.wl-editor, .wl-input {
-    border-radius: 12px !important;
-    background: transparent !important;
+.comment-form textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    background: var(--line);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+    resize: vertical;
 }
 
-.wl-btn {
-    border-radius: 20px !important;
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--accent);
 }
 
-/* 覆盖 Waline 默认变量使其匹配主题 */
-:root {
-  --waline-theme-color: var(--accent);
-  --waline-active-color: var(--accent);
-  --waline-badge-color: var(--accent);
-  --waline-border-color: var(--line);
-  --waline-bgcolor: var(--bg);
-  --waline-bgcolor-light: var(--line);
-  --waline-info-bgcolor: var(--line);
-  --waline-text-color: var(--text);
+.submit-btn, .login-btn {
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 25px;
+    border-radius: 30px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
 }
 
-[data-theme='dark'] {
-  --waline-bgcolor-item: #1a1a1a;
+.submit-btn:hover, .login-btn:hover {
+    opacity: 0.9;
 }
 
-/* 隐藏部分 Waline 元素以保持极简 */
-.wl-power { display: none !important; }
+.empty-tip {
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    padding: 20px 0;
+}

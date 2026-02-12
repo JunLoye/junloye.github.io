@@ -1,3 +1,12 @@
+/**
+ * 配置区域 - 请务必根据实际情况修改
+ */
+const WORKER_URL = 'https://discussions.loyejun.workers.dev/'; 
+const CLIENT_ID = 'Ov23liNHVCD2Mdupm4U4'; // 必须与 GitHub OAuth App 一致
+
+/**
+ * 主函数：打开文章详情页
+ */
 function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
@@ -14,6 +23,7 @@ function openPost(num, pushState = true) {
     }
     document.title = `${issue.title} | Jun Loye`;
 
+    // 1. 解析封面图
     const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
         ? CONFIG.defaultCover 
         : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
@@ -21,18 +31,18 @@ function openPost(num, pushState = true) {
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
+    // 2. 解析争议内容 (Argue Tag)
     const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === 'ARGUE');
     let argueBannerHtml = "";
     if (hasArgueTag) {
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
         const refRegex = new RegExp(`Ref:\\s*#${num}\\b`);
         const feedbackIssue = issuesSource.find(i => 
             i.labels.some(l => l.name === 'Feedback') && 
             refRegex.test(i.body || "")
         );
 
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-        
         const displayId = feedbackIssue ? feedbackIssue.number : num;
         const feedbackUrl = feedbackIssue 
             ? `https://github.com/${username}/${repo}/issues/${feedbackIssue.number}`
@@ -48,10 +58,10 @@ function openPost(num, pushState = true) {
             </div>`;
     }
 
+    // 3. 解析参考文献
     const refMatch = issue.body?.match(/\[References\]([\s\S]*?)(?=\[Content\]|---|$)/);
     const referenceRaw = refMatch ? refMatch[1].trim() : "";
     let referenceHtml = "";
-
     if (referenceRaw) {
         const refLines = referenceRaw.split('\n').filter(line => line.trim() !== "");
         const formattedRefs = refLines.map((line, index) => {
@@ -67,6 +77,7 @@ function openPost(num, pushState = true) {
             </div>`;
     }
 
+    // 4. 正文 Markdown 处理
     let bodyRaw = (issue.body || "");
     let cleanBody = bodyRaw
         .replace(/\[Cover\]\s*http\S*/g, "")
@@ -76,31 +87,15 @@ function openPost(num, pushState = true) {
         .replace(/^\s*---\s*/gm, "")
         .trim();
 
-    cleanBody = cleanBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
-    cleanBody = cleanBody.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
-
-    let htmlContent = "";
-    try {
-        if (typeof marked !== 'undefined') {
-            htmlContent = marked.parse(cleanBody);
-            htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
-                const t = type.toUpperCase();
-                const title = t === 'AI' ? 'AI Generated' : t;
-                return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${title}</p><div class="markdown-alert-content">${content.trim()}</div></div>`;
-            });
-        } else {
-            htmlContent = `<pre style="white-space: pre-wrap;">${cleanBody}</pre>`;
-        }
-    } catch (e) {
-        htmlContent = `<p>Markdown parse error.</p>`;
-    }
+    // 应用通用解析规则
+    let htmlContent = parseEnhancedMarkdown(cleanBody);
 
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
     
+    // 5. 渲染基础结构
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
-    // 重点：在这里确保 HTML 被注入
     area.innerHTML = `
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
         <div class="detail-header">
@@ -108,14 +103,16 @@ function openPost(num, pushState = true) {
                 <span>${date}</span>
                 <span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:var(--selection-bg); padding:2px 10px; border-radius:4px;">${issue.labels[0]?.name || 'MEMO'}</span>
             </div>
-            <h1 style="font-size:2rem; margin:15px 0 15px 0; font-weight:900;">${issue.title}</h1>
+            <h1 style="font-size:2rem; margin:15px 0; font-weight:900;">${issue.title}</h1>
         </div>
         ${argueBannerHtml}
         <div id="post-body-content" class="markdown-body">${htmlContent}</div>
         <div id="reference-content">${referenceHtml}</div>
+        
         <div class="comments-section">
             <h3 class="comments-title">Comments</h3>
-            <div id="waline-container"></div>
+            <div id="comment-form-area" class="comment-form"></div>
+            <div id="comments-list" style="margin-top: 30px;">加载评论中...</div>
         </div>`;
     
     area.classList.remove('show');
@@ -126,14 +123,10 @@ function openPost(num, pushState = true) {
     if (editBtn) {
         const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
         const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
-        const issueTitle = encodeURIComponent(`[Feedback] ${issue.title}`);
-        const templateFile = "feedback.yml"; 
-        const refValue = encodeURIComponent(`Ref: #${num}`);
-        editBtn.href = `https://github.com/${username}/${repo}/issues/new?template=${templateFile}&title=${issueTitle}&ref_id=${refValue}`;
+        editBtn.href = `https://github.com/${username}/${repo}/issues/new?template=feedback.yml&title=${encodeURIComponent(`[Feedback] ${issue.title}`)}&ref_id=${encodeURIComponent(`Ref: #${num}`)}`;
         editBtn.style.display = 'inline-block';
     }
 
-    // 动画展示
     setTimeout(() => {
         area.style.transition = "all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)";
         area.style.opacity = "1";
@@ -142,11 +135,10 @@ function openPost(num, pushState = true) {
         generateTOC();
     }, 50);
 
-    // 确保 DOM 稳定后再加载评论系统，修复 Container not found 报错
     setTimeout(() => {
-        loadComments(num); 
         setupReferenceHighlighting();
         initLinkPreview();
+        loadComments(issue.title, issue.number);
     }, 400);
 
     const progressBar = document.getElementById('reading-progress');
@@ -161,41 +153,233 @@ function openPost(num, pushState = true) {
     }
 }
 
-function loadComments(num) {
-    const container = document.getElementById('waline-container');
-    
-    // 如果脚本还没加载好，或者容器还没渲染出来，则重试一次
-    if (!container || typeof Waline === 'undefined') {
-        console.warn("Waline container not found or Waline script not loaded. Retrying in 500ms...");
-        setTimeout(() => loadComments(num), 500);
-        return;
-    }
+/**
+ * 核心解析函数：同步正文与评论的解析逻辑
+ */
+function parseEnhancedMarkdown(rawMarkdown) {
+    let content = rawMarkdown;
 
-    // ⚠️ 请务必在此处填入你真实的 Vercel 部署地址
-    const serverURL = 'https://your-real-waline-url.vercel.app'; 
+    // 1. 处理参考文献跳转 [n]
+    content = content.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
     
-    if (serverURL.includes('your-real-waline-url')) {
-        container.innerHTML = `<p style="text-align:center; color:var(--text-soft); font-size:0.8rem; padding: 20px;">请在 post.js 中配置真实的 Waline serverURL</p>`;
-        return;
-    }
+    // 2. 处理文章内部引用 #id
+    content = content.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    
+    let html = "";
     try {
-        Waline.init({
-            el: '#waline-container',
-            serverURL: serverURL,
-            path: `post-${num}`,
-            dark: 'auto', // 自动适配系统的暗色模式
-            reaction: true,
-            pageview: true,
-            comment: true,
-            placeholder: '写下你的评论...',
-            imageUploader: false, // 除非配置了图床，否则建议关闭
-        });
-    } catch (err) {
-        console.error("Waline init failed:", err);
+        if (typeof marked !== 'undefined') {
+            html = marked.parse(content);
+            // 3. 处理 GitHub Alerts 语法
+            html = html.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, contentText) => {
+                const t = type.toUpperCase();
+                const title = t === 'AI' ? 'AI Generated' : t;
+                return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${title}</p><div class="markdown-alert-content">${contentText.trim()}</div></div>`;
+            });
+        } else {
+            html = `<pre style="white-space: pre-wrap;">${content}</pre>`;
+        }
+    } catch (e) {
+        html = `<p>Markdown 解析错误</p>`;
     }
+    return html;
+}
+
+/**
+ * 评论区：加载逻辑 (已同步解析逻辑)
+ */
+async function loadComments(title, issueNum) {
+    const list = document.getElementById('comments-list');
+    try {
+        const res = await fetch(`${WORKER_URL}?action=getComments&title=${encodeURIComponent(title)}`);
+        const result = await res.json();
+        
+        if (result.error) throw new Error(result.error);
+
+        const discussion = result.data?.search?.nodes[0];
+        if (discussion) {
+            window.currentDiscussionId = discussion.id;
+            const comments = discussion.comments.nodes;
+            
+            list.innerHTML = comments.length ? comments.map(c => {
+                // 将 GitHub 返回的 HTML 再次通过我们的增强解析器处理 (或者处理原始 markdown，如果 Worker 返回的是 body 字段)
+                // 这里假设 Worker 返回的是 bodyHTML，我们对其内部的特定文本（如 #id 或 [n]）进行二次增强
+                let enhancedBody = c.bodyHTML;
+                
+                // 处理评论中的 #id 链接预览
+                enhancedBody = enhancedBody.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
+                // 处理评论中的 [n] 参考文献跳转
+                enhancedBody = enhancedBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
+                
+                return `
+                <div class="comment-item">
+                    <img src="${c.author.avatarUrl}" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-info"><strong>${c.author.login}</strong> <small>${new Date(c.createdAt).toLocaleString()}</small></div>
+                        <div class="comment-body markdown-body">${enhancedBody}</div>
+                    </div>
+                </div>`;
+            }).join('') : '<p class="empty-tip">还没有评论，快来抢沙发！</p>';
+            
+            // 重新初始化预览，使评论中的 #id 链接也能弹出预览卡片
+            initLinkPreview();
+            
+        } else {
+            list.innerHTML = `<p class="empty-tip">暂无讨论。点击上方“发表评论”将自动在 GitHub 发起讨论并添加 #${issueNum} 指向。</p>`;
+            window.currentDiscussionId = null;
+        }
+        renderCommentForm(title, issueNum);
+    } catch (e) {
+        list.innerHTML = `<p style="color:var(--accent)">评论加载失败。请检查 Worker 的 CORS 配置。</p>`;
+    }
+}
+
+/**
+ * 评论区：表单渲染
+ */
+function renderCommentForm(title, issueNum) {
+    const container = document.getElementById('comment-form-area');
+    const token = localStorage.getItem('gh_access_token');
+    
+    if (!token) {
+        container.innerHTML = `
+            <div style="text-align:center; padding: 20px; background:var(--line); border-radius:12px;">
+                <p style="margin-bottom:15px; font-size:0.9rem;">登录 GitHub 参与讨论</p>
+                <button onclick="loginGitHub()" class="login-btn">GitHub 登录</button>
+            </div>`;
+    } else {
+        container.innerHTML = `
+            <textarea id="comment-text" placeholder="撰写评论... (支持 Markdown)"></textarea>
+            <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <button onclick="submitComment('${title}', ${issueNum})" class="submit-btn">发表评论</button>
+                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:var(--text-soft); cursor:pointer; font-size:0.8rem;">注销登录</button>
+            </div>`;
+    }
+}
+
+function loginGitHub() {
+    const currentUrl = window.location.href;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=public_repo&redirect_uri=${encodeURIComponent(currentUrl)}`;
+}
+
+function logout() {
+    localStorage.removeItem('gh_access_token');
+    location.reload();
+}
+
+(async function handleAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+        try {
+            const res = await fetch(`${WORKER_URL}?action=login&code=${code}`);
+            const data = await res.json();
+            
+            if (data.access_token) {
+                localStorage.setItem('gh_access_token', data.access_token);
+                urlParams.delete('code');
+                const newQuery = urlParams.toString();
+                const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
+                window.history.replaceState({}, "", newUrl);
+                location.reload();
+            } else {
+                throw new Error(data.error_description || data.error || "登录失败");
+            }
+        } catch (e) {
+            console.error("Auth error:", e);
+        }
+    }
+})();
+
+async function submitComment(title, issueNum) {
+    const body = document.getElementById('comment-text').value;
+    const token = localStorage.getItem('gh_access_token');
+    
+    if (!body) return;
+    if (!token) {
+        alert("请先登录");
+        return;
+    }
+
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true;
+    btn.innerText = '发送中...';
+
+    try {
+        const res = await fetch(`${WORKER_URL}`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': token, 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({ 
+                action: 'postComment',
+                title: title, 
+                issueNum: issueNum, 
+                body: body, 
+                discussionId: window.currentDiscussionId,
+                postUrl: window.location.href
+            })
+        });
+
+        const result = await res.json();
+        if (res.ok && !result.errors) {
+            location.reload(); 
+        } else {
+            throw new Error(result.errors ? result.errors[0].message : "提交失败");
+        }
+    } catch (e) {
+        alert("评论发表失败: " + e.message);
+        btn.disabled = false;
+        btn.innerText = '发表评论';
+    }
+}
+
+function generateTOC() {
+    const postBody = document.getElementById('post-body-content');
+    const tocContainer = document.getElementById('post-toc');
+    if (!postBody || !tocContainer) return;
+    tocContainer.innerHTML = '';
+    const headings = postBody.querySelectorAll('h1, h2, h3');
+    if (headings.length === 0) {
+        tocContainer.classList.remove('show');
+        return;
+    }
+    const titleEl = document.createElement('div');
+    titleEl.className = 'post-toc-title';
+    titleEl.textContent = 'CONTENTS';
+    tocContainer.appendChild(titleEl);
+    headings.forEach((heading, index) => {
+        const id = `heading-${index}`;
+        heading.setAttribute('id', id);
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.className = `toc-link toc-${heading.tagName.toLowerCase()}`;
+        link.textContent = heading.textContent;
+        link.onclick = (e) => {
+            e.preventDefault();
+            const overlay = document.getElementById('post-overlay');
+            overlay.scrollTo({ top: heading.offsetTop - 20, behavior: 'smooth' });
+        };
+        tocContainer.appendChild(link);
+    });
+    tocContainer.classList.add('show');
+}
+
+function setupReferenceHighlighting() {
+    const handleHash = () => {
+        const hash = window.location.hash;
+        if (hash.startsWith('#ref-')) {
+            document.querySelectorAll('.reference-item').forEach(el => el.classList.remove('highlight'));
+            const target = document.querySelector(hash);
+            if (target) {
+                target.classList.add('highlight');
+                setTimeout(() => target.classList.remove('highlight'), 3000);
+            }
+        }
+    };
+    window.addEventListener('hashchange', handleHash);
+    handleHash();
 }
 
 function initLinkPreview() {
@@ -233,21 +417,7 @@ function initLinkPreview() {
                     rawExcerpt = targetIssue.body?.substring(0, 200);
                 }
 
-                let renderedExcerpt = "";
-                try {
-                    if (typeof marked !== 'undefined') {
-                        renderedExcerpt = marked.parse(rawExcerpt);
-                        renderedExcerpt = renderedExcerpt.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
-                            const t = type.toUpperCase();
-                            const title = t === 'AI' ? 'AI Generated' : t;
-                            return `<div class="markdown-alert markdown-alert-${t.toLowerCase()}"><p class="markdown-alert-title">${title}</p><div class="markdown-alert-content">${content.trim()}</div></div>`;
-                        });
-                    } else {
-                        renderedExcerpt = `<p>${rawExcerpt}</p>`;
-                    }
-                } catch (err) {
-                    renderedExcerpt = rawExcerpt;
-                }
+                const renderedExcerpt = parseEnhancedMarkdown(rawExcerpt);
 
                 const date = new Date(targetIssue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
                 const label = targetIssue.labels[0]?.name || 'MEMO';
@@ -303,39 +473,18 @@ function initLinkPreview() {
     });
 }
 
-function setupReferenceHighlighting() {
-    const handleHash = () => {
-        const hash = window.location.hash;
-        if (hash.startsWith('#ref-')) {
-            document.querySelectorAll('.reference-item').forEach(el => el.classList.remove('highlight'));
-            const target = document.querySelector(hash);
-            if (target) {
-                target.classList.add('highlight');
-                setTimeout(() => target.classList.remove('highlight'), 3000);
-            }
-        }
-    };
-    window.addEventListener('hashchange', handleHash);
-    handleHash();
-}
-
 function closePost() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('post')) {
         history.pushState({}, "Blog | Jun Loye", window.location.pathname);
-        realClosePost();
-    } else {
-        realClosePost();
     }
-}
-
-function realClosePost() {
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
     const progressBar = document.getElementById('reading-progress');
     const toc = document.getElementById('post-toc');
     const editBtn = document.getElementById('edit-post-btn');
-    if (!area || !area.classList.contains('show')) return;
+    
+    if (!area) return;
     document.title = "Blog | Jun Loye";
     area.classList.remove('show');
     area.style.opacity = "0";
@@ -343,39 +492,9 @@ function realClosePost() {
     if (progressBar) progressBar.style.width = "0%";
     if (toc) toc.classList.remove('show');
     if (editBtn) editBtn.style.display = 'none';
+    
     setTimeout(() => {
         if (overlay) overlay.style.display = 'none'; 
         document.body.style.overflow = ''; 
     }, 300);
-}
-
-function generateTOC() {
-    const postBody = document.getElementById('post-body-content');
-    const tocContainer = document.getElementById('post-toc');
-    if (!postBody || !tocContainer) return;
-    tocContainer.innerHTML = '';
-    const headings = postBody.querySelectorAll('h1, h2, h3');
-    if (headings.length === 0) {
-        tocContainer.classList.remove('show');
-        return;
-    }
-    const titleEl = document.createElement('div');
-    titleEl.className = 'post-toc-title';
-    titleEl.textContent = 'CONTENTS';
-    tocContainer.appendChild(titleEl);
-    headings.forEach((heading, index) => {
-        const id = `heading-${index}`;
-        heading.setAttribute('id', id);
-        const link = document.createElement('a');
-        link.href = `#${id}`;
-        link.className = `toc-link toc-${heading.tagName.toLowerCase()}`;
-        link.textContent = heading.textContent;
-        link.onclick = (e) => {
-            e.preventDefault();
-            const overlay = document.getElementById('post-overlay');
-            overlay.scrollTo({ top: heading.offsetTop - 20, behavior: 'smooth' });
-        };
-        tocContainer.appendChild(link);
-    });
-    tocContainer.classList.add('show');
 }

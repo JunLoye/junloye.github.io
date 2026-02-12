@@ -114,12 +114,10 @@ nav {
     gap: 15px;
 }
 
-[data-theme="dark"] .version-badge {
-    background: #333;
-    color: var(--accent);
-}
-
-.nav-right span {
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     position: relative;
     cursor: pointer;
     font-size: 0.85rem;
@@ -130,7 +128,12 @@ nav {
     padding: 4px 0;
 }
 
-.nav-right span::after {
+.nav-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.nav-item::after {
     content: '';
     position: absolute;
     width: 0;
@@ -141,16 +144,31 @@ nav {
     transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.nav-right span:hover {
+.nav-item:hover {
     color: var(--accent);
 }
 
-.nav-right span:hover::after {
+.nav-item:hover::after {
     width: 100%;
 }
 
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-soft);
+    pointer-events: none;
+}
+
 #search-input {
-    padding: 8px 18px;
+    padding: 8px 18px 8px 35px;
     border-radius: 30px;
     border: 1px solid var(--line);
     outline: none;
@@ -163,6 +181,76 @@ nav {
 #search-input:focus {
     width: 200px;
     border-color: var(--accent);
+}
+
+/* 侧边栏通用增强 */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.sidebar-header-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text);
+}
+
+.sidebar-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text);
+}
+
+/* 信息条目增强 */
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.info-label-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--text-soft);
+    opacity: 0.8;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* 线路选择特定样式 */
+.node-item {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.node-item:hover {
+    opacity: 0.7;
+}
+
+.node-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
 }
 
 .post-grid {
@@ -184,7 +272,6 @@ nav {
     transform: translateY(-5px);
 }
 
-/* 毛玻璃模式卡片样式 */
 [data-frosted-glass="true"] .post-card {
     background: url('../image/background.jpg') no-repeat center center / cover;
     backdrop-filter: blur(10px);
@@ -241,7 +328,6 @@ nav {
     overflow-y: auto;
 }
 
-/* 毛玻璃模式 overlay 样式 */
 [data-frosted-glass="true"] .overlay {
     background: url('../image/background.jpg') no-repeat center center / cover;
     backdrop-filter: blur(15px);
@@ -506,7 +592,7 @@ mark.search-highlight {
         gap: 10px;
     }
 
-    .about-trigger, .publish-trigger, .archive-trigger {
+    .nav-item {
         font-size: 0.75rem;
     }
 
@@ -552,10 +638,5 @@ mark.search-highlight {
         justify-content: space-between;
         border-top: 1px solid var(--line);
         padding-top: 10px;
-    }
-    
-    .github-badge-container {
-        padding: 10px 15px;
-        width: 100%;
     }
 }
