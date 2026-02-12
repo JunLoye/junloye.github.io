@@ -396,3 +396,37 @@
     font-size: 0.9rem;
     padding: 20px 0;
 }
+
+.quotable-item:hover .quote-this-btn {
+    opacity: 1;
+}
+
+.quote-this-btn {
+    position: absolute;
+    right: -60px; /* 显示在段落右侧外 */
+    top: 0;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    background: var(--line);
+    color: var(--text-soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.quote-this-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* 移动端适配：引用按钮改到段落内右上角 */
+@media (max-width: 768px) {
+    .quote-this-btn {
+        right: 0;
+        top: -20px;
+    }
+}

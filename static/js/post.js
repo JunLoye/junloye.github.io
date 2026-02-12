@@ -1,12 +1,6 @@
-/**
- * 配置区域 - 请务必根据实际情况修改
- */
 const WORKER_URL = 'https://discussions.loyejun.workers.dev/'; 
-const CLIENT_ID = 'Ov23liNHVCD2Mdupm4U4'; // 必须与 GitHub OAuth App 一致
+const CLIENT_ID = 'Ov23liNHVCD2Mdupm4U4';
 
-/**
- * 主函数：打开文章详情页
- */
 function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
@@ -23,7 +17,6 @@ function openPost(num, pushState = true) {
     }
     document.title = `${issue.title} | Jun Loye`;
 
-    // 1. 解析封面图
     const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
         ? CONFIG.defaultCover 
         : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
@@ -31,7 +24,6 @@ function openPost(num, pushState = true) {
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
-    // 2. 解析争议内容 (Argue Tag)
     const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === 'ARGUE');
     let argueBannerHtml = "";
     if (hasArgueTag) {
@@ -58,7 +50,6 @@ function openPost(num, pushState = true) {
             </div>`;
     }
 
-    // 3. 解析参考文献
     const refMatch = issue.body?.match(/\[References\]([\s\S]*?)(?=\[Content\]|---|$)/);
     const referenceRaw = refMatch ? refMatch[1].trim() : "";
     let referenceHtml = "";
@@ -77,7 +68,6 @@ function openPost(num, pushState = true) {
             </div>`;
     }
 
-    // 4. 正文 Markdown 处理
     let bodyRaw = (issue.body || "");
     let cleanBody = bodyRaw
         .replace(/\[Cover\]\s*http\S*/g, "")
@@ -91,7 +81,6 @@ function openPost(num, pushState = true) {
 
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    // 5. 渲染基础结构
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
@@ -132,6 +121,7 @@ function openPost(num, pushState = true) {
         area.style.transform = "translateY(0)";
         area.classList.add('show');
         generateTOC();
+        setupQuoteAction(num); // 传入当前文章编号
     }, 50);
 
     setTimeout(() => {
@@ -152,9 +142,48 @@ function openPost(num, pushState = true) {
     }
 }
 
-/**
- * 核心解析函数
- */
+function setupQuoteAction(postNum) {
+    const postBody = document.getElementById('post-body-content');
+    if (!postBody) return;
+
+    const targets = postBody.querySelectorAll('p, li, blockquote, pre');
+    targets.forEach(el => {
+        el.style.position = 'relative';
+        el.classList.add('quotable-item');
+
+        const quoteBtn = document.createElement('button');
+        quoteBtn.className = 'quote-this-btn';
+        quoteBtn.innerHTML = '引用';
+        quoteBtn.title = '引用此段内容到评论';
+        
+        quoteBtn.onclick = () => {
+            const text = el.innerText.replace('引用', '').trim();
+            quoteToComment(text, postNum);
+        };
+
+        el.appendChild(quoteBtn);
+    });
+}
+
+function quoteToComment(text, postNum) {
+    const textarea = document.getElementById('comment-text');
+    if (!textarea) {
+        alert("请先登录 GitHub 以便进行评论引用");
+        document.getElementById('comment-form-area').scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+
+    const quoteText = `> ${text}\n> #${postNum}\n\n`;
+    const currentText = textarea.value;
+    
+    textarea.value = currentText ? (currentText + "\n\n" + quoteText) : quoteText;
+    
+    updateCommentPreview();
+    
+    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    textarea.focus();
+}
+
 function parseEnhancedMarkdown(rawMarkdown) {
     let content = rawMarkdown;
     content = content.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
@@ -178,9 +207,6 @@ function parseEnhancedMarkdown(rawMarkdown) {
     return html;
 }
 
-/**
- * 评论区：加载逻辑
- */
 async function loadComments(title, issueNum) {
     const list = document.getElementById('comments-list');
     try {
@@ -220,9 +246,6 @@ async function loadComments(title, issueNum) {
     }
 }
 
-/**
- * 实时预览逻辑
- */
 function updateCommentPreview() {
     const textarea = document.getElementById('comment-text');
     const previewArea = document.getElementById('comment-preview');
@@ -234,7 +257,6 @@ function updateCommentPreview() {
     if (content) {
         previewContainer.style.display = 'block';
         previewArea.innerHTML = parseEnhancedMarkdown(content);
-        // 使预览中的 #id 也能触发预览
         initLinkPreview();
     } else {
         previewContainer.style.display = 'none';
@@ -242,9 +264,6 @@ function updateCommentPreview() {
     }
 }
 
-/**
- * 评论区：表单渲染
- */
 function renderCommentForm(title, issueNum) {
     const container = document.getElementById('comment-form-area');
     const token = localStorage.getItem('gh_access_token');
@@ -272,7 +291,7 @@ function renderCommentForm(title, issueNum) {
             <textarea id="comment-text" placeholder="撰写评论... (支持 Markdown)" oninput="updateCommentPreview()"></textarea>
             
             <div id="comment-preview-container" style="display:none; margin-top:15px; padding:15px; border:1px solid var(--line); border-radius:12px; background:var(--bg);">
-                <div style="font-size:0.7rem; color:var(--accent); font-weight:800; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">预览</div>
+                <div style="font-size:0.7rem; color:var(--accent); font-weight:800; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">Preview</div>
                 <div id="comment-preview" class="markdown-body" style="font-size:0.9rem;"></div>
             </div>
 
@@ -283,9 +302,6 @@ function renderCommentForm(title, issueNum) {
     }
 }
 
-/**
- * 获取 GitHub 用户信息
- */
 async function fetchUserInfo(token) {
     try {
         const res = await fetch('https://api.github.com/user', {
@@ -314,9 +330,6 @@ function logout() {
     location.reload();
 }
 
-/**
- * 处理 OAuth 登录回调
- */
 (async function handleAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
