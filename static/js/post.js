@@ -21,11 +21,9 @@ function openPost(num, pushState = true) {
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
-    // --- 争议提示逻辑：获取反馈 Issue 编号 ---
     const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === 'ARGUE');
     let argueBannerHtml = "";
     if (hasArgueTag) {
-        // 使用正则搜索正文中包含 Ref: #文章编号 的反馈 Issue
         const refRegex = new RegExp(`Ref:\\s*#${num}\\b`);
         const feedbackIssue = issuesSource.find(i => 
             i.labels.some(l => l.name === 'Feedback') && 
@@ -35,7 +33,6 @@ function openPost(num, pushState = true) {
         const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
         const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
         
-        // 核心修复：如果找到反馈 Issue，链接和显示的 ID 都使用反馈 Issue 的 number
         const displayId = feedbackIssue ? feedbackIssue.number : num;
         const feedbackUrl = feedbackIssue 
             ? `https://github.com/${username}/${repo}/issues/${feedbackIssue.number}`
@@ -45,7 +42,7 @@ function openPost(num, pushState = true) {
             <div class="argue-banner">
                 <span class="argue-banner-icon">⚠️</span>
                 <div class="argue-banner-text">
-                    此文章内容存在争议。点击此处查看纠错详情 
+                    此文章内容可能存在争议。点击此处查看纠错详情 
                     <a href="${feedbackUrl}" target="_blank" class="post-ref-link" data-num="${displayId}">#${displayId}</a>
                 </div>
             </div>`;
@@ -86,7 +83,6 @@ function openPost(num, pushState = true) {
     try {
         if (typeof marked !== 'undefined') {
             htmlContent = marked.parse(cleanBody);
-            // 转换 Alert 标签
             htmlContent = htmlContent.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, content) => {
                 const t = type.toUpperCase();
                 const title = t === 'AI' ? 'AI Generated' : t;
@@ -104,6 +100,7 @@ function openPost(num, pushState = true) {
     overlay.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
+    // 重点：在这里确保 HTML 被注入
     area.innerHTML = `
         <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
         <div class="detail-header">
@@ -115,9 +112,10 @@ function openPost(num, pushState = true) {
         </div>
         ${argueBannerHtml}
         <div id="post-body-content" class="markdown-body">${htmlContent}</div>
-        <div id="reference-content">${referenceHtml+'<br>'} 
-        <div id="comments-wrapper" class="comments-section">
-            <div id="comments-list"></div>
+        <div id="reference-content">${referenceHtml}</div>
+        <div class="comments-section">
+            <h3 class="comments-title">Comments</h3>
+            <div id="waline-container"></div>
         </div>`;
     
     area.classList.remove('show');
@@ -135,6 +133,7 @@ function openPost(num, pushState = true) {
         editBtn.style.display = 'inline-block';
     }
 
+    // 动画展示
     setTimeout(() => {
         area.style.transition = "all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)";
         area.style.opacity = "1";
@@ -142,6 +141,13 @@ function openPost(num, pushState = true) {
         area.classList.add('show');
         generateTOC();
     }, 50);
+
+    // 确保 DOM 稳定后再加载评论系统，修复 Container not found 报错
+    setTimeout(() => {
+        loadComments(num); 
+        setupReferenceHighlighting();
+        initLinkPreview();
+    }, 400);
 
     const progressBar = document.getElementById('reading-progress');
     const overlayScroll = document.getElementById('post-overlay'); 
@@ -153,10 +159,43 @@ function openPost(num, pushState = true) {
             progressBar.style.width = scrolled + "%";
         };
     }
+}
 
-    fetchComments(num);
-    setupReferenceHighlighting();
-    initLinkPreview();
+function loadComments(num) {
+    const container = document.getElementById('waline-container');
+    
+    // 如果脚本还没加载好，或者容器还没渲染出来，则重试一次
+    if (!container || typeof Waline === 'undefined') {
+        console.warn("Waline container not found or Waline script not loaded. Retrying in 500ms...");
+        setTimeout(() => loadComments(num), 500);
+        return;
+    }
+
+    // ⚠️ 请务必在此处填入你真实的 Vercel 部署地址
+    const serverURL = 'https://your-real-waline-url.vercel.app'; 
+    
+    if (serverURL.includes('your-real-waline-url')) {
+        container.innerHTML = `<p style="text-align:center; color:var(--text-soft); font-size:0.8rem; padding: 20px;">请在 post.js 中配置真实的 Waline serverURL</p>`;
+        return;
+    }
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    
+    try {
+        Waline.init({
+            el: '#waline-container',
+            serverURL: serverURL,
+            path: `post-${num}`,
+            dark: 'auto', // 自动适配系统的暗色模式
+            reaction: true,
+            pageview: true,
+            comment: true,
+            placeholder: '写下你的评论...',
+            imageUploader: false, // 除非配置了图床，否则建议关闭
+        });
+    } catch (err) {
+        console.error("Waline init failed:", err);
+    }
 }
 
 function initLinkPreview() {
@@ -278,31 +317,6 @@ function setupReferenceHighlighting() {
     };
     window.addEventListener('hashchange', handleHash);
     handleHash();
-}
-
-async function fetchComments(num) {
-    const wrapper = document.getElementById('comments-wrapper');
-    const list = document.getElementById('comments-list');
-    if (!wrapper || !list) return;
-    wrapper.style.display = 'block';
-    list.innerHTML = ''; 
-    const script = document.createElement('script');
-    script.src = "https://giscus.app/client.js";
-    script.setAttribute('data-repo', "JunLoye/junloye.github.io");
-    script.setAttribute('data-repo-id', "R_kgDOPi0ylw");
-    script.setAttribute('data-category', "General");
-    script.setAttribute('data-category-id', "DIC_kwDOPi0yl84C2H9l");
-    script.setAttribute('data-mapping', "pathname"); 
-    script.setAttribute('data-strict', "0");
-    script.setAttribute('data-reactions-enabled', "0");
-    script.setAttribute('data-emit-metadata', "0");
-    script.setAttribute('data-input-position', "top");
-    const currentTheme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-    script.setAttribute('data-theme', currentTheme);
-    script.setAttribute('data-lang', "zh-CN");
-    script.crossOrigin = "anonymous";
-    script.async = true;
-    list.appendChild(script);
 }
 
 function closePost() {

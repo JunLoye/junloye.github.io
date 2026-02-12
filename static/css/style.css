@@ -119,9 +119,7 @@ nav {
     color: var(--accent);
 }
 
-.about-trigger,
-.publish-trigger,
-.archive-trigger {
+.nav-right span {
     position: relative;
     cursor: pointer;
     font-size: 0.85rem;
@@ -132,9 +130,7 @@ nav {
     padding: 4px 0;
 }
 
-.about-trigger::after,
-.publish-trigger::after,
-.archive-trigger::after {
+.nav-right span::after {
     content: '';
     position: absolute;
     width: 0;
@@ -145,15 +141,11 @@ nav {
     transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.about-trigger:hover,
-.publish-trigger:hover,
-.archive-trigger:hover {
+.nav-right span:hover {
     color: var(--accent);
 }
 
-.about-trigger:hover::after,
-.publish-trigger:hover::after,
-.archive-trigger:hover::after {
+.nav-right span:hover::after {
     width: 100%;
 }
 

@@ -290,3 +290,66 @@
     background: var(--accent);
     color: white !important;
 }
+
+/* --- 前文原有代码保持不变 --- */
+
+.comments-section {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--line);
+    margin-bottom: 50px;
+}
+
+.comments-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Waline 主题适配 */
+:root {
+  --waline-theme-color: var(--accent);
+  --waline-active-color: var(--accent);
+  --waline-badge-color: var(--accent);
+  --waline-border-color: var(--line);
+  --waline-bgcolor: var(--bg);
+  --waline-bgcolor-light: var(--line);
+  --waline-info-bgcolor: var(--line);
+  --waline-text-color: var(--text);
+  --waline-info-color: var(--text-soft);
+}
+
+/* 隐藏 Waline 版权信息以保持极简 */
+.wl-power { display: none !important; }
+
+/* 调整评论框圆角与整体风格统一 */
+.wl-editor, .wl-input {
+    border-radius: 12px !important;
+    background: transparent !important;
+}
+
+.wl-btn {
+    border-radius: 20px !important;
+}
+
+/* 覆盖 Waline 默认变量使其匹配主题 */
+:root {
+  --waline-theme-color: var(--accent);
+  --waline-active-color: var(--accent);
+  --waline-badge-color: var(--accent);
+  --waline-border-color: var(--line);
+  --waline-bgcolor: var(--bg);
+  --waline-bgcolor-light: var(--line);
+  --waline-info-bgcolor: var(--line);
+  --waline-text-color: var(--text);
+}
+
+[data-theme='dark'] {
+  --waline-bgcolor-item: #1a1a1a;
+}
+
+/* 隐藏部分 Waline 元素以保持极简 */
+.wl-power { display: none !important; }

@@ -117,6 +117,7 @@ window.onkeydown = (e) => {
         if (typeof closePost === 'function') closePost();
         if (typeof closeAbout === 'function') closeAbout();
         if (typeof closePublishModal === 'function') closePublishModal();
+        if (typeof closeFriends === 'function') closeFriends();
         const menu = document.getElementById('custom-context-menu');
         if (menu) menu.style.display = 'none';
     }
@@ -201,19 +202,23 @@ function renderPosts(posts, highlightTerm = "") {
         const cover = coverMatch ? coverMatch[1] : CONFIG.defaultCover;
         const summaryMatch = issue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)/);
         const summaryRaw = summaryMatch ? summaryMatch[1].split('\n').filter(Boolean).slice(0, 3).join('\n') : "";
+        
         let displayTitle = issue.title;
         let displaySummary = (typeof marked !== 'undefined') ? marked.parse(summaryRaw) : summaryRaw;
+        
         if (highlightTerm) {
             const regex = new RegExp(`(${highlightTerm})`, 'gi');
             displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
         }
-        const tagsHtml = issue.labels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
+        
+        const filteredLabels = issue.labels.filter(l => l.name !== 'Feedback');
+        const tagsHtml = filteredLabels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
         
         return `<div class="post-card" onclick="openPost(${issue.number})">
             <div class="post-cover"><img src="${cover}" onerror="this.src='${CONFIG.defaultCover}'"></div>
             <h2 class="post-card-title">${displayTitle}</h2>
             <div class="post-card-summary markdown-body">${displaySummary}</div>
-            <div class="post-card-tags">${tagsHtml}</div>
+            <div class="post-card-tags" style="display: flex; flex-wrap: wrap; gap: 5px;">${tagsHtml}</div>
         </div>`;
     }).join('');
 }

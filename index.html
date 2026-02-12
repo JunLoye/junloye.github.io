@@ -54,14 +54,15 @@
         </div>
         
         <div class="nav-right">
-            <span class="about-trigger" onclick="openAbout()">关于</span>
-            <span class="publish-trigger" onclick="openPublishModal()">发布</span>
-            <span class="archive-trigger" onclick="location.href='/components/archive.html'">归档<span class="beta-badge">BETA</span></span>
+            <span class="nav-item" onclick="openFriends()">友链</span>
+            <span class="nav-item" onclick="openAbout()">关于</span>
+            <span class="nav-item" onclick="openPublishModal()">发布</span>
 
             <input type="text" id="search-input" placeholder="搜索文章...">
         </div>
     </nav>
 
+    <div id="friends-overlay" class="overlay"></div>
     <div id="publish-modal" class="overlay"></div>
     <div id="about-overlay" class="overlay"></div>
     <div id="post-overlay" class="overlay"></div>
@@ -124,7 +125,7 @@
         </div>
     </div>
 
-    <script src="/static/js/login.js"></script>
+    <script src="/static/js/friends.js"></script>
     <script src="/static/js/search.js"></script>
     <script src="/static/js/theme.js"></script>
     <script src="/static/js/post.js"></script>
