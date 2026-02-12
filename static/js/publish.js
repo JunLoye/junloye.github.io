@@ -159,7 +159,7 @@ async function uploadCoverToGithub(file, token) {
     const fileName = `img_${timestamp}.${ext}`;
     
     const imgPath = `images/blog_${timestamp}/${fileName}`;
-    const targetRepo = "JunLoye/junloye.github.io"; 
+    const targetRepo = CONFIG.username + '/' + CONFIG.repo; 
     const targetBranch = "image";
     const apiUrl = `https://api.github.com/repos/${targetRepo}/contents/${imgPath}`;
 

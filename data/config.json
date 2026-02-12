@@ -1,0 +1,29 @@
+{
+  "owner": "Jun Loye",
+  "username": "JunLoye",
+  "repo": "junloye.github.io",
+  "branch": "main",
+  "clientId": "Ov23licJrsWm5hKFYAxj",
+  "proxyUrl": "https://github-oauth-worker.loyejun.workers.dev",
+  "defaultCover": "https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
+  "nodes": [
+    {
+      "name": "GitHub",
+      "url": "https://junloye.github.io"
+    },
+    {
+      "name": "Vercel",
+      "url": "https://junloye.vercel.app"
+    },
+    {
+      "name": "Cloudflare",
+      "url": "https://blog.loyejun.workers.dev"
+    },
+    {
+      "name": "GitHub API",
+      "url": "https://api.github.com"
+    }
+  ],
+  "worker_url": "https://discussions.loyejun.workers.dev/",
+  "client_id": "Ov23liNHVCD2Mdupm4U4"
+}

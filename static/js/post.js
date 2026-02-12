@@ -1,6 +1,3 @@
-const WORKER_URL = 'https://discussions.loyejun.workers.dev/'; 
-const CLIENT_ID = 'Ov23liNHVCD2Mdupm4U4';
-
 function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
@@ -15,7 +12,7 @@ function openPost(num, pushState = true) {
     if (pushState) {
         history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
     }
-    document.title = `${issue.title} | Jun Loye`;
+    document.title = `${issue.title} | `+CONFIG.owner;
 
     const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
         ? CONFIG.defaultCover 
@@ -27,8 +24,8 @@ function openPost(num, pushState = true) {
     const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === '争议');
     let argueBannerHtml = "";
     if (hasArgueTag) {
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : CONFIG.username;
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : CONFIG.repo;
         const refRegex = new RegExp(`Ref:\\s*#${num}\\b`);
         const feedbackIssue = issuesSource.find(i => 
             i.labels.some(l => l.name === '反馈') && 
@@ -109,8 +106,8 @@ function openPost(num, pushState = true) {
 
     const editBtn = document.getElementById('edit-post-btn');
     if (editBtn) {
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : CONFIG.username;
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : CONFIG.repo;
         editBtn.href = `https://github.com/${username}/${repo}/issues/new?template=feedback.yml&title=${encodeURIComponent(`[Feedback] ${issue.title}`)}&ref_id=${encodeURIComponent(`Ref: #${num}`)}`;
         editBtn.style.display = 'inline-block';
     }
@@ -546,7 +543,7 @@ function initLinkPreview() {
 function closePost() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('post')) {
-        history.pushState({}, "Blog | Jun Loye", window.location.pathname);
+        history.pushState({}, "Blog |"+CONFIG.owner, window.location.pathname);
     }
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
@@ -555,7 +552,7 @@ function closePost() {
     const editBtn = document.getElementById('edit-post-btn');
     
     if (!area) return;
-    document.title = "Blog | Jun Loye";
+    document.title = "Blog |"+CONFIG.owner;
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";

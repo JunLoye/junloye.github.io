@@ -33,9 +33,9 @@ async function fetchGitHubCommits() {
     if (!listContainer) return;
 
     const cfg = (typeof CONFIG !== 'undefined') ? CONFIG : {
-        username: 'JunLoye',
-        repo: 'junloye.github.io',
-        branch: 'main'
+        username: CONFIG.username,
+        repo: CONFIG.repo,
+        branch: CONFIG.branch || 'main'
     };
 
     try {
