@@ -11,7 +11,7 @@ permissions:
 jobs:
   feedback-automation:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.title, '[Feedback]')
+    if: contains(github.event.issue.title, '[反馈]')
     steps:
       - name: Auto Process Feedback
         uses: actions/github-script@v7
@@ -33,7 +33,7 @@ jobs:
             try {
               await github.rest.issues.addLabels({
                 owner, repo, issue_number: currentNumber,
-                labels: ['FEEDBACK']
+                labels: ['反馈']
               });
               await github.rest.issues.addAssignees({
                 owner, repo, issue_number: currentNumber,
@@ -50,7 +50,7 @@ jobs:
               try {
                 await github.rest.issues.addLabels({
                   owner, repo, issue_number: originalIssueNumber,
-                  labels: ['Argue']
+                  labels: ['争议']
                 });
                 
                 console.log(`Successfully linked to original issue #${originalIssueNumber}`);

@@ -132,7 +132,7 @@ async function fetchPosts() {
         allIssues = cached.data;
         const displayIssues = allIssues.filter(issue => {
             const isAuthor = issue.user && issue.user.login === CONFIG.username;
-            const hasFeedbackTag = issue.labels.some(l => l.name === 'Feedback');
+            const hasFeedbackTag = issue.labels.some(l => l.name === '反馈');
             return isAuthor && !hasFeedbackTag;
         });
         renderPosts(displayIssues);
@@ -157,7 +157,7 @@ async function fetchPosts() {
 
         const displayIssues = allIssues.filter(issue => {
             const isAuthor = issue.user && issue.user.login === CONFIG.username;
-            const hasFeedbackTag = issue.labels.some(l => l.name === 'Feedback');
+            const hasFeedbackTag = issue.labels.some(l => l.name === '反馈');
             return isAuthor && !hasFeedbackTag;
         });
 
@@ -209,7 +209,7 @@ function renderPosts(posts, highlightTerm = "") {
             displayTitle = displayTitle.replace(regex, `<mark class="search-highlight">$1</mark>`);
         }
         
-        const filteredLabels = issue.labels.filter(l => l.name !== 'Feedback');
+        const filteredLabels = issue.labels.filter(l => l.name !== '反馈');
         const tagsHtml = filteredLabels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
         
         return `<div class="post-card" onclick="openPost(${issue.number})">
@@ -324,7 +324,6 @@ function initNodeList() {
     if (!container) return;
     const currentHost = window.location.hostname;
 
-    // 线路图标：使用了带有指向性的网页/连接图标
     const nodeIconSvg = `<svg class="node-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>`;
 
     let html = CONFIG.nodes.map((node, index) => {

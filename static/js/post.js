@@ -24,27 +24,27 @@ function openPost(num, pushState = true) {
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
 
-    const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === 'ARGUE');
+    const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === '争议');
     let argueBannerHtml = "";
     if (hasArgueTag) {
         const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : 'JunLoye';
         const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : 'junloye.github.io';
         const refRegex = new RegExp(`Ref:\\s*#${num}\\b`);
         const feedbackIssue = issuesSource.find(i => 
-            i.labels.some(l => l.name === 'Feedback') && 
+            i.labels.some(l => l.name === '反馈') && 
             refRegex.test(i.body || "")
         );
 
         const displayId = feedbackIssue ? feedbackIssue.number : num;
         const feedbackUrl = feedbackIssue 
             ? `https://github.com/${username}/${repo}/issues/${feedbackIssue.number}`
-            : `https://github.com/${username}/${repo}/issues?q=${encodeURIComponent(`is:issue label:Feedback "Ref: #${num}"`)}`;
+            : `https://github.com/${username}/${repo}/issues?q=${encodeURIComponent(`is:issue label:反馈 "Ref: #${num}"`)}`;
 
         argueBannerHtml = `
             <div class="argue-banner">
                 <span class="argue-banner-icon">⚠️</span>
                 <div class="argue-banner-text">
-                    此文章内容可能存在争议。点击此处查看纠错详情 
+                    此文章内容可能存在争议。点击此处查看详情 
                     <a href="${feedbackUrl}" target="_blank" class="post-ref-link" data-num="${displayId}">#${displayId}</a>
                 </div>
             </div>`;
@@ -121,7 +121,7 @@ function openPost(num, pushState = true) {
         area.style.transform = "translateY(0)";
         area.classList.add('show');
         generateTOC();
-        setupQuoteAction(num); // 传入当前文章编号
+        setupQuoteAction(num);
     }, 50);
 
     setTimeout(() => {
@@ -528,12 +528,17 @@ function initLinkPreview() {
 
         link.onclick = (e) => {
             const href = link.getAttribute('href');
-            if (href && (href.startsWith('http') || href.includes('/issues/'))) return;
+            
+            if (href && (href.includes('github.com') || href.startsWith('http'))) {
+                return;
+            }
             
             e.preventDefault();
             const num = parseInt(link.getAttribute('data-num'));
-            previewCard.style.display = 'none';
-            openPost(num);
+            if (!isNaN(num)) {
+                previewCard.style.display = 'none';
+                openPost(num);
+            }
         };
     });
 }
