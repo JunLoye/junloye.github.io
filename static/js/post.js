@@ -87,7 +87,6 @@ function openPost(num, pushState = true) {
         .replace(/^\s*---\s*/gm, "")
         .trim();
 
-    // 应用通用解析规则
     let htmlContent = parseEnhancedMarkdown(cleanBody);
 
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -154,22 +153,17 @@ function openPost(num, pushState = true) {
 }
 
 /**
- * 核心解析函数：同步正文与评论的解析逻辑
+ * 核心解析函数
  */
 function parseEnhancedMarkdown(rawMarkdown) {
     let content = rawMarkdown;
-
-    // 1. 处理参考文献跳转 [n]
     content = content.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
-    
-    // 2. 处理文章内部引用 #id
     content = content.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
 
     let html = "";
     try {
         if (typeof marked !== 'undefined') {
             html = marked.parse(content);
-            // 3. 处理 GitHub Alerts 语法
             html = html.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|AI)\]([\s\S]*?)<\/p>\s*<\/blockquote>/gi, (match, type, contentText) => {
                 const t = type.toUpperCase();
                 const title = t === 'AI' ? 'AI Generated' : t;
@@ -185,7 +179,7 @@ function parseEnhancedMarkdown(rawMarkdown) {
 }
 
 /**
- * 评论区：加载逻辑 (已同步解析逻辑)
+ * 评论区：加载逻辑
  */
 async function loadComments(title, issueNum) {
     const list = document.getElementById('comments-list');
@@ -201,13 +195,8 @@ async function loadComments(title, issueNum) {
             const comments = discussion.comments.nodes;
             
             list.innerHTML = comments.length ? comments.map(c => {
-                // 将 GitHub 返回的 HTML 再次通过我们的增强解析器处理 (或者处理原始 markdown，如果 Worker 返回的是 body 字段)
-                // 这里假设 Worker 返回的是 bodyHTML，我们对其内部的特定文本（如 #id 或 [n]）进行二次增强
                 let enhancedBody = c.bodyHTML;
-                
-                // 处理评论中的 #id 链接预览
                 enhancedBody = enhancedBody.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
-                // 处理评论中的 [n] 参考文献跳转
                 enhancedBody = enhancedBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
                 
                 return `
@@ -220,16 +209,36 @@ async function loadComments(title, issueNum) {
                 </div>`;
             }).join('') : '<p class="empty-tip">还没有评论，快来抢沙发！</p>';
             
-            // 重新初始化预览，使评论中的 #id 链接也能弹出预览卡片
             initLinkPreview();
-            
         } else {
             list.innerHTML = `<p class="empty-tip">暂无讨论。点击上方“发表评论”将自动在 GitHub 发起讨论并添加 #${issueNum} 指向。</p>`;
             window.currentDiscussionId = null;
         }
         renderCommentForm(title, issueNum);
     } catch (e) {
-        list.innerHTML = `<p style="color:var(--accent)">评论加载失败。请检查 Worker 的 CORS 配置。</p>`;
+        list.innerHTML = `<p style="color:var(--accent)">评论加载失败。</p>`;
+    }
+}
+
+/**
+ * 实时预览逻辑
+ */
+function updateCommentPreview() {
+    const textarea = document.getElementById('comment-text');
+    const previewArea = document.getElementById('comment-preview');
+    const previewContainer = document.getElementById('comment-preview-container');
+    
+    if (!textarea || !previewArea) return;
+    
+    const content = textarea.value.trim();
+    if (content) {
+        previewContainer.style.display = 'block';
+        previewArea.innerHTML = parseEnhancedMarkdown(content);
+        // 使预览中的 #id 也能触发预览
+        initLinkPreview();
+    } else {
+        previewContainer.style.display = 'none';
+        previewArea.innerHTML = '';
     }
 }
 
@@ -239,6 +248,8 @@ async function loadComments(title, issueNum) {
 function renderCommentForm(title, issueNum) {
     const container = document.getElementById('comment-form-area');
     const token = localStorage.getItem('gh_access_token');
+    const userLogin = localStorage.getItem('gh_user_login');
+    const userAvatar = localStorage.getItem('gh_user_avatar');
     
     if (!token) {
         container.innerHTML = `
@@ -247,12 +258,47 @@ function renderCommentForm(title, issueNum) {
                 <button onclick="loginGitHub()" class="login-btn">GitHub 登录</button>
             </div>`;
     } else {
+        if (!userLogin) {
+            fetchUserInfo(token).then(() => renderCommentForm(title, issueNum));
+            return;
+        }
+
         container.innerHTML = `
-            <textarea id="comment-text" placeholder="撰写评论... (支持 Markdown)"></textarea>
+            <div class="current-user-info" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <img src="${userAvatar}" style="width:24px; height:24px; border-radius:50%; border:1px solid var(--line);">
+                <span style="font-size:0.85rem; font-weight:600; color:var(--text-soft);">以 <span style="color:var(--text)">${userLogin}</span> 的身份评论</span>
+            </div>
+            
+            <textarea id="comment-text" placeholder="撰写评论... (支持 Markdown)" oninput="updateCommentPreview()"></textarea>
+            
+            <div id="comment-preview-container" style="display:none; margin-top:15px; padding:15px; border:1px solid var(--line); border-radius:12px; background:var(--bg);">
+                <div style="font-size:0.7rem; color:var(--accent); font-weight:800; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">预览</div>
+                <div id="comment-preview" class="markdown-body" style="font-size:0.9rem;"></div>
+            </div>
+
             <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
                 <button onclick="submitComment('${title}', ${issueNum})" class="submit-btn">发表评论</button>
                 <button onclick="logout()" class="logout-link" style="background:none; border:none; color:var(--text-soft); cursor:pointer; font-size:0.8rem;">注销登录</button>
             </div>`;
+    }
+}
+
+/**
+ * 获取 GitHub 用户信息
+ */
+async function fetchUserInfo(token) {
+    try {
+        const res = await fetch('https://api.github.com/user', {
+            headers: { 'Authorization': `token ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('gh_user_login', data.login);
+            localStorage.setItem('gh_user_avatar', data.avatar_url);
+            return data;
+        }
+    } catch (e) {
+        console.error("Failed to fetch user info", e);
     }
 }
 
@@ -263,9 +309,14 @@ function loginGitHub() {
 
 function logout() {
     localStorage.removeItem('gh_access_token');
+    localStorage.removeItem('gh_user_login');
+    localStorage.removeItem('gh_user_avatar');
     location.reload();
 }
 
+/**
+ * 处理 OAuth 登录回调
+ */
 (async function handleAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -277,6 +328,7 @@ function logout() {
             
             if (data.access_token) {
                 localStorage.setItem('gh_access_token', data.access_token);
+                await fetchUserInfo(data.access_token);
                 urlParams.delete('code');
                 const newQuery = urlParams.toString();
                 const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
