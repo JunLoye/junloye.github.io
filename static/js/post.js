@@ -309,7 +309,15 @@ async function renderCommentForm(title, issueNum) {
             </div>`;
     } else {
         if (!userLogin) {
-            fetchUserInfo(token).then(() => renderCommentForm(title, issueNum));
+            // 这里改为 await 确保获取成功后再渲染
+            const userInfo = await fetchUserInfo(token);
+            if (!userInfo) {
+                // 如果 Token 失效，重置
+                localStorage.removeItem('gh_access_token');
+                renderCommentForm(title, issueNum);
+                return;
+            }
+            renderCommentForm(title, issueNum);
             return;
         }
 
@@ -349,6 +357,7 @@ async function fetchUserInfo(token) {
     } catch (e) {
         console.error("Failed to fetch user info", e);
     }
+    return null;
 }
 
 async function loginGitHub() {
@@ -358,7 +367,9 @@ async function loginGitHub() {
         return;
     }
     const currentUrl = window.location.href;
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CONFIG.client_id}&scope=public_repo&redirect_uri=${encodeURIComponent(currentUrl)}`;
+    // 强制清理旧 code
+    const cleanUrl = currentUrl.split('&code=')[0].split('?code=')[0];
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CONFIG.client_id}&scope=public_repo&redirect_uri=${encodeURIComponent(cleanUrl)}`;
 }
 
 function logout() {
@@ -368,34 +379,50 @@ function logout() {
     location.reload();
 }
 
-(async function handleAuthCallback() {
+// 核心修复：显式调用的初始化函数
+async function handleAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
     if (code) {
+        console.log("检测到登录 Code，正在处理...");
         await ensureConfig();
+        
         if (typeof CONFIG !== 'undefined' && CONFIG.worker_url) {
             try {
                 const res = await fetch(`${CONFIG.worker_url}?action=login&code=${code}`);
                 const data = await res.json();
                 
                 if (data.access_token) {
+                    console.log("Token 获取成功，正在拉取用户信息...");
                     localStorage.setItem('gh_access_token', data.access_token);
                     await fetchUserInfo(data.access_token);
+                    
+                    // 清理 URL 
                     urlParams.delete('code');
                     const newQuery = urlParams.toString();
                     const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
                     window.history.replaceState({}, "", newUrl);
+                    
+                    console.log("登录成功，准备刷新页面");
                     location.reload();
                 } else {
                     throw new Error(data.error_description || data.error || "登录失败");
                 }
             } catch (e) {
                 console.error("Auth error:", e);
+                alert("登录验证失败，请检查 Worker 配置。");
             }
+        } else {
+            console.error("无法处理登录：Worker URL 未配置。");
         }
     }
-})();
+}
+
+// 页面加载后立即启动处理逻辑
+window.addEventListener('DOMContentLoaded', () => {
+    handleAuthCallback();
+});
 
 async function submitComment(title, issueNum) {
     const body = document.getElementById('comment-text').value;

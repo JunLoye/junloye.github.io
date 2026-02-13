@@ -285,6 +285,9 @@ function initContextMenu() {
     if (!menu) return;
 
     document.addEventListener('contextmenu', (e) => {
+        // 如果是在输入框内点击，使用原生菜单
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
         e.preventDefault();
         lastSelectedText = window.getSelection().toString().trim();
         textGroup.style.display = lastSelectedText.length > 0 ? 'block' : 'none';
@@ -298,6 +301,24 @@ function initContextMenu() {
     });
 
     document.addEventListener('click', () => menu.style.display = 'none');
+}
+
+/** 复制选中内容 **/
+async function copySelectedText() {
+    if (!lastSelectedText) return;
+    try {
+        await navigator.clipboard.writeText(lastSelectedText);
+        showNotification('已复制选中内容', 'success');
+    } catch (err) {
+        showNotification('复制失败', 'error');
+    }
+}
+
+/** 谷歌搜索选中内容 **/
+function searchSelectedText() {
+    if (!lastSelectedText) return;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(lastSelectedText)}`;
+    window.open(url, '_blank');
 }
 
 function handleScroll() {
