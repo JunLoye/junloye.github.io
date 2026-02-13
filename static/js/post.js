@@ -1,3 +1,18 @@
+// 确保配置已加载的守卫函数
+async function ensureConfig() {
+    if (typeof CONFIG === 'undefined' || !CONFIG || Object.keys(CONFIG).length === 0) {
+        console.warn("CONFIG 缺失，正在调用 loadConfig()...");
+        if (typeof loadConfig === 'function') {
+            await loadConfig();
+        } else {
+            console.error("未找到 loadConfig 函数，无法加载配置。");
+        }
+    }
+}
+
+// GitHub SVG 图标定义
+const GITHUB_SVG = `<svg height="20" viewBox="0 0 16 16" version="1.1" width="20" aria-hidden="true" style="fill: currentColor; vertical-align: middle; margin-right: 8px;"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>`;
+
 function openPost(num, pushState = true) {
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     const issue = issuesSource.find(i => i.number === num);
@@ -12,7 +27,9 @@ function openPost(num, pushState = true) {
     if (pushState) {
         history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
     }
-    document.title = `${issue.title} | `+CONFIG.owner;
+
+    const owner = (typeof CONFIG !== 'undefined') ? CONFIG.owner : 'Blog';
+    document.title = `${issue.title} | ` + owner;
 
     const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
         ? CONFIG.defaultCover 
@@ -24,8 +41,8 @@ function openPost(num, pushState = true) {
     const hasArgueTag = issue.labels.some(l => l.name.toUpperCase() === '争议');
     let argueBannerHtml = "";
     if (hasArgueTag) {
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : CONFIG.username;
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : CONFIG.repo;
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : '';
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : '';
         const refRegex = new RegExp(`Ref:\\s*#${num}\\b`);
         const feedbackIssue = issuesSource.find(i => 
             i.labels.some(l => l.name === '反馈') && 
@@ -95,7 +112,7 @@ function openPost(num, pushState = true) {
         <div id="reference-content">${referenceHtml}</div>
         
         <div class="comments-section">
-            <h3 class="comments-title">Comments</h3>
+            <h3 class="comments-title">评论</h3>
             <div id="comment-form-area" class="comment-form"></div>
             <div id="comments-list" style="margin-top: 30px;">加载评论中...</div>
         </div>`;
@@ -106,8 +123,8 @@ function openPost(num, pushState = true) {
 
     const editBtn = document.getElementById('edit-post-btn');
     if (editBtn) {
-        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : CONFIG.username;
-        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : CONFIG.repo;
+        const username = (typeof CONFIG !== 'undefined') ? CONFIG.username : '';
+        const repo = (typeof CONFIG !== 'undefined') ? CONFIG.repo : '';
         editBtn.href = `https://github.com/${username}/${repo}/issues/new?template=feedback.yml&title=${encodeURIComponent(`[Feedback] ${issue.title}`)}&ref_id=${encodeURIComponent(`Ref: #${num}`)}`;
         editBtn.style.display = 'inline-block';
     }
@@ -208,7 +225,9 @@ async function loadComments(title, issueNum) {
     const list = document.getElementById('comments-list');
     if (!list) return;
 
-    if (typeof CONFIG.worker_url === 'undefined' || !CONFIG.worker_url) {
+    await ensureConfig();
+
+    if (typeof CONFIG === 'undefined' || !CONFIG.worker_url) {
         list.innerHTML = `<p style="color:var(--accent)">评论功能未配置 (CONFIG.worker_url 缺失)。</p>`;
         renderCommentForm(title, issueNum);
         return;
@@ -272,7 +291,7 @@ function updateCommentPreview() {
     }
 }
 
-function renderCommentForm(title, issueNum) {
+async function renderCommentForm(title, issueNum) {
     const container = document.getElementById('comment-form-area');
     if (!container) return;
 
@@ -282,9 +301,11 @@ function renderCommentForm(title, issueNum) {
     
     if (!token) {
         container.innerHTML = `
-            <div style="text-align:center; padding: 20px; background:var(--line); border-radius:12px;">
-                <p style="margin-bottom:15px; font-size:0.9rem;">登录 GitHub 参与讨论</p>
-                <button onclick="loginGitHub()" class="login-btn">GitHub 登录</button>
+            <div style="text-align:center; padding: 25px; background:var(--line); border-radius:12px;">
+                <p style="margin-bottom:15px; font-size:0.9rem; color:var(--text-soft);">登录 GitHub 参与讨论</p>
+                <button onclick="loginGitHub()" class="login-btn" style="display:inline-flex; align-items:center; justify-content:center;">
+                    ${GITHUB_SVG} 使用 GitHub 登录
+                </button>
             </div>`;
     } else {
         if (!userLogin) {
@@ -295,7 +316,9 @@ function renderCommentForm(title, issueNum) {
         container.innerHTML = `
             <div class="current-user-info" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                 <img src="${userAvatar}" style="width:24px; height:24px; border-radius:50%; border:1px solid var(--line);">
-                <span style="font-size:0.85rem; font-weight:600; color:var(--text-soft);">以 <span style="color:var(--text)">${userLogin}</span> 的身份评论</span>
+                <span style="font-size:0.85rem; font-weight:600; color:var(--text-soft); display:inline-flex; align-items:center;">
+                    ${GITHUB_SVG} 以 <span style="color:var(--text); margin-left:4px;">${userLogin}</span> 的身份评论
+                </span>
             </div>
             
             <textarea id="comment-text" placeholder="撰写评论... (支持 Markdown)" oninput="updateCommentPreview()"></textarea>
@@ -328,8 +351,9 @@ async function fetchUserInfo(token) {
     }
 }
 
-function loginGitHub() {
-    if (typeof CONFIG.client_id === 'undefined') {
+async function loginGitHub() {
+    await ensureConfig();
+    if (typeof CONFIG === 'undefined' || typeof CONFIG.client_id === 'undefined') {
         alert("CONFIG.client_id 未配置");
         return;
     }
@@ -348,24 +372,27 @@ function logout() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
-    if (code && typeof CONFIG.worker_url !== 'undefined') {
-        try {
-            const res = await fetch(`${CONFIG.worker_url}?action=login&code=${code}`);
-            const data = await res.json();
-            
-            if (data.access_token) {
-                localStorage.setItem('gh_access_token', data.access_token);
-                await fetchUserInfo(data.access_token);
-                urlParams.delete('code');
-                const newQuery = urlParams.toString();
-                const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
-                window.history.replaceState({}, "", newUrl);
-                location.reload();
-            } else {
-                throw new Error(data.error_description || data.error || "登录失败");
+    if (code) {
+        await ensureConfig();
+        if (typeof CONFIG !== 'undefined' && CONFIG.worker_url) {
+            try {
+                const res = await fetch(`${CONFIG.worker_url}?action=login&code=${code}`);
+                const data = await res.json();
+                
+                if (data.access_token) {
+                    localStorage.setItem('gh_access_token', data.access_token);
+                    await fetchUserInfo(data.access_token);
+                    urlParams.delete('code');
+                    const newQuery = urlParams.toString();
+                    const newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '');
+                    window.history.replaceState({}, "", newUrl);
+                    location.reload();
+                } else {
+                    throw new Error(data.error_description || data.error || "登录失败");
+                }
+            } catch (e) {
+                console.error("Auth error:", e);
             }
-        } catch (e) {
-            console.error("Auth error:", e);
         }
     }
 })();
@@ -380,6 +407,7 @@ async function submitComment(title, issueNum) {
         return;
     }
 
+    await ensureConfig();
     const btn = document.querySelector('.submit-btn');
     btn.disabled = true;
     btn.innerText = '发送中...';
@@ -559,8 +587,9 @@ function initLinkPreview() {
 
 function closePost() {
     const urlParams = new URLSearchParams(window.location.search);
+    const owner = (typeof CONFIG !== 'undefined') ? CONFIG.owner : 'Blog';
     if (urlParams.has('post')) {
-        history.pushState({}, "Blog |"+CONFIG.owner, window.location.pathname);
+        history.pushState({}, "Blog |" + owner, window.location.pathname);
     }
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
@@ -569,7 +598,7 @@ function closePost() {
     const editBtn = document.getElementById('edit-post-btn');
     
     if (!area) return;
-    document.title = "Blog |"+CONFIG.owner;
+    document.title = "Blog |" + owner;
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";

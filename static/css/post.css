@@ -203,6 +203,13 @@
     overflow-y: auto;
 }
 
+/* 黑暗模式适配 */
+[data-theme='dark'] #link-preview-card {
+    background-color: rgba(30, 30, 30, 0.98); /* 使用较深的深灰色背景 */
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
 #link-preview-card::-webkit-scrollbar {
     width: 4px;
 }
@@ -221,6 +228,11 @@
     font-size: 0.85rem;
     line-height: 1.6;
     color: var(--text-soft);
+}
+
+/* 确保黑暗模式下正文文字颜色正确 */
+[data-theme='dark'] #link-preview-card .preview-excerpt.markdown-body {
+    color: #b0b0b0;
 }
 
 .preview-header {
