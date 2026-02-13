@@ -17,21 +17,6 @@
     pointer-events: none;
     transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
-[data-frosted-glass="true"] .cookie-banner {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="dark"][data-frosted-glass="true"] .cookie-banner {
-    background: rgba(30, 30, 30, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
 .cookie-banner.show {
     opacity: 1;
     visibility: visible;

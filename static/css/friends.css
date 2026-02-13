@@ -1,4 +1,3 @@
-/* 容器布局统一 */
 .detail-container#friends-content {
     max-width: 800px;
     margin: 0 auto;
@@ -7,12 +6,10 @@
     position: relative;
 }
 
-/* 头部样式对齐 about */
 .friends-header {
     margin-top: 40px;
 }
 
-/* 友链卡片网格 */
 .friends-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -42,7 +39,7 @@
 .friend-avatar {
     width: 55px;
     height: 55px;
-    border-radius: 50%; /* 改为圆形，与关于页头像统一 */
+    border-radius: 50%;
     object-fit: cover;
     background: var(--bg);
     border: 2px solid var(--bg);
@@ -75,13 +72,11 @@
     transition: color 0.3s ease;
 }
 
-/* 悬浮时文字变色 */
 .friend-card:hover .friend-name,
 .friend-card:hover .friend-desc {
     color: #fff;
 }
 
-/* 站点信息卡片优化 */
 .site-info-card {
     display: block;
     margin-top: 15px;
@@ -93,19 +88,6 @@
     font-family: 'Cascadia Code', monospace;
     color: var(--text-soft);
     border: 1px dashed var(--line);
-}
-
-/* 适配毛玻璃模式 */
-[data-frosted-glass="true"] .friend-card {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-[data-theme="dark"][data-frosted-glass="true"] .friend-card {
-    background: rgba(30, 30, 30, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @media (max-width: 600px) {

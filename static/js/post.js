@@ -206,27 +206,36 @@ function parseEnhancedMarkdown(rawMarkdown) {
 
 async function loadComments(title, issueNum) {
     const list = document.getElementById('comments-list');
+    if (!list) return;
+
+    if (typeof CONFIG.worker_url === 'undefined' || !CONFIG.worker_url) {
+        list.innerHTML = `<p style="color:var(--accent)">评论功能未配置 (CONFIG.worker_url 缺失)。</p>`;
+        renderCommentForm(title, issueNum);
+        return;
+    }
+
     try {
-        const res = await fetch(`${WORKER_URL}?action=getComments&title=${encodeURIComponent(title)}`);
-        const result = await res.json();
+        const res = await fetch(`${CONFIG.worker_url}?action=getComments&title=${encodeURIComponent(title)}`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
+        const result = await res.json();
         if (result.error) throw new Error(result.error);
 
-        const discussion = result.data?.search?.nodes[0];
+        const discussion = result.data?.search?.nodes?.[0];
         if (discussion) {
             window.currentDiscussionId = discussion.id;
-            const comments = discussion.comments.nodes;
+            const comments = discussion.comments?.nodes || [];
             
             list.innerHTML = comments.length ? comments.map(c => {
-                let enhancedBody = c.bodyHTML;
+                let enhancedBody = c.bodyHTML || "";
                 enhancedBody = enhancedBody.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
                 enhancedBody = enhancedBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
                 
                 return `
                 <div class="comment-item">
-                    <img src="${c.author.avatarUrl}" class="comment-avatar">
+                    <img src="${c.author?.avatarUrl || ''}" class="comment-avatar">
                     <div class="comment-content">
-                        <div class="comment-info"><strong>${c.author.login}</strong> <small>${new Date(c.createdAt).toLocaleString()}</small></div>
+                        <div class="comment-info"><strong>${c.author?.login || 'Anonymous'}</strong> <small>${new Date(c.createdAt).toLocaleString()}</small></div>
                         <div class="comment-body markdown-body">${enhancedBody}</div>
                     </div>
                 </div>`;
@@ -234,12 +243,14 @@ async function loadComments(title, issueNum) {
             
             initLinkPreview();
         } else {
-            list.innerHTML = `<p class="empty-tip">暂无讨论。点击上方“发表评论”将自动在 GitHub 发起讨论并添加 #${issueNum} 指向。</p>`;
+            list.innerHTML = `<p class="empty-tip">暂无讨论。点击下方“发表评论”将自动在 GitHub 发起讨论并添加 #${issueNum} 指向。</p>`;
             window.currentDiscussionId = null;
         }
-        renderCommentForm(title, issueNum);
     } catch (e) {
-        list.innerHTML = `<p style="color:var(--accent)">评论加载失败。</p>`;
+        console.error("Comments load error:", e);
+        list.innerHTML = `<p style="color:var(--accent)">评论加载失败，请稍后再试。</p>`;
+    } finally {
+        renderCommentForm(title, issueNum);
     }
 }
 
@@ -263,6 +274,8 @@ function updateCommentPreview() {
 
 function renderCommentForm(title, issueNum) {
     const container = document.getElementById('comment-form-area');
+    if (!container) return;
+
     const token = localStorage.getItem('gh_access_token');
     const userLogin = localStorage.getItem('gh_user_login');
     const userAvatar = localStorage.getItem('gh_user_avatar');
@@ -293,7 +306,7 @@ function renderCommentForm(title, issueNum) {
             </div>
 
             <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <button onclick="submitComment('${title}', ${issueNum})" class="submit-btn">发表评论</button>
+                <button onclick="submitComment('${title.replace(/'/g, "\\'")}', ${issueNum})" class="submit-btn">发表评论</button>
                 <button onclick="logout()" class="logout-link" style="background:none; border:none; color:var(--text-soft); cursor:pointer; font-size:0.8rem;">注销登录</button>
             </div>`;
     }
@@ -316,8 +329,12 @@ async function fetchUserInfo(token) {
 }
 
 function loginGitHub() {
+    if (typeof CONFIG.client_id === 'undefined') {
+        alert("CONFIG.client_id 未配置");
+        return;
+    }
     const currentUrl = window.location.href;
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=public_repo&redirect_uri=${encodeURIComponent(currentUrl)}`;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${CONFIG.client_id}&scope=public_repo&redirect_uri=${encodeURIComponent(currentUrl)}`;
 }
 
 function logout() {
@@ -331,9 +348,9 @@ function logout() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     
-    if (code) {
+    if (code && typeof CONFIG.worker_url !== 'undefined') {
         try {
-            const res = await fetch(`${WORKER_URL}?action=login&code=${code}`);
+            const res = await fetch(`${CONFIG.worker_url}?action=login&code=${code}`);
             const data = await res.json();
             
             if (data.access_token) {
@@ -368,7 +385,7 @@ async function submitComment(title, issueNum) {
     btn.innerText = '发送中...';
 
     try {
-        const res = await fetch(`${WORKER_URL}`, {
+        const res = await fetch(`${CONFIG.worker_url}`, {
             method: 'POST',
             headers: { 
                 'Authorization': token, 

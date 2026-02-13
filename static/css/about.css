@@ -242,51 +242,6 @@
     white-space: pre-wrap;
 }
 
-/* --- 设置面板样式 --- */
-.settings-panel {
-    background: var(--line);
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px 0;
-}
-
-.setting-item {
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-}
-
-.setting-label {
-    font-weight: 700;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.setting-description {
-    font-size: 0.8rem;
-    color: var(--text-soft);
-    margin-left: 28px;
-    margin-top: 4px;
-}
-
-[data-frosted-glass="true"] .settings-panel,
-[data-frosted-glass="true"] .credit-item,
-[data-frosted-glass="true"] .about-github-footer {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-[data-theme="dark"][data-frosted-glass="true"] .settings-panel,
-[data-theme="dark"][data-frosted-glass="true"] .credit-item,
-[data-theme="dark"][data-frosted-glass="true"] .about-github-footer {
-    background: rgba(30, 30, 30, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
 @media (max-width: 600px) {
     .detail-container#about-content {
         padding: 20px 15px;

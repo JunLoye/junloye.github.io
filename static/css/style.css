@@ -23,19 +23,6 @@
     --shadow: 0 10px 40px rgba(0,0,0,0.3);
 }
 
-[data-frosted-glass="true"] {
-    --bg-frosted: rgba(255, 255, 255, 0.7);
-    --bg-frosted-dark: rgba(15, 15, 15, 0.6);
-}
-
-[data-theme="light"][data-frosted-glass="true"] {
-    --overlay-bg: rgba(255, 255, 255, 0.85);
-}
-
-[data-theme="dark"][data-frosted-glass="true"] {
-    --overlay-bg: rgba(15, 15, 15, 0.85);
-}
-
 html { scroll-behavior: smooth; }
 ::selection { background-color: var(--selection-bg); color: var(--selection-color); }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -57,20 +44,6 @@ body {
     overflow-x: hidden;
 }
 
-body[data-frosted-glass="true"] {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter></defs><rect width="100" height="100" fill="%23ffffff" opacity="0.03" filter="url(%23noise)"/><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="%23999999" stroke-width="0.5" opacity="0.1"/></pattern><rect width="100" height="100" fill="url(%23grid)"/></svg>'),
-                        linear-gradient(135deg, rgba(100,200,255,0.1) 0%, rgba(200,100,255,0.1) 100%);
-    background-attachment: fixed;
-    background-size: auto, 100% 100%;
-}
-
-body[data-theme="dark"][data-frosted-glass="true"] {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter></defs><rect width="100" height="100" fill="%230f0f0f" opacity="0.03" filter="url(%23noise)"/><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="%23666666" stroke-width="0.5" opacity="0.1"/></pattern><rect width="100" height="100" fill="url(%23grid)"/></svg>'),
-                        linear-gradient(135deg, rgba(50,100,200,0.1) 0%, rgba(150,50,200,0.1) 100%);
-    background-attachment: fixed;
-    background-size: auto, 100% 100%;
-}
-
 nav {
     display: flex;
     justify-content: space-between;
@@ -88,19 +61,6 @@ nav {
     -webkit-user-select: none;
 }
 
-[data-frosted-glass="true"] nav {
-    background: cover;
-    border-bottom-color: rgba(239, 239, 239, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    will-change: transform;
-}
-
-[data-theme="dark"][data-frosted-glass="true"] nav {
-    background: rgba(15, 15, 15, 0.6);
-    border-bottom-color: rgba(34, 34, 34, 0.5);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
 .brand {
     font-weight: 900;
     letter-spacing: 2px;
@@ -272,22 +232,6 @@ nav {
     transform: translateY(-5px);
 }
 
-[data-frosted-glass="true"] .post-card {
-    background: url('../image/background.jpg') no-repeat center center / cover;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    will-change: transform;
-}
-
-[data-theme="dark"][data-frosted-glass="true"] .post-card {
-    background: rgba(30, 30, 30, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
 .post-cover {
     width: 100%;
     height: 180px;
@@ -328,16 +272,6 @@ nav {
     overflow-y: auto;
 }
 
-[data-frosted-glass="true"] .overlay {
-    background: url('../image/background.jpg') no-repeat center center / cover;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    will-change: transform;
-}
-
-[data-theme="dark"][data-frosted-glass="true"] .overlay {
-    background: rgba(15, 15, 15, 0.85);
-}
 .detail-container {
     max-width: var(--container-width);
     margin: 0 auto;
