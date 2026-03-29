@@ -186,7 +186,11 @@ function openPost(num, pushState = true) {
         <div class="detail-header">
             <div style="display: flex; justify-content: space-between; align-items: center; color:var(--text-soft); font-size:0.85rem;">
                 <span>${date}</span>
-                <span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:var(--selection-bg); padding:2px 10px; border-radius:4px;">${issue.labels[0]?.name || 'MEMO'}</span>
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    ${issue.labels.filter(label => label.name !== '反馈').map(label =>
+                        `<span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:var(--selection-bg); padding:2px 10px; border-radius:4px; white-space: nowrap;">${label.name}</span>`
+                    ).join('') || '<span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:var(--selection-bg); padding:2px 10px; border-radius:4px;">MEMO</span>'}
+                </div>
             </div>
             <h1 style="font-size:2rem; margin:15px 0; font-weight:900;">${issue.title}</h1>
             

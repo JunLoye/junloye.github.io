@@ -12,6 +12,7 @@ from datetime import datetime
 import pytz
 import requests
 import re
+import html
 
 def prettify(elem):
     """返回格式化的XML字符串"""
@@ -49,33 +50,73 @@ def fetch_github_issues():
         # 过滤掉非作者的和反馈标签的issues
         filtered_issues = []
         for issue in issues:
-            is_author = issue.get('user', {}).get('login', '') == username
+            issue_author = issue.get('user', {}).get('login', '')
+            is_author = issue_author == username
             has_feedback_tag = any(label.get('name', '') == '反馈' for label in issue.get('labels', []))
             
             if is_author and not has_feedback_tag:
                 filtered_issues.append(issue)
+            else:
+                print(f"跳过文章: {issue.get('title', 'Untitled')} (作者: {issue_author}, 是否作者: {is_author}, 有反馈标签: {has_feedback_tag})")
         
+        print(f"过滤后文章数量: {len(filtered_issues)} (总共: {len(issues)})")
         return filtered_issues
         
     except Exception as e:
         print(f"Error fetching GitHub issues: {e}")
         return []
 
+def escape_xml(text):
+    """转义XML特殊字符"""
+    if not text:
+        return ""
+    # 使用html.escape来转义XML特殊字符
+    return html.escape(text)
+
 def extract_summary(body):
-    """从issue body中提取摘要"""
+    """从issue body中提取摘要并清理markdown标签"""
     if not body:
         return ""
     
-    # 尝试匹配[Summary]标签
+    # 首先移除所有markdown标签：[Cover]、[Summary]、[Content]、[References]
+    cleaned_body = re.sub(r'\[(Cover|Summary|Content|References)\]\s*', '', body)
+    
+    # 移除markdown图片标签
+    cleaned_body = re.sub(r'!\[.*?\]\(.*?\)', '', cleaned_body)
+    
+    # 移除markdown链接标签，保留链接文本
+    cleaned_body = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', cleaned_body)
+    
+    # 移除HTML标签
+    cleaned_body = re.sub(r'<[^>]+>', '', cleaned_body)
+    
+    # 移除markdown格式标记：**、*、`、#等
+    cleaned_body = re.sub(r'[*_`#]', '', cleaned_body)
+    
+    # 移除多余的空格和换行
+    cleaned_body = re.sub(r'\s+', ' ', cleaned_body).strip()
+    
+    # 尝试匹配[Summary]标签（在原始body中）
     summary_match = re.search(r'\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)', body)
     if summary_match:
         summary = summary_match.group(1).strip()
-        # 取前3行
-        lines = summary.split('\n')
-        return '\n'.join(lines[:3])
+        # 清理summary中的markdown标签
+        summary = re.sub(r'\[(Cover|Summary|Content|References)\]\s*', '', summary)
+        summary = re.sub(r'!\[.*?\]\(.*?\)', '', summary)
+        summary = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', summary)
+        summary = re.sub(r'<[^>]+>', '', summary)
+        summary = re.sub(r'[*_`#]', '', summary)
+        summary = re.sub(r'\s+', ' ', summary).strip()
+        
+        # 取前200个字符作为摘要
+        if len(summary) > 200:
+            summary = summary[:197] + "..."
+        return escape_xml(summary)
     
-    # 如果没有[Summary]，取前200个字符
-    return body[:200] + "..." if len(body) > 200 else body
+    # 如果没有[Summary]，取清理后的前200个字符
+    if len(cleaned_body) > 200:
+        cleaned_body = cleaned_body[:197] + "..."
+    return escape_xml(cleaned_body)
 
 def generate_rss():
     """生成RSS XML"""
@@ -106,7 +147,7 @@ def generate_rss():
     if issues:
         for issue in issues:
             item = ET.SubElement(channel, "item")
-            ET.SubElement(item, "title").text = issue.get('title', 'Untitled')
+            ET.SubElement(item, "title").text = escape_xml(issue.get('title', 'Untitled'))
             ET.SubElement(item, "link").text = f"https://junloye.github.io/#post-{issue.get('number', '')}"
             
             # 提取描述
@@ -130,7 +171,7 @@ def generate_rss():
             for label in labels:
                 label_name = label.get('name', '')
                 if label_name != '反馈':  # 跳过反馈标签
-                    ET.SubElement(item, "category").text = label_name
+                    ET.SubElement(item, "category").text = escape_xml(label_name)
     else:
         # 如果没有获取到issues，添加一个默认项目
         print("Warning: No issues fetched, adding default item")

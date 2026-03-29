@@ -55,6 +55,22 @@ function applyFeatureFlags() {
     }
     
     const features = CONFIG.features;
+    
+    // 应用分享功能开关
+    if (features.share === false) {
+        const shareElements = document.querySelectorAll('.share-btn, .share-buttons');
+        shareElements.forEach(el => el.style.display = 'none');
+    }
+    
+    // 应用打赏功能开关
+    if (features.donation === false) {
+        const donationElements = document.querySelectorAll('.donation-section, .donation-method');
+        donationElements.forEach(el => el.style.display = 'none');
+    }
+    
+    // 应用公告功能开关（在initAnnouncement中处理）
+    // 这里只是记录，实际在initAnnouncement中处理
+    console.log('功能开关已应用:', features);
 }
 
 async function fetchPosts() {
@@ -85,6 +101,8 @@ async function fetchPosts() {
         renderPosts(displayIssues);
         updateSidebarStats(displayIssues.length);
         handleRouting();
+        // 初始化标签云
+        initTagCloud();
     } catch (e) {
         showNotification("文章列表同步失败", 'error');
     }
@@ -500,6 +518,27 @@ if (typeof originalLoadAndRender === 'function') {
         initTagCloud();
         return result;
     };
+}
+
+function filterByTag(tagName) {
+    if (!allIssues || allIssues.length === 0) return;
+    
+    // 过滤出包含该标签的文章
+    const filteredIssues = allIssues.filter(issue => {
+        return issue.labels.some(label => label.name === tagName);
+    });
+    
+    // 渲染过滤后的文章
+    renderPosts(filteredIssues, tagName);
+    
+    // 显示过滤提示
+    showNotification(`已筛选标签: ${tagName} (${filteredIssues.length}篇文章)`, 'info');
+    
+    // 滚动到文章列表顶部
+    const container = document.getElementById('post-list-container');
+    if (container) {
+        container.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 function escapeXML(str) {
