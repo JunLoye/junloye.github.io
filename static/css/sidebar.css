@@ -118,8 +118,57 @@
     transform: translateY(-5px);
 }
 
+/* 右侧边栏样式 */
+.sidebar-right {
+    position: fixed;
+    right: 40px;
+    top: 120px;
+    width: 220px;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 标签云特定样式 */
+#tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-item {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--line);
+    color: var(--text-soft);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.tag-item:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 122, 255, 0.2);
+}
+
+.tag-item.tag-active {
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+}
+
 @media (max-width: 768px) {
     .sidebar-info {
+        display: none;
+    }
+    
+    .sidebar-right {
         display: none;
     }
 

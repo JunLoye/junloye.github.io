@@ -1,0 +1,52 @@
+name: Generate RSS Feed
+
+on:
+  schedule:
+    # 每天UTC时间0点运行（北京时间8点）
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # 允许手动触发
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/config.json'
+      - '.github/workflows/generate-rss.yml'
+      - '.github/scripts/generate_rss.py'
+
+jobs:
+  generate-rss:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytz
+    
+    - name: Generate RSS feed
+      run: |
+        python .github/scripts/generate_rss.py
+    
+    - name: Check for changes
+      id: changes
+      run: |
+        git diff --quiet rss.xml || echo "has_changes=true" >> $GITHUB_OUTPUT
+    
+    - name: Commit and push if changed
+      if: steps.changes.outputs.has_changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add rss.xml
+        git commit -m "🤖 Auto-generated RSS feed [skip ci]"
+        git push

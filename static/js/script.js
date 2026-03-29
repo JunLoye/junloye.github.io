@@ -8,6 +8,11 @@ window.addEventListener('load', async () => {
     const configLoaded = await loadConfig();
     if (!configLoaded) return;
 
+    // 应用功能开关
+    applyFeatureFlags();
+    // 初始化公告（依赖配置）
+    initAnnouncement();
+
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
     
@@ -40,6 +45,16 @@ async function loadConfig() {
         showNotification('配置文件 (config.json) 加载失败', 'error');
         return false;
     }
+}
+
+// 应用功能开关
+function applyFeatureFlags() {
+    if (!CONFIG.features) {
+        console.warn('CONFIG.features 未定义，使用默认功能开关');
+        return;
+    }
+    
+    const features = CONFIG.features;
 }
 
 async function fetchPosts() {
@@ -487,56 +502,6 @@ if (typeof originalLoadAndRender === 'function') {
     };
 }
 
-// 页面加载完成后初始化标签云
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initTagCloud, 1000);
-    // 初始化RSS链接
-    initRSSLink();
-});
-
-// RSS订阅功能
-function generateRSSContent(issues) {
-    if (!issues || issues.length === 0) return '';
-    
-    // 只取最新20篇文章
-    const recentIssues = issues.slice(0, 20);
-    
-    const items = recentIssues.map(issue => {
-        const title = escapeXML(issue.title);
-        const link = `https://junloye.github.io?post=${issue.number}`;
-        const pubDate = new Date(issue.created_at).toUTCString();
-        
-        // 提取文章摘要
-        const summaryMatch = issue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\[Content\]|---|$)/);
-        let description = summaryMatch ? summaryMatch[1].trim() : '';
-        if (!description) {
-            // 如果没有摘要，使用前200个字符
-            const contentMatch = issue.body?.match(/\[Content\]\s*([\s\S]*?)(?=\[References\]|---|$)/);
-            description = contentMatch ? contentMatch[1].trim().substring(0, 200) + '...' : 'No content';
-        }
-        description = escapeXML(description);
-        
-        // 提取标签
-        const tags = issue.labels
-            .filter(l => l.name !== '反馈')
-            .map(l => `<category>${escapeXML(l.name)}</category>`)
-            .join('');
-        
-        return `
-    <item>
-        <title>${title}</title>
-        <link>${link}</link>
-        <description>${description}</description>
-        <pubDate>${pubDate}</pubDate>
-        <guid isPermaLink="true">${link}</guid>
-        ${tags}
-        <author>${issue.user?.login || 'Jun Loye'}</author>
-    </item>`;
-    }).join('');
-    
-    return items;
-}
-
 function escapeXML(str) {
     if (!str) return '';
     return str
@@ -544,86 +509,6 @@ function escapeXML(str) {
         .replace(/</g, '<')
         .replace(/>/g, '>')
         .replace(/"/g, '"')
-}
-
-function initRSSLink() {
-    // 在页脚添加RSS订阅链接
-    const footer = document.querySelector('footer');
-    if (!footer) return;
-    
-    const rssLink = document.createElement('a');
-    rssLink.href = '/rss.xml';
-    rssLink.innerHTML = '📡 RSS订阅';
-    rssLink.style.cssText = `
-        display: inline-block;
-        margin-left: 15px;
-        color: var(--accent);
-        text-decoration: none;
-        font-size: 0.9rem;
-    `;
-    rssLink.title = '订阅博客更新';
-    
-    // 添加到页脚
-    const yearSpan = footer.querySelector('#year');
-    if (yearSpan) {
-        yearSpan.parentNode.insertBefore(rssLink, yearSpan.nextSibling);
-    } else {
-        footer.appendChild(rssLink);
-    }
-    
-    // 添加动态生成RSS的按钮（仅开发用）
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        const generateBtn = document.createElement('button');
-        generateBtn.textContent = '生成RSS';
-        generateBtn.style.cssText = `
-            margin-left: 10px;
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        `;
-        generateBtn.onclick = () => generateAndDownloadRSS();
-        footer.appendChild(generateBtn);
-    }
-}
-
-function generateAndDownloadRSS() {
-    if (typeof allIssues === 'undefined' || allIssues.length === 0) {
-        alert('请等待文章加载完成后再生成RSS');
-        return;
-    }
-    
-    const rssItems = generateRSSContent(allIssues);
-    const rssContent = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel>
-    <title>Jun Loye's Blog</title>
-    <link>https://junloye.github.io</link>
-    <description>Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖技术、算法与数据结构等内容</description>
-    <language>zh-CN</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="https://junloye.github.io/rss.xml" rel="self" type="application/rss+xml"/>
-    <generator>GitHub Issues Blog System</generator>
-    
-    ${rssItems}
-</channel>
-</rss>`;
-    
-    // 创建下载链接
-    const blob = new Blob([rssContent], { type: 'application/rss+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'junloye-blog-feed.xml';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification('RSS文件已生成并下载', 'success');
 }
 
 // 公告功能
@@ -634,6 +519,12 @@ function initAnnouncement() {
     // 检查本地存储是否已关闭公告
     const announcementClosed = localStorage.getItem('announcement_closed');
     if (announcementClosed === 'true') {
+        banner.style.display = 'none';
+        return;
+    }
+    
+    // 检查功能开关
+    if (CONFIG.features && CONFIG.features.announcement === false) {
         banner.style.display = 'none';
         return;
     }
@@ -709,7 +600,4 @@ function initAnnouncement() {
     }
 }
 
-// 在页面加载后初始化公告
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initAnnouncement, 500);
-});
+// 在页面加载后初始化公告（在 load 事件中调用）
