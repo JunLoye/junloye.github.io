@@ -354,5 +354,362 @@ function setCookiePreference(status) {
     showNotification(status === 'accepted' ? '已接受 Cookie' : '已拒绝非必要 Cookie', status === 'accepted' ? 'success' : 'warning');
 }
 
+// GitHub 登录相关函数
+async function updateAuthUI() {
+    const token = localStorage.getItem('gh_access_token');
+    const userLogin = localStorage.getItem('gh_user_login');
+    const loginBtn = document.getElementById('github-login-btn');
+    const loginText = document.getElementById('login-text');
+    
+    if (!loginBtn || !loginText) return;
+    
+    if (token && userLogin) {
+        loginText.textContent = userLogin;
+        loginBtn.title = `已登录为 ${userLogin}，点击注销`;
+        loginBtn.classList.add('logged-in');
+    } else {
+        loginText.textContent = 'GitHub 登录';
+        loginBtn.title = '使用 GitHub 登录';
+        loginBtn.classList.remove('logged-in');
+    }
+}
+
+function toggleGitHubLogin() {
+    const token = localStorage.getItem('gh_access_token');
+    const userLogin = localStorage.getItem('gh_user_login');
+    
+    if (token && userLogin) {
+        // 已登录，显示注销确认
+        if (confirm(`确定要注销 ${userLogin} 吗？`)) {
+            localStorage.removeItem('gh_access_token');
+            localStorage.removeItem('gh_user_login');
+            localStorage.removeItem('gh_user_avatar');
+            updateAuthUI();
+            showNotification('已注销 GitHub 登录', 'info');
+        }
+    } else {
+        // 未登录，调用登录函数
+        if (typeof loginGitHub === 'function') {
+            loginGitHub();
+        } else {
+            // 如果 post.js 未加载，直接跳转
+            const clientId = CONFIG.client_id || 'Ov23liNHVCD2Mdupm4U4';
+            const currentUrl = window.location.href.split('&code=')[0].split('?code=')[0];
+            window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=public_repo&redirect_uri=${encodeURIComponent(currentUrl)}`;
+        }
+    }
+}
+
+// 在页面加载后更新登录状态
+window.addEventListener('load', () => {
+    // 确保在配置加载后更新
+    setTimeout(updateAuthUI, 500);
+});
+
 window.onerror = (msg) => showNotification(`代码错误: ${msg}`, 'error');
 window.onunhandledrejection = (event) => showNotification(`异步请求失败: ${event.reason}`, 'error');
+
+// 标签云功能
+function generateTagCloud(issues) {
+    const tagCloudContainer = document.getElementById('tag-cloud');
+    if (!tagCloudContainer) return;
+    
+    // 统计标签频率
+    const tagCount = {};
+    issues.forEach(issue => {
+        issue.labels.forEach(label => {
+            if (label.name !== '反馈') {
+                tagCount[label.name] = (tagCount[label.name] || 0) + 1;
+            }
+        });
+    });
+    
+    // 按频率排序
+    const sortedTags = Object.entries(tagCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20); // 只显示前20个标签
+    
+    if (sortedTags.length === 0) {
+        tagCloudContainer.innerHTML = '<p style="color: var(--text-soft); font-size: 0.85rem; text-align: center;">暂无标签</p>';
+        return;
+    }
+    
+    // 生成标签云HTML
+    const maxCount = sortedTags[0][1];
+    const minCount = sortedTags[sortedTags.length - 1][1];
+    const sizeRange = { min: 0.8, max: 1.5 }; // 字体大小范围
+    
+    const tagCloudHtml = sortedTags.map(([tag, count]) => {
+        // 计算字体大小（基于频率）
+        const size = minCount === maxCount
+            ? sizeRange.min
+            : sizeRange.min + (sizeRange.max - sizeRange.min) * (count - minCount) / (maxCount - minCount);
+        
+        // 为不同标签生成不同颜色
+        const colors = [
+            '#007AFF', '#34C759', '#FF9500', '#FF3B30', '#AF52DE',
+            '#5856D6', '#FF2D55', '#5AC8FA', '#FFCC00', '#8E8E93'
+        ];
+        const colorIndex = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+        const color = colors[colorIndex];
+        
+        return `
+            <span class="tag-cloud-item"
+                  style="font-size: ${size}rem; color: ${color};"
+                  onclick="filterByTag('${tag.replace(/'/g, "\\'")}')"
+                  title="${tag} (${count}篇文章)">
+                ${tag}
+            </span>
+        `;
+    }).join('');
+    
+    tagCloudContainer.innerHTML = `
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px 0;">
+            ${tagCloudHtml}
+        </div>
+    `;
+}
+
+// 在文章加载后生成标签云
+function initTagCloud() {
+    if (typeof allIssues !== 'undefined' && allIssues.length > 0) {
+        generateTagCloud(allIssues);
+    }
+}
+
+// 修改现有的文章加载函数以包含标签云初始化
+const originalLoadAndRender = window.loadAndRender;
+if (typeof originalLoadAndRender === 'function') {
+    window.loadAndRender = async function(...args) {
+        const result = await originalLoadAndRender.apply(this, args);
+        initTagCloud();
+        return result;
+    };
+}
+
+// 页面加载完成后初始化标签云
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initTagCloud, 1000);
+    // 初始化RSS链接
+    initRSSLink();
+});
+
+// RSS订阅功能
+function generateRSSContent(issues) {
+    if (!issues || issues.length === 0) return '';
+    
+    // 只取最新20篇文章
+    const recentIssues = issues.slice(0, 20);
+    
+    const items = recentIssues.map(issue => {
+        const title = escapeXML(issue.title);
+        const link = `https://junloye.github.io?post=${issue.number}`;
+        const pubDate = new Date(issue.created_at).toUTCString();
+        
+        // 提取文章摘要
+        const summaryMatch = issue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\[Content\]|---|$)/);
+        let description = summaryMatch ? summaryMatch[1].trim() : '';
+        if (!description) {
+            // 如果没有摘要，使用前200个字符
+            const contentMatch = issue.body?.match(/\[Content\]\s*([\s\S]*?)(?=\[References\]|---|$)/);
+            description = contentMatch ? contentMatch[1].trim().substring(0, 200) + '...' : 'No content';
+        }
+        description = escapeXML(description);
+        
+        // 提取标签
+        const tags = issue.labels
+            .filter(l => l.name !== '反馈')
+            .map(l => `<category>${escapeXML(l.name)}</category>`)
+            .join('');
+        
+        return `
+    <item>
+        <title>${title}</title>
+        <link>${link}</link>
+        <description>${description}</description>
+        <pubDate>${pubDate}</pubDate>
+        <guid isPermaLink="true">${link}</guid>
+        ${tags}
+        <author>${issue.user?.login || 'Jun Loye'}</author>
+    </item>`;
+    }).join('');
+    
+    return items;
+}
+
+function escapeXML(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"')
+}
+
+function initRSSLink() {
+    // 在页脚添加RSS订阅链接
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+    
+    const rssLink = document.createElement('a');
+    rssLink.href = '/rss.xml';
+    rssLink.innerHTML = '📡 RSS订阅';
+    rssLink.style.cssText = `
+        display: inline-block;
+        margin-left: 15px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.9rem;
+    `;
+    rssLink.title = '订阅博客更新';
+    
+    // 添加到页脚
+    const yearSpan = footer.querySelector('#year');
+    if (yearSpan) {
+        yearSpan.parentNode.insertBefore(rssLink, yearSpan.nextSibling);
+    } else {
+        footer.appendChild(rssLink);
+    }
+    
+    // 添加动态生成RSS的按钮（仅开发用）
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const generateBtn = document.createElement('button');
+        generateBtn.textContent = '生成RSS';
+        generateBtn.style.cssText = `
+            margin-left: 10px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        `;
+        generateBtn.onclick = () => generateAndDownloadRSS();
+        footer.appendChild(generateBtn);
+    }
+}
+
+function generateAndDownloadRSS() {
+    if (typeof allIssues === 'undefined' || allIssues.length === 0) {
+        alert('请等待文章加载完成后再生成RSS');
+        return;
+    }
+    
+    const rssItems = generateRSSContent(allIssues);
+    const rssContent = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+    <title>Jun Loye's Blog</title>
+    <link>https://junloye.github.io</link>
+    <description>Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖技术、算法与数据结构等内容</description>
+    <language>zh-CN</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="https://junloye.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+    <generator>GitHub Issues Blog System</generator>
+    
+    ${rssItems}
+</channel>
+</rss>`;
+    
+    // 创建下载链接
+    const blob = new Blob([rssContent], { type: 'application/rss+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'junloye-blog-feed.xml';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('RSS文件已生成并下载', 'success');
+}
+
+// 公告功能
+function initAnnouncement() {
+    const banner = document.getElementById('announcement-banner');
+    if (!banner) return;
+    
+    // 检查本地存储是否已关闭公告
+    const announcementClosed = localStorage.getItem('announcement_closed');
+    if (announcementClosed === 'true') {
+        banner.style.display = 'none';
+        return;
+    }
+    
+    // 检查配置
+    if (typeof CONFIG === 'undefined' || !CONFIG.announcement || !CONFIG.announcement.enabled) {
+        banner.style.display = 'none';
+        return;
+    }
+    
+    const announcement = CONFIG.announcement;
+    
+    // 检查过期时间
+    if (announcement.expires) {
+        const expireDate = new Date(announcement.expires);
+        const now = new Date();
+        if (now > expireDate) {
+            banner.style.display = 'none';
+            return;
+        }
+    }
+    
+    // 设置公告内容
+    const titleEl = document.getElementById('announcement-title');
+    const contentEl = document.getElementById('announcement-content');
+    const iconEl = document.getElementById('announcement-icon');
+    
+    if (titleEl && announcement.title) {
+        titleEl.textContent = announcement.title + ': ';
+    }
+    
+    if (contentEl && announcement.content) {
+        contentEl.textContent = announcement.content;
+    }
+    
+    // 设置图标和样式
+    if (iconEl) {
+        const type = announcement.type || 'info';
+        const icons = {
+            'info': '📢',
+            'success': '✅',
+            'warning': '⚠️',
+            'error': '❌',
+            'maintenance': '🔧',
+            'new': '🆕'
+        };
+        iconEl.textContent = icons[type] || '📢';
+        
+        // 设置背景颜色
+        const colors = {
+            'info': '#2196f3',
+            'success': '#4caf50',
+            'warning': '#ff9800',
+            'error': '#f44336',
+            'maintenance': '#9c27b0',
+            'new': '#ff4081'
+        };
+        banner.style.backgroundColor = colors[type] || '#2196f3';
+    }
+    
+    // 显示公告
+    banner.style.display = 'block';
+    
+    // 关闭按钮事件
+    const closeBtn = document.getElementById('announcement-close');
+    if (closeBtn && announcement.show_close !== false) {
+        closeBtn.onclick = () => {
+            banner.style.display = 'none';
+            localStorage.setItem('announcement_closed', 'true');
+        };
+    } else if (closeBtn) {
+        closeBtn.style.display = 'none';
+    }
+}
+
+// 在页面加载后初始化公告
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initAnnouncement, 500);
+});

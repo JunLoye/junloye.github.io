@@ -1,0 +1,5 @@
+{
+    "Codegeex.CompletionDelay": 0.5,
+    "Codegeex.CommitMessageStyle": "Auto",
+    "Codegeex.RepoIndex": true
+}

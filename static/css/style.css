@@ -112,6 +112,25 @@ nav {
     width: 100%;
 }
 
+/* GitHub登录按钮 - 圆角矩形边框样式 */
+#github-login-btn {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 12px;
+    background-color: var(--bg);
+    transition: all 0.3s ease;
+}
+
+#github-login-btn:hover {
+    border-color: var(--accent);
+    background-color: rgba(0, 122, 255, 0.05);
+    color: var(--accent);
+}
+
+#github-login-btn::after {
+    display: none; /* 移除下划线效果 */
+}
+
 .search-container {
     position: relative;
     display: flex;
@@ -195,6 +214,21 @@ nav {
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--text);
+}
+
+/* GitHub 登录按钮样式 */
+.nav-item.logged-in {
+    color: var(--accent);
+    font-weight: 800;
+}
+
+.nav-item.logged-in::after {
+    width: 100%;
+    background-color: var(--accent);
+}
+
+.nav-item.logged-in:hover {
+    opacity: 0.8;
 }
 
 /* 线路选择特定样式 */
@@ -573,4 +607,107 @@ mark.search-highlight {
         border-top: 1px solid var(--line);
         padding-top: 10px;
     }
+}
+
+/* 分享按钮样式 */
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.share-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.share-btn.weibo {
+    background-color: #e6162d;
+}
+
+.share-btn.weibo:hover {
+    background-color: #c41426;
+}
+
+.share-btn.wechat {
+    background-color: #07c160;
+}
+
+.share-btn.wechat:hover {
+    background-color: #06a952;
+}
+
+.share-btn.twitter {
+    background-color: #1da1f2;
+}
+
+.share-btn.twitter:hover {
+    background-color: #0d8bd9;
+}
+
+.share-btn.facebook {
+    background-color: #1877f2;
+}
+
+.share-btn.facebook:hover {
+    background-color: #1666d9;
+}
+
+.share-btn.copy-link {
+    background-color: var(--accent);
+}
+
+.share-btn.copy-link:hover {
+    background-color: var(--selection-color);
+}
+
+/* 通知动画 */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* 标签云样式 */
+.tag-cloud-item {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 2px;
+    border-radius: 15px;
+    background: var(--line);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.tag-cloud-item:hover {
+    background: var(--accent);
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

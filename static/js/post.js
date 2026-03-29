@@ -106,10 +106,78 @@ function openPost(num, pushState = true) {
                 <span style="font-size:0.75rem; font-weight:700; color:var(--accent); background:var(--selection-bg); padding:2px 10px; border-radius:4px;">${issue.labels[0]?.name || 'MEMO'}</span>
             </div>
             <h1 style="font-size:2rem; margin:15px 0; font-weight:900;">${issue.title}</h1>
+            
+            <!-- 分享按钮 -->
+            <div class="share-buttons" style="margin: 20px 0 30px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="share-btn weibo" onclick="shareToWeibo('${issue.title}', '${window.location.origin}?post=${num}')" title="分享到微博">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M20.194 3.46c-1.802.817-3.73 1.371-5.757 1.617a9.86 9.86 0 0 0 1.923-5.077 19.9 19.9 0 0 1-6.26 2.39A9.86 9.86 0 0 0 4.93 0C2.206 0 0 2.206 0 4.93c0 .77.17 1.5.47 2.17A9.826 9.826 0 0 1 1.35 4.68a9.86 9.86 0 0 0 3.18 8.23 9.78 9.78 0 0 1-4.45-1.23v.12c0 4.78 3.4 8.77 7.92 9.68-.83.22-1.7.34-2.6.34-.64 0-1.26-.06-1.86-.18a9.86 9.86 0 0 0 9.2 6.83 19.76 19.76 0 0 1-12.2 4.23c-.8 0-1.58-.05-2.35-.14A27.9 27.9 0 0 0 15.07 24c18.06 0 27.94-14.96 27.94-27.94 0-.43 0-.85-.03-1.27a19.9 19.9 0 0 0 4.88-5.07l-4.67-2.16z"/></svg>
+                    微博
+                </button>
+                <button class="share-btn wechat" onclick="showWechatShare('${issue.title}', '${window.location.origin}?post=${num}')" title="微信分享">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M9.5 4C5.36 4 2 6.69 2 10c0 1.89 1.08 3.56 2.78 4.66L4 17l2.5-1.5c.61.22 1.26.34 1.94.34H12l2-2v-2c1.31-.83 2-2.18 2-3.5C16 6.69 12.64 4 9.5 4zm6 12v2l2.5 1.5 2.5-1.5v-2c1.39-.83 2-2.17 2-3.5C22 6.69 18.64 4 15.5 4S9 6.69 9 10c0 1.89 1.08 3.56 2.78 4.66L11 17l2.5-1.5c.61.22 1.26.34 1.94.34h1.56l.44.44z"/></svg>
+                    微信
+                </button>
+                <button class="share-btn twitter" onclick="shareToTwitter('${issue.title}', '${window.location.origin}?post=${num}')" title="分享到Twitter">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+                    Twitter
+                </button>
+                <button class="share-btn facebook" onclick="shareToFacebook('${window.location.origin}?post=${num}')" title="分享到Facebook">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m13 2h-2.5A3.5 3.5 0 0 0 12 8.5V11h-2v3h2v7h3v-7h3v-3h-3V9a1 1 0 0 1 1-1h2V5z"/></svg>
+                    Facebook
+                </button>
+                <button class="share-btn copy-link" onclick="copyPostLink('${window.location.origin}?post=${num}')" title="复制链接">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    复制链接
+                </button>
+            </div>
         </div>
         ${argueBannerHtml}
         <div id="post-body-content" class="markdown-body">${htmlContent}</div>
         <div id="reference-content">${referenceHtml}</div>
+        
+        <!-- 打赏功能 -->
+        <div class="donation-section" style="margin: 40px 0; padding: 25px; background: var(--line); border-radius: 12px; text-align: center;">
+            <h3 style="margin-bottom: 15px; color: var(--text);">支持作者</h3>
+            <p style="color: var(--text-soft); margin-bottom: 20px; font-size: 0.9rem;">如果这篇文章对您有帮助，欢迎打赏支持作者继续创作</p>
+            
+            <div class="donation-methods" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div class="donation-method">
+                    <div class="donation-qr" style="width: 150px; height: 150px; background: white; padding: 10px; border-radius: 8px; margin: 0 auto 10px;">
+                        <img src="${typeof CONFIG !== 'undefined' && CONFIG.donation && CONFIG.donation.wechat_qr ? CONFIG.donation.wechat_qr : 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=wechat'}"
+                             alt="微信支付" style="width: 100%; height: 100%;">
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text); margin-top: 8px;">微信支付</p>
+                </div>
+                
+                <div class="donation-method">
+                    <div class="donation-qr" style="width: 150px; height: 150px; background: white; padding: 10px; border-radius: 8px; margin: 0 auto 10px;">
+                        <img src="${typeof CONFIG !== 'undefined' && CONFIG.donation && CONFIG.donation.alipay_qr ? CONFIG.donation.alipay_qr : 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=alipay'}"
+                             alt="支付宝" style="width: 100%; height: 100%;">
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text); margin-top: 8px;">支付宝</p>
+                </div>
+            </div>
+            
+            <div class="donation-links" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                ${typeof CONFIG !== 'undefined' && CONFIG.donation && CONFIG.donation.paypal_url ? `
+                <a href="${CONFIG.donation.paypal_url}" target="_blank" class="donation-link" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px; background: #0070ba; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.522 0-.97.382-1.052.9l-1.12 7.106zm15.147-7.83c-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.522 0-.97.382-1.052.9l-1.12 7.106H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287z"/></svg>
+                    PayPal
+                </a>
+                ` : ''}
+                
+                ${typeof CONFIG !== 'undefined' && CONFIG.donation && CONFIG.donation.github_sponsors ? `
+                <a href="${CONFIG.donation.github_sponsors}" target="_blank" class="donation-link" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px; background: #333; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8 0 3.2.9.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1 .9 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+                    GitHub Sponsors
+                </a>
+                ` : ''}
+            </div>
+            
+            ${typeof CONFIG !== 'undefined' && CONFIG.donation && CONFIG.donation.message ? `
+            <p style="margin-top: 15px; font-size: 0.8rem; color: var(--text-soft); font-style: italic;">${CONFIG.donation.message}</p>
+            ` : ''}
+        </div>
         
         <div class="comments-section">
             <h3 class="comments-title">评论</h3>
@@ -634,7 +702,104 @@ function closePost() {
     if (editBtn) editBtn.style.display = 'none';
     
     setTimeout(() => {
-        if (overlay) overlay.style.display = 'none'; 
-        document.body.style.overflow = ''; 
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
     }, 300);
+}
+
+// 分享功能函数
+function shareToWeibo(title, url) {
+    const shareUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+}
+
+function showWechatShare(title, url) {
+    // 创建微信分享弹窗
+    const modal = document.createElement('div');
+    modal.className = 'wechat-share-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px;">
+            <h3 style="margin-bottom: 15px;">微信分享</h3>
+            <p style="margin-bottom: 15px; color: #666;">请使用微信扫描二维码分享</p>
+            <div id="wechat-qrcode" style="margin: 20px auto; width: 200px; height: 200px; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                <p>二维码生成中...</p>
+            </div>
+            <p style="font-size: 12px; color: #999; margin-bottom: 15px;">或复制链接：${url}</p>
+            <button onclick="this.parentElement.parentElement.remove()" style="padding: 8px 20px; background: #07c160; color: white; border: none; border-radius: 5px; cursor: pointer;">关闭</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 使用第三方服务生成二维码（这里使用 qrserver.com）
+    const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    const qrcodeDiv = document.getElementById('wechat-qrcode');
+    qrcodeDiv.innerHTML = `<img src="${qrcodeUrl}" alt="微信分享二维码" style="width: 100%; height: 100%;">`;
+    
+    // 点击背景关闭
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    };
+}
+
+function shareToTwitter(title, url) {
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToFacebook(url) {
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+}
+
+function copyPostLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        // 显示成功提示
+        showNotification('链接已复制到剪贴板', 'success');
+    }).catch(err => {
+        console.error('复制失败:', err);
+        showNotification('复制失败，请手动复制', 'error');
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+        color: white;
+        border-radius: 5px;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    container.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
