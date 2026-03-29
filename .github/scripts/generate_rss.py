@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 RSS生成脚本
-从GitHub Issues或本地数据生成RSS feed
+从GitHub Issues生成RSS feed
 """
 
 import os
@@ -10,12 +10,72 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from datetime import datetime
 import pytz
+import requests
+import re
 
 def prettify(elem):
     """返回格式化的XML字符串"""
     rough_string = ET.tostring(elem, encoding='utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="    ", encoding='utf-8').decode('utf-8')
+
+def fetch_github_issues():
+    """从GitHub API获取issues"""
+    try:
+        # 从环境变量获取token，如果没有则使用无token访问（有限制）
+        token = os.environ.get('GITHUB_TOKEN', '')
+        
+        # 从config.json读取仓库信息
+        config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'config.json')
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        
+        username = config.get('username', 'JunLoye')
+        repo = config.get('repo', 'junloye.github.io')
+        
+        # GitHub API URL
+        url = f"https://api.github.com/search/issues?q=repo:{username}/{repo}+is:issue+is:open&sort=created&order=desc"
+        
+        headers = {}
+        if token:
+            headers['Authorization'] = f'token {token}'
+        
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        
+        data = response.json()
+        issues = data.get('items', [])
+        
+        # 过滤掉非作者的和反馈标签的issues
+        filtered_issues = []
+        for issue in issues:
+            is_author = issue.get('user', {}).get('login', '') == username
+            has_feedback_tag = any(label.get('name', '') == '反馈' for label in issue.get('labels', []))
+            
+            if is_author and not has_feedback_tag:
+                filtered_issues.append(issue)
+        
+        return filtered_issues
+        
+    except Exception as e:
+        print(f"Error fetching GitHub issues: {e}")
+        return []
+
+def extract_summary(body):
+    """从issue body中提取摘要"""
+    if not body:
+        return ""
+    
+    # 尝试匹配[Summary]标签
+    summary_match = re.search(r'\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)', body)
+    if summary_match:
+        summary = summary_match.group(1).strip()
+        # 取前3行
+        lines = summary.split('\n')
+        return '\n'.join(lines[:3])
+    
+    # 如果没有[Summary]，取前200个字符
+    return body[:200] + "..." if len(body) > 200 else body
 
 def generate_rss():
     """生成RSS XML"""
@@ -40,32 +100,40 @@ def generate_rss():
     
     ET.SubElement(channel, "generator").text = "GitHub Issues Blog System"
     
-    # 尝试从data/config.json读取文章数据
-    try:
-        config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'config.json')
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-        
-        # 假设config中有posts字段
-        posts = config.get('posts', [])
-        
-        for post in posts:
-            item = ET.SubElement(channel, "item")
-            ET.SubElement(item, "title").text = post.get('title', 'Untitled')
-            ET.SubElement(item, "link").text = f"https://junloye.github.io/#post-{post.get('id', '')}"
-            ET.SubElement(item, "description").text = post.get('description', '')
-            ET.SubElement(item, "pubDate").text = post.get('date', datetime.now(pytz.UTC).strftime('%a, %d %b %Y %H:%M:%S %z'))
-            ET.SubElement(item, "guid", isPermaLink="true").text = f"https://junloye.github.io/#post-{post.get('id', '')}"
-            
-            # 添加分类/标签
-            tags = post.get('tags', [])
-            if tags:
-                for tag in tags:
-                    ET.SubElement(item, "category").text = tag
+    # 从GitHub API获取issues
+    issues = fetch_github_issues()
     
-    except Exception as e:
-        print(f"Warning: Could not load posts from config: {e}")
-        # 添加一个默认项目
+    if issues:
+        for issue in issues:
+            item = ET.SubElement(channel, "item")
+            ET.SubElement(item, "title").text = issue.get('title', 'Untitled')
+            ET.SubElement(item, "link").text = f"https://junloye.github.io/#post-{issue.get('number', '')}"
+            
+            # 提取描述
+            body = issue.get('body', '')
+            description = extract_summary(body)
+            ET.SubElement(item, "description").text = description
+            
+            # 发布时间
+            created_at = issue.get('created_at', '')
+            if created_at:
+                dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                pub_date = dt.strftime('%a, %d %b %Y %H:%M:%S %z')
+            else:
+                pub_date = datetime.now(pytz.UTC).strftime('%a, %d %b %Y %H:%M:%S %z')
+            ET.SubElement(item, "pubDate").text = pub_date
+            
+            ET.SubElement(item, "guid", isPermaLink="true").text = f"https://junloye.github.io/#post-{issue.get('number', '')}"
+            
+            # 添加标签作为分类
+            labels = issue.get('labels', [])
+            for label in labels:
+                label_name = label.get('name', '')
+                if label_name != '反馈':  # 跳过反馈标签
+                    ET.SubElement(item, "category").text = label_name
+    else:
+        # 如果没有获取到issues，添加一个默认项目
+        print("Warning: No issues fetched, adding default item")
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = "RSS Feed Generated"
         ET.SubElement(item, "link").text = "https://junloye.github.io"
