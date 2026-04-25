@@ -73,56 +73,153 @@ def escape_xml(text):
     # 使用html.escape来转义XML特殊字符
     return html.escape(text)
 
-def extract_summary(body):
-    """从issue body中提取摘要并清理markdown标签"""
+def extract_cover_image(body):
+    """从issue body中提取封面图片URL"""
     if not body:
         return ""
     
-    # 首先移除所有markdown标签：[Cover]、[Summary]、[Content]、[References]
-    cleaned_body = re.sub(r'\[(Cover|Summary|Content|References)\]\s*', '', body)
+    # 匹配[Cover]标签后的图片URL
+    cover_match = re.search(r'\[Cover\]\s*([^\n]+)', body)
+    if cover_match:
+        cover_url = cover_match.group(1).strip()
+        # 检查是否是有效的URL
+        if re.match(r'^https?://', cover_url):
+            return cover_url
     
-    # 移除markdown图片标签
-    cleaned_body = re.sub(r'!\[.*?\]\(.*?\)', '', cleaned_body)
+    # 如果没有[Cover]标签，尝试匹配markdown图片
+    image_match = re.search(r'!\[.*?\]\((https?://[^\s)]+)\)', body)
+    if image_match:
+        return image_match.group(1)
+    
+    return ""
+
+def extract_content_summary(body):
+    """从issue body中提取内容摘要（纯文本，用于description）"""
+    if not body:
+        return ""
+    
+    # 尝试匹配[Content]标签
+    content_match = re.search(r'\[Content\]\s*([\s\S]*?)(?=\n---|\[References\]|###|$)', body)
+    if content_match:
+        content = content_match.group(1).strip()
+    else:
+        # 如果没有[Content]标签，使用整个body
+        content = body
+    
+    # 清理markdown格式，但保留文本内容
+    # 移除markdown图片标签，但保留图片URL作为文本
+    content = re.sub(r'!\[.*?\]\((.*?)\)', r'\1', content)
     
     # 移除markdown链接标签，保留链接文本
-    cleaned_body = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', cleaned_body)
+    content = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', content)
     
     # 移除HTML标签
-    cleaned_body = re.sub(r'<[^>]+>', '', cleaned_body)
+    content = re.sub(r'<[^>]+>', '', content)
     
-    # 移除markdown格式标记：**、*、`、#等
-    cleaned_body = re.sub(r'[*_`#]', '', cleaned_body)
+    # 移除markdown格式标记，但保留文本内容
+    # 移除粗体标记 **text** -> text
+    content = re.sub(r'\*\*(.*?)\*\*', r'\1', content)
+    # 移除斜体标记 *text* -> text
+    content = re.sub(r'\*(.*?)\*', r'\1', content)
+    # 移除内联代码标记 `text` -> text
+    content = re.sub(r'`(.*?)`', r'\1', content)
+    # 移除标题标记 # text -> text
+    content = re.sub(r'^#+\s*', '', content, flags=re.MULTILINE)
+    
+    # 移除[Cover]、[Content]、[References]等标签
+    content = re.sub(r'\[(Cover|Summary|Content|References)\]\s*', '', content)
     
     # 移除多余的空格和换行
-    cleaned_body = re.sub(r'\s+', ' ', cleaned_body).strip()
+    content = re.sub(r'\s+', ' ', content).strip()
     
-    # 尝试匹配[Summary]标签（在原始body中）
-    summary_match = re.search(r'\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)', body)
-    if summary_match:
-        summary = summary_match.group(1).strip()
-        # 清理summary中的markdown标签
-        summary = re.sub(r'\[(Cover|Summary|Content|References)\]\s*', '', summary)
-        summary = re.sub(r'!\[.*?\]\(.*?\)', '', summary)
-        summary = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', summary)
-        summary = re.sub(r'<[^>]+>', '', summary)
-        summary = re.sub(r'[*_`#]', '', summary)
-        summary = re.sub(r'\s+', ' ', summary).strip()
-        
-        # 取前200个字符作为摘要
-        if len(summary) > 200:
-            summary = summary[:197] + "..."
-        return escape_xml(summary)
+    # 根据用户示例，取前250个字符作为摘要（更符合实际显示）
+    if len(content) > 250:
+        content = content[:247] + "..."
     
-    # 如果没有[Summary]，取清理后的前200个字符
-    if len(cleaned_body) > 200:
-        cleaned_body = cleaned_body[:197] + "..."
-    return escape_xml(cleaned_body)
+    return escape_xml(content)
+
+
+def extract_full_content(body):
+    """从issue body中提取完整内容（保留markdown格式，用于content:encoded）"""
+    if not body:
+        return ""
+    
+    # 尝试匹配[Content]标签
+    content_match = re.search(r'\[Content\]\s*([\s\S]*?)(?=\n---|\[References\]|###|$)', body)
+    if content_match:
+        content = content_match.group(1).strip()
+    else:
+        # 如果没有[Content]标签，使用整个body
+        content = body
+    
+    # 移除[Cover]、[Content]、[References]等标签
+    content = re.sub(r'\[(Cover|Summary|Content|References)\]\s*', '', content)
+    
+    # 将markdown转换为简单的HTML格式以在RSS中更好地显示
+    # 转换图片 ![alt](url) -> <img src="url" alt="alt" />
+    content = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<img src="\2" alt="\1" />', content)
+    # 转换链接 [text](url) -> <a href="url">text</a>
+    content = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', content)
+    # 转换粗体 **text** -> <strong>text</strong>
+    content = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', content)
+    # 转换斜体 *text* -> <em>text</em>
+    content = re.sub(r'\*(.*?)\*', r'<em>\1</em>', content)
+    # 转换内联代码 `text` -> <code>text</code>
+    content = re.sub(r'`(.*?)`', r'<code>\1</code>', content)
+    # 转换标题 # text -> <h3>text</h3>
+    content = re.sub(r'^###\s+(.*?)$', r'<h3>\1</h3>', content, flags=re.MULTILINE)
+    content = re.sub(r'^##\s+(.*?)$', r'<h2>\1</h2>', content, flags=re.MULTILINE)
+    content = re.sub(r'^#\s+(.*?)$', r'<h1>\1</h1>', content, flags=re.MULTILINE)
+    # 转换列表 - 简单处理
+    content = re.sub(r'^- (.*?)$', r'<li>\1</li>', content, flags=re.MULTILINE)
+    # 将连续的行用<br/>分隔（简单段落处理）
+    lines = content.split('\n')
+    processed_lines = []
+    in_list = False
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            if in_list:
+                processed_lines.append('</ul>')
+                in_list = False
+            continue
+        if stripped.startswith('<h') or stripped.startswith('<li') or stripped.startswith('</'):
+            processed_lines.append(stripped)
+            if stripped.startswith('<li'):
+                if not in_list:
+                    processed_lines.insert(-1, '<ul>')
+                    in_list = True
+        elif stripped.startswith('<img') or stripped.startswith('<a') or stripped.startswith('<strong') or stripped.startswith('<em') or stripped.startswith('<code'):
+            processed_lines.append(f'<p>{stripped}</p>')
+        else:
+            processed_lines.append(f'<p>{stripped}</p>')
+    if in_list:
+        processed_lines.append('</ul>')
+    content = '\n'.join(processed_lines)
+    
+    return escape_xml(content)
+
+
+def extract_summary(body):
+    """从issue body中提取完整的摘要（包含封面图片和内容）"""
+    if not body:
+        return ""
+    
+    cover_image = extract_cover_image(body)
+    content_summary = extract_content_summary(body)
+    
+    # 如果有封面图片，将其包含在摘要中
+    if cover_image:
+        return f"{cover_image} {content_summary}"
+    else:
+        return content_summary
 
 def generate_rss():
     """生成RSS XML"""
     # 创建RSS根元素
     rss = ET.Element("rss", version="2.0")
     rss.set("xmlns:atom", "http://www.w3.org/2005/Atom")
+    rss.set("xmlns:content", "http://purl.org/rss/1.0/modules/content/")
     
     channel = ET.SubElement(rss, "channel")
     
@@ -141,6 +238,13 @@ def generate_rss():
     
     ET.SubElement(channel, "generator").text = "GitHub Issues Blog System"
     
+    # 从config.json读取仓库信息（用于构建GitHub链接）
+    config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'config.json')
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+    username = config.get('username', 'JunLoye')
+    repo = config.get('repo', 'junloye.github.io')
+    
     # 从GitHub API获取issues
     issues = fetch_github_issues()
     
@@ -148,12 +252,29 @@ def generate_rss():
         for issue in issues:
             item = ET.SubElement(channel, "item")
             ET.SubElement(item, "title").text = escape_xml(issue.get('title', 'Untitled'))
-            ET.SubElement(item, "link").text = f"https://junloye.github.io/#post-{issue.get('number', '')}"
             
-            # 提取描述
+            # 博客链接（hash路由）
+            blog_url = f"https://junloye.github.io/#post-{issue.get('number', '')}"
+            # GitHub Issue 实际链接
+            github_url = issue.get('html_url', f"https://github.com/{username}/{repo}/issues/{issue.get('number', '')}")
+            
+            ET.SubElement(item, "link").text = blog_url
+            # 添加GitHub Issue链接作为备用链接
+            ET.SubElement(item, "comments").text = github_url
+            
+            # 提取描述（纯文本摘要）和完整内容（HTML格式）
             body = issue.get('body', '')
             description = extract_summary(body)
             ET.SubElement(item, "description").text = description
+            
+            # 添加完整内容（使用content:encoded命名空间）
+            full_content = extract_full_content(body)
+            # 如果有封面图片，在内容开头插入
+            cover_image = extract_cover_image(body)
+            if cover_image:
+                full_content = f'<p><img src="{escape_xml(cover_image)}" alt="Cover" /></p>\n{full_content}'
+            content_encoded = ET.SubElement(item, "{http://purl.org/rss/1.0/modules/content/}encoded")
+            content_encoded.text = full_content
             
             # 发布时间
             created_at = issue.get('created_at', '')
@@ -164,7 +285,8 @@ def generate_rss():
                 pub_date = datetime.now(pytz.UTC).strftime('%a, %d %b %Y %H:%M:%S %z')
             ET.SubElement(item, "pubDate").text = pub_date
             
-            ET.SubElement(item, "guid", isPermaLink="true").text = f"https://junloye.github.io/#post-{issue.get('number', '')}"
+            # GUID使用GitHub Issue的URL，更稳定
+            ET.SubElement(item, "guid", isPermaLink="true").text = github_url
             
             # 添加标签作为分类
             labels = issue.get('labels', [])

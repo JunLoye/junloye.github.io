@@ -1,2 +1,13 @@
 *.vscode/,
-*temp
+*temp,
+*__pycache__/,
+*.log,
+*.env,
+*.DS_Store,
+*.pytest_cache/,
+*.cache/,
+*.pytest_cache/,
+dist/,
+build/,
+.vscode/,
+.idea/
