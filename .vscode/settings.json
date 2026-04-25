@@ -1,5 +1,6 @@
 {
     "Codegeex.CompletionDelay": 0.5,
     "Codegeex.CommitMessageStyle": "Auto",
-    "Codegeex.RepoIndex": true
+    "Codegeex.RepoIndex": true,
+    "liveServer.settings.multiRootWorkspaceName": "junloye.github.io"
 }

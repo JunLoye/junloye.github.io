@@ -12,6 +12,10 @@ on:
       - 'data/config.json'
       - '.github/workflows/generate-rss.yml'
       - '.github/scripts/generate_rss.py'
+  issues:
+    types: [opened, reopened, edited]
+  issue_comment:
+    types: [created]
 
 jobs:
   generate-rss:
