@@ -24,21 +24,23 @@
       "url": "https://api.github.com"
     }
   ],
+  
   "worker_url": "https://discussions.loyejun.workers.dev/",
   "client_id": "Ov23liNHVCD2Mdupm4U4",
+
   "features": {
-    "share": false,
-    "donation": false,
-    "announcement": true
+    "share": false
   },
+
   "donation": {
-    "enabled": true,
+    "enabled": false,
     "wechat_qr": "",
     "alipay_qr": "",
     "paypal_url": "",
     "github_sponsors": "",
     "message": "感谢您的支持！"
   },
+
   "announcement": {
     "enabled": true,
     "type": "info",

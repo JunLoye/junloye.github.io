@@ -354,7 +354,7 @@ async function loadComments(title, issueNum) {
             
             initLinkPreview();
         } else {
-            list.innerHTML = `<p class="empty-tip">暂无讨论。点击下方“发表评论”将自动在 GitHub 发起讨论并添加 #${issueNum} 指向。</p>`;
+            list.innerHTML = `<p class="empty-tip">本文章暂无讨论</p>`;
             window.currentDiscussionId = null;
         }
     } catch (e) {

@@ -39,16 +39,17 @@ async function fetchGitHubCommits() {
     };
 
     try {
-        const response = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/commits?sha=${cfg.branch}&per_page=30`); 
+        const response = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/commits?sha=${cfg.branch}&per_page=30`);
         if (!response.ok) throw new Error("API Limit");
-        
+
         const commits = await response.json();
         if (loadingText) loadingText.style.display = 'none';
-        
-        listContainer.className = "changelog-wrapper"; 
 
+        listContainer.className = "changelog-wrapper";
+
+        // 保留逻辑：只展示最新一条 + 包含多行描述的 commit
         const displayCommits = commits.filter((item, index) => {
-            if (index === 0) return true; 
+            if (index === 0) return true;
             return item.commit.message.includes('\n');
         });
 
@@ -60,6 +61,13 @@ async function fetchGitHubCommits() {
             return;
         }
 
+        // 转义 HTML 专用函数
+        const escapeHtml = (str) => {
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;");
+        };
+
         listContainer.innerHTML = displayCommits.map(item => {
             const date = new Date(item.commit.author.date).toLocaleDateString('zh-CN', {
                 month: '2-digit',
@@ -67,12 +75,21 @@ async function fetchGitHubCommits() {
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            
-            const fullMsg = item.commit.message
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/\n/g, '<br>');
+
+            const rawMessage = item.commit.message;
+            // 分离第一行（版本号/标题）和剩余描述
+            const firstNewline = rawMessage.indexOf('\n');
+            let title = rawMessage;
+            let body = '';
+            if (firstNewline !== -1) {
+                title = rawMessage.substring(0, firstNewline);
+                body = rawMessage.substring(firstNewline + 1);
+            }
+            // 去除标题首尾空格
+            title = title.trim();
+            // 保留 body 原有换行，并转义
+            const escapedTitle = escapeHtml(title);
+            const escapedBody = body ? escapeHtml(body).replace(/\n/g, '<br>') : '';
 
             const hash = item.sha.substring(0, 7);
             const commitUrl = `https://github.com/${cfg.username}/${cfg.repo}/commit/${item.sha}`;
@@ -86,7 +103,8 @@ async function fetchGitHubCommits() {
                             ${hash}
                         </a>
                     </div>
-                    <div class="changelog-msg">${fullMsg}</div>
+                    <div class="changelog-version">${escapedTitle}</div>
+                    ${escapedBody ? `<div class="changelog-desc">${escapedBody}</div>` : ''}
                 </div>
             `;
         }).join('');

@@ -272,3 +272,101 @@
         height: 80px;
     }
 }
+
+/* --- 更新日志时间轴样式（已重置，匹配主样式） --- */
+.changelog-wrapper {
+    margin-top: 20px;
+    margin-left: 10px;
+    border-left: 2px solid var(--line);
+    padding-left: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.changelog-item {
+    position: relative;
+}
+
+.changelog-item::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--line);
+    border: 2px solid var(--bg);
+    transition: all 0.3s ease;
+}
+
+.changelog-item:hover::before {
+    background: var(--accent);
+    transform: scale(1.2);
+}
+
+.changelog-date {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.commit-date-text {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+}
+
+.git-version-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--line);
+    color: var(--text-soft) !important;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    text-decoration: none !important;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.git-version-tag:hover {
+    background: var(--accent);
+    color: #ffffff !important;
+    border-color: var(--accent);
+}
+
+/* --- 重置后的版本号/标题样式：无背景、无边框、仅增加字重 --- */
+.changelog-version {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 8px 0 6px 0;
+    color: var(--text);
+    letter-spacing: 0.2px;
+}
+
+/* --- 更新详情描述：无左侧虚线，仅普通文本缩进 --- */
+.changelog-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-soft);
+    white-space: pre-wrap;
+    margin-top: 6px;
+    padding-left: 12px;
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+    .changelog-version {
+        font-size: 0.9rem;
+    }
+    .changelog-desc {
+        font-size: 0.85rem;
+        padding-left: 8px;
+    }
+}

@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
-    <channel>
-        <title>Jun Loye's Blog</title>
-        <link>https://junloye.github.io</link>
-        <description>Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖技术、算法与数据结构等内容</description>
-        <language>zh-CN</language>
-        <lastBuildDate>Sat, 25 Apr 2026 14:56:08 +0000</lastBuildDate>
-        <atom:link href="https://junloye.github.io/rss.xml" rel="self" type="application/rss+xml"/>
-        <generator>GitHub Issues Blog System</generator>
-        <item>
-            <title>古灵阁：巫师世界的唯一金融机构</title>
-            <link>https://junloye.github.io/?post=76</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/76</guid>
-            <description>在《哈利·波特》魔法世界的宏大叙事中，古灵阁巫师银行（Gringotts Wizarding Bank）远不只是一个存取金币的场所。它是妖精与巫师数百年权力博弈的见证者，是魔法经济体系的绝对核心，更是贯穿整个系列的关键叙事节点。从1474年成立至今，古灵阁经历了妖精叛乱、魔法部接管、两次巫师战争以及多次震惊世界的抢劫案，其历史之悠久、结构之复杂、秘密之深邃，堪比任何一本魔法史书。 一、起源与早期历史：泡沫、肥皂与金融革命 1.1 创立背景：14世纪经济泡沫的余波 古灵阁的创立并非偶然，而是...</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<rss version="2.0">
+<channel>
+    <title>Jun Loye's Blog</title>
+    <link>https://junloye.github.io</link>
+    <description>Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖技术、算法与数据结构等内容</description>
+    <language>zh-cn</language>
+    <pubDate>Sun, 26 Apr 2026 00:50:20 GMT</pubDate>
+    <generator>GitHub Issues Blog System</generator>
+    <atom:link href="https://junloye.github.io/rss.xml" rel="self" type="application/rss+xml" xmlns:atom="http://www.w3.org/2005/Atom"/>
+    <item>
+        <title>古灵阁：巫师世界的唯一金融机构</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
 <p>在《哈利·波特》魔法世界的宏大叙事中，<strong>古灵阁巫师银行</strong>（Gringotts Wizarding Bank）远不只是一个存取金币的场所。它是妖精与巫师数百年权力博弈的见证者，是魔法经济体系的绝对核心，更是贯穿整个系列的关键叙事节点。从1474年成立至今，古灵阁经历了妖精叛乱、魔法部接管、两次巫师战争以及多次震惊世界的抢劫案，其历史之悠久、结构之复杂、秘密之深邃，堪比任何一本魔法史书。</p>
 <h2>一、起源与早期历史：泡沫、肥皂与金融革命</h2>
 <h3>1.1 创立背景：14世纪经济泡沫的余波</h3>
@@ -156,17 +153,15 @@
 <p><strong>5. 龙的权利问题</strong>：古灵阁使用的龙被囚禁于地下多年，导致半盲和条件反射性服从。这种对魔法生物的虐待，在巫师伦理中从未被质疑。</p>
 <h2>结语：不朽的金融堡垒</h2>
 <p>古灵阁巫师银行是J.K.罗琳世界构建中最复杂、最具历史纵深的设定之一。它不仅是哈利冒险的起点（第一次取钱）和终点（夺取魂器），更是理解魔法社会权力结构的钥匙。在这座由妖精守护的大理石宫殿里，每一枚加隆都承载着五百年的血与火，每一道金库门都见证着叛乱与妥协。</p>
-<p>当拉环在临死前仍执着于格兰芬多宝剑的归属时，他体现的是妖精不可动摇的制造者信念；当妖精们在1998年后迅速恢复用龙守卫金库时，他们展示的是对安全神话的执着重建。古灵阁的真正魔法，不在于它的防贼瀑布或复制咒，而在于它如何在巫师与妖精的永恒张力中，维持着那个脆弱而必要的平衡。</p>]]></content:encoded>
-            <pubDate>Tue, 17 Feb 2026 13:14:32 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/76</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>破釜酒吧详细解析</title>
-            <link>https://junloye.github.io/?post=74</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/74</guid>
-            <description>&gt; [!AI] &gt; 由于已确认的信息远超出原著，本篇文章由AI辅助生成，已对内容进行审核修正，如有错漏，请点击纠错/反馈按钮进行反馈 &gt; [!CAUTION] &gt; 本文中大部分内容在原著中没有具体说明，原著党谨慎阅读 前记 破釜酒吧（The Leaky Cauldron）是J.K.罗琳创造的《哈利·波特》魔法世界中最古老、最重要的机构（某种意义上的）之一。作为伦敦查令十字路上一间看似破旧的小酒吧，它不仅是通往对角巷的唯一官方入口，更是英国巫师社会与麻瓜世界之间的关键连接点。本文将从历史渊源...</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<p>当拉环在临死前仍执着于格兰芬多宝剑的归属时，他体现的是妖精不可动摇的制造者信念；当妖精们在1998年后迅速恢复用龙守卫金库时，他们展示的是对安全神话的执着重建。古灵阁的真正魔法，不在于它的防贼瀑布或复制咒，而在于它如何在巫师与妖精的永恒张力中，维持着那个脆弱而必要的平衡。</p>]]></description>
+        <link>https://junloye.github.io/?post=76</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/76</guid>
+        <pubDate>Tue, 17 Feb 2026 13:14:32 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>破釜酒吧详细解析</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
 <blockquote>
 <p>[!AI]</p>
 <p>由于已确认的信息远超出原著，本篇文章由AI辅助生成，已对内容进行审核修正，如有错漏，请点击<code>纠错/反馈</code>按钮进行反馈</p>
@@ -176,81 +171,69 @@
 <p>本文中大部分内容在原著中没有具体说明，原著党谨慎阅读</p>
 </blockquote>
 <h2>前记</h2>
-<p><strong>破釜酒吧</strong>（<strong>The Leaky Cauldron</strong>）是J.K.罗琳创造的《哈利·波特》魔法世界中最古老、最重要的机构（某种意义上的）之一。作为伦敦查令十字路上一间看似破旧的小酒吧，它不仅是通往对角巷的唯一官方入口，更是英国巫师社会与麻瓜世界之间的关键连接点。本文将从历史渊源、建筑结构、历任店主、魔法机制、重要事件及文化象征等多个维度，对这一传奇场所进行前所未有的深度解析。</p>]]></content:encoded>
-            <pubDate>Sun, 15 Feb 2026 13:46:17 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/74</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>对角巷详细解析</title>
-            <link>https://junloye.github.io/?post=73</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/73</guid>
-            <description>对角巷（Diagon Alley）是J.K.罗琳创造的《哈利·波特》魔法世界中最具标志性的地点，也是英国巫师界最繁华的商业中心。这条隐藏在伦敦查令十字路破釜酒吧后院的鹅卵石街道，不仅承载着千年的魔法商业传统，更是连接麻瓜世界与魔法世界的重要门户。本文将对对角巷的每一家已知店铺进行前所未有的详细解析，包括地理位置、历史渊源、店主信息、商品详情、经典场景及文化意义。</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p>对角巷（Diagon Alley）是J.K.罗琳创造的《哈利·波特》魔法世界中最具标志性的地点，也是英国巫师界最繁华的商业中心。这条隐藏在伦敦查令十字路破釜酒吧后院的鹅卵石街道，不仅承载着千年的魔法商业传统，更是连接麻瓜世界与魔法世界的重要门户。本文将对对角巷的<strong>每一家已知店铺</strong>进行前所未有的详细解析，包括地理位置、历史渊源、店主信息、商品详情、经典场景及文化意义。</p>]]></content:encoded>
-            <pubDate>Sun, 15 Feb 2026 03:31:45 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/73</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>霍格沃茨魔法学校介绍（变形术篇）</title>
-            <link>https://junloye.github.io/?post=62</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/62</guid>
-            <description>变形术（Transfiguration）被公认为霍格沃茨魔法学校最复杂、最危险、也最优雅的魔法学科之一。作为一门改变物体形态与本质的魔法艺术，变形术要求学生具备极高的专注力、精确性和理论基础。本文将从历史渊源、理论体系、历任教授、课程内容及魔法法则等多个维度，全面解析这门核心魔法课程。</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p><strong>变形术</strong>（Transfiguration）被公认为霍格沃茨魔法学校最复杂、最危险、也最优雅的魔法学科之一。作为一门改变物体形态与本质的魔法艺术，变形术要求学生具备极高的专注力、精确性和理论基础。本文将从历史渊源、理论体系、历任教授、课程内容及魔法法则等多个维度，全面解析这门核心魔法课程。</p>]]></content:encoded>
-            <pubDate>Wed, 11 Feb 2026 10:06:10 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/62</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>霍格沃茨魔法学校介绍（教授篇）</title>
-            <link>https://junloye.github.io/?post=58</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/58</guid>
-            <description>&gt; [!IMPORTANT] &gt; 本文基于J.K.罗琳《哈利·波特》系列小说、Pottermore/Wizarding World官方资料及《霍格沃茨之遗》游戏设定整理 霍格沃茨魔法学校作为英国最负盛名的魔法教育机构，其辉煌历史与历任教授的卓越贡献密不可分。本文将系统梳理这所千年学府的教授阵容，从创校四巨头到当代名师，全面展现魔法教育界的群星璀璨。</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<p><strong>破釜酒吧</strong>（<strong>The Leaky Cauldron</strong>）是J.K.罗琳创造的《哈利·波特》魔法世界中最古老、最重要的机构（某种意义上的）之一。作为伦敦查令十字路上一间看似破旧的小酒吧，它不仅是通往对角巷的唯一官方入口，更是英国巫师社会与麻瓜世界之间的关键连接点。本文将从历史渊源、建筑结构、历任店主、魔法机制、重要事件及文化象征等多个维度，对这一传奇场所进行前所未有的深度解析。</p>]]></description>
+        <link>https://junloye.github.io/?post=74</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/74</guid>
+        <pubDate>Sun, 15 Feb 2026 13:46:17 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>对角巷详细解析</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<p>对角巷（Diagon Alley）是J.K.罗琳创造的《哈利·波特》魔法世界中最具标志性的地点，也是英国巫师界最繁华的商业中心。这条隐藏在伦敦查令十字路破釜酒吧后院的鹅卵石街道，不仅承载着千年的魔法商业传统，更是连接麻瓜世界与魔法世界的重要门户。本文将对对角巷的<strong>每一家已知店铺</strong>进行前所未有的详细解析，包括地理位置、历史渊源、店主信息、商品详情、经典场景及文化意义。</p>]]></description>
+        <link>https://junloye.github.io/?post=73</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/73</guid>
+        <pubDate>Sun, 15 Feb 2026 03:31:45 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>霍格沃茨魔法学校介绍（变形术篇）</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<p><strong>变形术</strong>（Transfiguration）被公认为霍格沃茨魔法学校最复杂、最危险、也最优雅的魔法学科之一。作为一门改变物体形态与本质的魔法艺术，变形术要求学生具备极高的专注力、精确性和理论基础。本文将从历史渊源、理论体系、历任教授、课程内容及魔法法则等多个维度，全面解析这门核心魔法课程。</p>]]></description>
+        <link>https://junloye.github.io/?post=62</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/62</guid>
+        <pubDate>Wed, 11 Feb 2026 10:06:10 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>霍格沃茨魔法学校介绍（教授篇）</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
 <blockquote>
 <p>[!IMPORTANT]</p>
 <p>本文基于J.K.罗琳《哈利·波特》系列小说、Pottermore/Wizarding World官方资料及《霍格沃茨之遗》游戏设定整理</p>
 </blockquote>
-<p>霍格沃茨魔法学校作为英国最负盛名的魔法教育机构，其辉煌历史与历任教授的卓越贡献密不可分。本文将系统梳理这所千年学府的教授阵容，从创校四巨头到当代名师，全面展现魔法教育界的群星璀璨。</p>]]></content:encoded>
-            <pubDate>Wed, 11 Feb 2026 05:23:55 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/58</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>霍格沃茨魔法学校介绍（校长篇）</title>
-            <link>https://junloye.github.io/?post=57</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/57</guid>
-            <description>&gt; [!IMPORTANT] &gt; 本文基于J.K.罗琳《哈利·波特》系列小说、Pottermore/Wizarding World官方资料及《霍格沃茨之遗》游戏设定整理 引言 霍格沃茨魔法学校（Hogwarts School of Witchcraft and Wizardry），作为英国最负盛名的魔法教育机构，不仅培养了无数杰出的巫师，更因其独特的校长传承而充满传奇色彩。本文将带你深入了解这所古老学校的创始人、校长制度及其历任掌舵者的详细生平。</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<p>霍格沃茨魔法学校作为英国最负盛名的魔法教育机构，其辉煌历史与历任教授的卓越贡献密不可分。本文将系统梳理这所千年学府的教授阵容，从创校四巨头到当代名师，全面展现魔法教育界的群星璀璨。</p>]]></description>
+        <link>https://junloye.github.io/?post=58</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/58</guid>
+        <pubDate>Wed, 11 Feb 2026 05:23:55 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>霍格沃茨魔法学校介绍（校长篇）</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
 <blockquote>
 <p>[!IMPORTANT]</p>
 <p>本文基于J.K.罗琳《哈利·波特》系列小说、Pottermore/Wizarding World官方资料及《霍格沃茨之遗》游戏设定整理</p>
 </blockquote>
 <h2>引言</h2>
-<p>霍格沃茨魔法学校（Hogwarts School of Witchcraft and Wizardry），作为英国最负盛名的魔法教育机构，不仅培养了无数杰出的巫师，更因其独特的校长传承而充满传奇色彩。本文将带你深入了解这所古老学校的创始人、校长制度及其历任掌舵者的详细生平。</p>]]></content:encoded>
-            <pubDate>Wed, 11 Feb 2026 02:32:12 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/57</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>霍格沃茨魔法学校介绍（地图篇）</title>
-            <link>https://junloye.github.io/?post=56</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/56</guid>
-            <description>欢迎来到世界上最伟大的魔法学府——霍格沃茨魔法学校！</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p><em>欢迎来到世界上最伟大的魔法学府——霍格沃茨魔法学校！</em></p>]]></content:encoded>
-            <pubDate>Tue, 10 Feb 2026 13:52:42 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/56</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>个人博客介绍</title>
-            <link>https://junloye.github.io/?post=51</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/51</guid>
-            <description>🫠欢迎来到 JunLoye 的个人博客 欢迎来到我的个人博客！这是一个专注于分享技术、生活和音乐的地方。在这里，我将记录我的学习历程、技术分享以及生活中的点滴，希望能与大家一起交流和成长。 项目简介 这个博客是基于静态网站生成器构建的，旨在提供一个简洁、美观且高效的个人博客平台。以下是项目的主要功能和特点： 功能特色 1. 文章发布与管理 - 提供简单易用的文章发布页面，支持 Markdown 格式，方便快速撰写和发布内容。 - 支持文章分类和标签功能，便于内容的组织和查找。 2. 音乐播...</description>
-            <content:encoded><![CDATA[<h2>🫠欢迎来到 JunLoye 的个人博客</h2>
+<p>霍格沃茨魔法学校（Hogwarts School of Witchcraft and Wizardry），作为英国最负盛名的魔法教育机构，不仅培养了无数杰出的巫师，更因其独特的校长传承而充满传奇色彩。本文将带你深入了解这所古老学校的创始人、校长制度及其历任掌舵者的详细生平。</p>]]></description>
+        <link>https://junloye.github.io/?post=57</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/57</guid>
+        <pubDate>Wed, 11 Feb 2026 02:32:12 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>霍格沃茨魔法学校介绍（地图篇）</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+<p><em>欢迎来到世界上最伟大的魔法学府——霍格沃茨魔法学校！</em></p>]]></description>
+        <link>https://junloye.github.io/?post=56</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/56</guid>
+        <pubDate>Tue, 10 Feb 2026 13:52:42 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>个人博客介绍</title>
+        <description><![CDATA[<h2>🫠欢迎来到 JunLoye 的个人博客</h2>
 <p>欢迎来到我的个人博客！这是一个专注于分享技术、生活和音乐的地方。在这里，我将记录我的学习历程、技术分享以及生活中的点滴，希望能与大家一起交流和成长。</p>
 <h2>项目简介</h2>
 <p>这个博客是基于静态网站生成器构建的，旨在提供一个简洁、美观且高效的个人博客平台。以下是项目的主要功能和特点：</p>
@@ -323,17 +306,15 @@
 <ul>
 <li>支持更多的文章分类和标签功能。</li>
 <li>增加更多的主题样式，满足不同用户的需求。</li>
-</ul>]]></content:encoded>
-            <pubDate>Sat, 24 Jan 2026 14:38:09 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/51</comments>
-            <category>Blog</category>
-        </item>
-        <item>
-            <title>《哈利·波特》系列中到底有多少咒语？</title>
-            <link>https://junloye.github.io/?post=7</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/7</guid>
-            <description>&gt; [!TIP] &gt; 人工整理，可能有缺漏或错误，欢迎纠错！（根据英文字母排序） 基本魔咒[2] | 中文名称 | 英文原名 | 魔法介绍 | 使用方法/效果 | | --- | --- | --- | --- | | 飞来咒 | Accio | 召唤咒，将远处的物体召唤到手中 | 念出Accio + 物体名，心中想象该物体 | | 阿拉霍洞开 | Alohomora | 开锁咒，打开锁住的门窗 | 魔杖指向锁扣，轻敲并念咒 | | 止步不前 | Arresto Momentum | 减震...</description>
-            <content:encoded><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
+</ul>]]></description>
+        <link>https://junloye.github.io/?post=51</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/51</guid>
+        <pubDate>Sat, 24 Jan 2026 14:38:09 GMT</pubDate>
+        <category>Blog</category>
+    </item>
+    <item>
+        <title>《哈利·波特》系列中到底有多少咒语？</title>
+        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
 <blockquote>
 <p>[!TIP]</p>
 <p>人工整理，可能有缺漏或错误，欢迎纠错！（根据英文字母排序）</p>
@@ -377,17 +358,15 @@
 <p>| 声音洪亮 | Sonorus | 使嗓音变大，类似扩音器 | 反咒为<code>噤声(Quietus)</code> |</p>
 <p>| 昏昏倒地 | Stupefy | 昏迷咒，决斗中最常见的攻击魔咒 | 发射红光，使对方瞬间失去意识 |</p>
 <p>| 塔朗泰拉舞 | Tarantallegra | 迫使对方的双脚狂乱跳舞 | 指向对方的腿部 |</p>
-<p>| 羽加迪姆勒维奥萨 | Wingardium Leviosa | 悬浮咒，让物体漂浮 | 动作要领<code>挥一挥，抖一抖</code> |</p>]]></content:encoded>
-            <pubDate>Fri, 02 Jan 2026 06:11:10 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/7</comments>
-            <category>HP</category>
-        </item>
-        <item>
-            <title>PCL2启动器，你值得拥有</title>
-            <link>https://junloye.github.io/?post=5</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/5</guid>
-            <description>&gt; [!AI] &gt; 本篇文章由AI辅助生成，已对内容进行审核修正 1. 概述与开发背景 PCL2，全称Plain Craft Launcher 2，是一款由国内独立开发者“龙腾猫跃”开发、面向全球 Minecraft Java版玩家的开源、免费第三方启动器。其诞生直接源于原版官方启动器在中国网络环境下长期存在的痛点，如下载速度缓慢、网络连接不稳定、以及对于模组（Mod）和整合包管理功能薄弱等。PCL2的设计哲学可以概括为 “让玩家专注游戏，而非配置” ，旨在通过技术手段简化从环境部署到游戏...</description>
-            <content:encoded><![CDATA[<p><img src="https://github.com/user-attachments/assets/7b225bfe-c711-4ec8-9c65-b7c7e684cf4f" alt="Cover" /></p>
+<p>| 羽加迪姆勒维奥萨 | Wingardium Leviosa | 悬浮咒，让物体漂浮 | 动作要领<code>挥一挥，抖一抖</code> |</p>]]></description>
+        <link>https://junloye.github.io/?post=7</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/7</guid>
+        <pubDate>Fri, 02 Jan 2026 06:11:10 GMT</pubDate>
+        <category>HP</category>
+    </item>
+    <item>
+        <title>PCL2启动器，你值得拥有</title>
+        <description><![CDATA[<p><img src="https://github.com/user-attachments/assets/7b225bfe-c711-4ec8-9c65-b7c7e684cf4f" alt="Cover" /></p>
 <blockquote>
 <p>[!AI]</p>
 <p>本篇文章由AI辅助生成，已对内容进行审核修正</p>
@@ -447,26 +426,25 @@
 <p><strong>5.2 问题解决与支持</strong></p>
 <p>PCL2内置了崩溃诊断功能，能生成错误报告并提供初步修复建议。对于复杂问题，玩家可以通过其内置的社区渠道或前往GitHub项目页面提交问题（Issue），通常能获得来自开发者或其他资深玩家的有效帮助。</p>
 <h3><strong>6. 结语</strong></h3>
-<p>PCL2启动器不仅仅是一个游戏启动工具，它更是中国Minecraft玩家社区智慧与需求的结晶。它通过精湛的技术实现，成功地在不稳定的网络环境和复杂的模组生态之间，搭建起了一座坚固而便捷的桥梁。其“用户至上”的设计理念、持续的开源维护以及对本地化痛点的精准打击，使其成为了国产独立软件中的一个典范。对于任何一位希望轻松畅游 Minecraft 模组海洋的中国玩家而言，PCL2几乎是一个无可替代的得力伙伴，它真正实现了让创造与冒险的乐趣，始于简单，归于专注。</p>]]></content:encoded>
-            <pubDate>Thu, 01 Jan 2026 12:32:26 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/5</comments>
-            <category>Game</category>
-        </item>
-        <item>
-            <title>2025，从Copilot到Commander，AI都改变了什么</title>
-            <link>https://junloye.github.io/?post=3</link>
-            <guid isPermaLink="true">https://github.com/JunLoye/junloye.github.io/issues/3</guid>
-            <description>&gt; 手指悬在Tab键上的时间比放在其他任何键位都要长，这是2025年程序员们最真实的工作写照。 深夜，窗外的城市逐渐安静下来，只剩显示器前一位程序员与他的AI伙伴仍在忙碌。屏幕上，一行行代码流畅地生成、修正、优化，整个过程几乎不需要他的直接介入——他更像是指挥家而非演奏家。 这正是2025年编程世界的真实缩影：TRAE的年度报告显示，AI工具在这一年写了惊人的1000亿行代码。 开发者角色的转变不是渐进式的，而是革命性的。当吴恩达将这一年定义为“AI工业时代的黎明”时，他指出的不仅仅是工具...</description>
-            <content:encoded><![CDATA[<p><img src="https://github.com/user-attachments/assets/492d9548-eb43-4d00-999b-c4d6c72707fa" alt="Cover" /></p>
+<p>PCL2启动器不仅仅是一个游戏启动工具，它更是中国Minecraft玩家社区智慧与需求的结晶。它通过精湛的技术实现，成功地在不稳定的网络环境和复杂的模组生态之间，搭建起了一座坚固而便捷的桥梁。其“用户至上”的设计理念、持续的开源维护以及对本地化痛点的精准打击，使其成为了国产独立软件中的一个典范。对于任何一位希望轻松畅游 Minecraft 模组海洋的中国玩家而言，PCL2几乎是一个无可替代的得力伙伴，它真正实现了让创造与冒险的乐趣，始于简单，归于专注。</p>]]></description>
+        <link>https://junloye.github.io/?post=5</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/5</guid>
+        <pubDate>Thu, 01 Jan 2026 12:32:26 GMT</pubDate>
+        <category>Game</category>
+    </item>
+    <item>
+        <title>2025，从Copilot到Commander，AI都改变了什么</title>
+        <description><![CDATA[<p><img src="https://github.com/user-attachments/assets/492d9548-eb43-4d00-999b-c4d6c72707fa" alt="Cover" /></p>
 <blockquote>
 <p>手指悬在Tab键上的时间比放在其他任何键位都要长，这是2025年程序员们最真实的工作写照。</p>
 </blockquote>
 <p>深夜，窗外的城市逐渐安静下来，只剩显示器前一位程序员与他的AI伙伴仍在忙碌。屏幕上，一行行代码流畅地生成、修正、优化，整个过程几乎不需要他的直接介入——他更像是指挥家而非演奏家。</p>
 <p>这正是2025年编程世界的真实缩影：TRAE的年度报告显示，AI工具在这一年写了惊人的1000亿行代码。</p>
-<p>开发者角色的转变不是渐进式的，而是革命性的。当吴恩达将这一年定义为“AI工业时代的黎明”时，他指出的不仅仅是工具变化，更是一个全新生态系统的形成。</p>]]></content:encoded>
-            <pubDate>Thu, 01 Jan 2026 07:33:06 +0000</pubDate>
-            <comments>https://github.com/JunLoye/junloye.github.io/issues/3</comments>
-            <category>Tech</category>
-        </item>
-    </channel>
+<p>开发者角色的转变不是渐进式的，而是革命性的。当吴恩达将这一年定义为“AI工业时代的黎明”时，他指出的不仅仅是工具变化，更是一个全新生态系统的形成。</p>]]></description>
+        <link>https://junloye.github.io/?post=3</link>
+        <guid>https://github.com/JunLoye/junloye.github.io/issues/3</guid>
+        <pubDate>Thu, 01 Jan 2026 07:33:06 GMT</pubDate>
+        <category>Tech</category>
+    </item>
+</channel>
 </rss>

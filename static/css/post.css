@@ -230,7 +230,6 @@
     color: var(--text-soft);
 }
 
-/* 确保黑暗模式下正文文字颜色正确 */
 [data-theme='dark'] #link-preview-card .preview-excerpt.markdown-body {
     color: #b0b0b0;
 }
@@ -303,7 +302,6 @@
     color: white !important;
 }
 
-/* 评论区基础样式 */
 .comments-section {
     margin-top: 50px;
     padding: 40px 20px;
@@ -317,11 +315,11 @@
 }
 
 .comment-form {
-    margin-bottom: 40px; /* 增加表单与列表的间距 */
+    margin-bottom: 40px;
 }
 
 #comments-list {
-    border-top: 1px dashed var(--line); /* 在列表上方增加虚线分割 */
+    border-top: 1px dashed var(--line);
     padding-top: 30px;
 }
 
@@ -415,7 +413,7 @@
 
 .quote-this-btn {
     position: absolute;
-    right: -60px; /* 显示在段落右侧外 */
+    right: -60px;
     top: 0;
     padding: 2px 8px;
     font-size: 0.7rem;
@@ -435,10 +433,19 @@
     border-color: var(--accent);
 }
 
-/* 移动端适配：引用按钮改到段落内右上角 */
 @media (max-width: 768px) {
-    .quote-this-btn {
-        right: 0;
-        top: -20px;
+    .detail-post,
+    .detail-container,
+    #content-area,
+    .comments-section {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    #content-area,
+    .detail-container {
+        width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 }
