@@ -2,15 +2,14 @@ let CONFIG = {};
 let allIssues = [];
 let templatesLoaded = false;
 let lastSelectedText = "";
+let currentTagFilter = null;
 const ORIGINAL_TITLE = document.title;
 
 window.addEventListener('load', async () => {
     const configLoaded = await loadConfig();
     if (!configLoaded) return;
 
-    // 应用功能开关
     applyFeatureFlags();
-    // 初始化公告（依赖配置）
     initAnnouncement();
 
     const yearEl = document.getElementById('year');
@@ -47,7 +46,6 @@ async function loadConfig() {
     }
 }
 
-// 应用功能开关
 function applyFeatureFlags() {
     if (!CONFIG.features) {
         console.warn('CONFIG.features 未定义，使用默认功能开关');
@@ -56,20 +54,16 @@ function applyFeatureFlags() {
     
     const features = CONFIG.features;
     
-    // 应用分享功能开关
     if (features.share === false) {
         const shareElements = document.querySelectorAll('.share-btn, .share-buttons');
         shareElements.forEach(el => el.style.display = 'none');
     }
     
-    // 应用打赏功能开关
     if (features.donation === false) {
         const donationElements = document.querySelectorAll('.donation-section, .donation-method');
         donationElements.forEach(el => el.style.display = 'none');
     }
     
-    // 应用公告功能开关（在initAnnouncement中处理）
-    // 这里只是记录，实际在initAnnouncement中处理
     console.log('功能开关已应用:', features);
 }
 
@@ -101,7 +95,6 @@ async function fetchPosts() {
         renderPosts(displayIssues);
         updateSidebarStats(displayIssues.length);
         handleRouting();
-        // 初始化标签云
         initTagCloud();
     } catch (e) {
         showNotification("文章列表同步失败", 'error');
@@ -318,7 +311,6 @@ function initContextMenu() {
     if (!menu) return;
 
     document.addEventListener('contextmenu', (e) => {
-        // 如果是在输入框内点击，使用原生菜单
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
         e.preventDefault();
@@ -336,7 +328,6 @@ function initContextMenu() {
     document.addEventListener('click', () => menu.style.display = 'none');
 }
 
-/** 复制选中内容 **/
 async function copySelectedText() {
     if (!lastSelectedText) return;
     try {
@@ -347,7 +338,6 @@ async function copySelectedText() {
     }
 }
 
-/** 谷歌搜索选中内容 **/
 function searchSelectedText() {
     if (!lastSelectedText) return;
     const url = `https://www.google.com/search?q=${encodeURIComponent(lastSelectedText)}`;
@@ -387,7 +377,6 @@ function setCookiePreference(status) {
     showNotification(status === 'accepted' ? '已接受 Cookie' : '已拒绝非必要 Cookie', status === 'accepted' ? 'success' : 'warning');
 }
 
-// GitHub 登录相关函数
 async function updateAuthUI() {
     const token = localStorage.getItem('gh_access_token');
     const userLogin = localStorage.getItem('gh_user_login');
@@ -412,7 +401,6 @@ function toggleGitHubLogin() {
     const userLogin = localStorage.getItem('gh_user_login');
     
     if (token && userLogin) {
-        // 已登录，显示注销确认
         if (confirm(`确定要注销 ${userLogin} 吗？`)) {
             localStorage.removeItem('gh_access_token');
             localStorage.removeItem('gh_user_login');
@@ -421,11 +409,9 @@ function toggleGitHubLogin() {
             showNotification('已注销 GitHub 登录', 'info');
         }
     } else {
-        // 未登录，调用登录函数
         if (typeof loginGitHub === 'function') {
             loginGitHub();
         } else {
-            // 如果 post.js 未加载，直接跳转
             const clientId = CONFIG.client_id || 'Ov23liNHVCD2Mdupm4U4';
             const currentUrl = window.location.href.split('&code=')[0].split('?code=')[0];
             window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=public_repo&redirect_uri=${encodeURIComponent(currentUrl)}`;
@@ -433,21 +419,18 @@ function toggleGitHubLogin() {
     }
 }
 
-// 在页面加载后更新登录状态
 window.addEventListener('load', () => {
-    // 确保在配置加载后更新
     setTimeout(updateAuthUI, 500);
 });
 
 window.onerror = (msg) => showNotification(`代码错误: ${msg}`, 'error');
 window.onunhandledrejection = (event) => showNotification(`异步请求失败: ${event.reason}`, 'error');
 
-// 标签云功能
+
 function generateTagCloud(issues) {
     const tagCloudContainer = document.getElementById('tag-cloud');
     if (!tagCloudContainer) return;
     
-    // 统计标签频率
     const tagCount = {};
     issues.forEach(issue => {
         issue.labels.forEach(label => {
@@ -457,60 +440,133 @@ function generateTagCloud(issues) {
         });
     });
     
-    // 按频率排序
     const sortedTags = Object.entries(tagCount)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 20); // 只显示前20个标签
+        .slice(0, 25);
     
     if (sortedTags.length === 0) {
-        tagCloudContainer.innerHTML = '<p style="color: var(--text-soft); font-size: 0.85rem; text-align: center;">暂无标签</p>';
+        tagCloudContainer.innerHTML = '<div class="tag-cloud-empty">✨ 暂无标签，发布文章时添加标签吧</div>';
         return;
     }
     
-    // 生成标签云HTML
+    // 计算字体大小范围（基于文章数量）
     const maxCount = sortedTags[0][1];
     const minCount = sortedTags[sortedTags.length - 1][1];
-    const sizeRange = { min: 0.8, max: 1.5 }; // 字体大小范围
+    const minFontSize = 0.8;
+    const maxFontSize = 1.6;
     
-    const tagCloudHtml = sortedTags.map(([tag, count]) => {
-        // 计算字体大小（基于频率）
-        const size = minCount === maxCount
-            ? sizeRange.min
-            : sizeRange.min + (sizeRange.max - sizeRange.min) * (count - minCount) / (maxCount - minCount);
+    // 生成标签HTML
+    const tagsHtml = sortedTags.map(([tag, count]) => {
+        // 根据文章数量计算字体大小
+        let fontSize = minFontSize;
+        if (maxCount !== minCount) {
+            fontSize = minFontSize + (maxFontSize - minFontSize) * (count - minCount) / (maxCount - minCount);
+        }
         
-        // 为不同标签生成不同颜色
-        const colors = [
-            '#007AFF', '#34C759', '#FF9500', '#FF3B30', '#AF52DE',
-            '#5856D6', '#FF2D55', '#5AC8FA', '#FFCC00', '#8E8E93'
-        ];
-        const colorIndex = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-        const color = colors[colorIndex];
+        // 是否为当前激活的标签
+        const isActive = currentTagFilter === tag;
+        const activeClass = isActive ? 'active' : '';
+        
+        // 使用标签名称生成稳定的颜色（柔和色调）
+        const hue = (tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360);
+        const color = `hsl(${hue}, 65%, 55%)`;
         
         return `
-            <span class="tag-cloud-item"
-                  style="font-size: ${size}rem; color: ${color};"
-                  onclick="filterByTag('${tag.replace(/'/g, "\\'")}')"
-                  title="${tag} (${count}篇文章)">
-                ${tag}
+            <span class="tag-cloud-item ${activeClass}"
+                  style="font-size: ${fontSize}rem;"
+                  data-tag="${escapeXML(tag)}"
+                  onclick="filterByTag('${escapeXML(tag).replace(/'/g, "\\'")}')"
+                  title="点击筛选「${tag}」标签的文章">
+                ${escapeXML(tag)}
+                <span class="tag-count">(${count})</span>
             </span>
         `;
     }).join('');
     
+    // 添加重置按钮和筛选指示器
+    const filterIndicator = currentTagFilter ? `
+        <div class="filter-indicator">
+            <span>📌 当前筛选：</span>
+            <span class="tag-name">${escapeXML(currentTagFilter)}</span>
+            <span class="clear-filter" onclick="clearTagFilter()" title="清除筛选">✕</span>
+        </div>
+    ` : '';
+    
     tagCloudContainer.innerHTML = `
-        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px 0;">
-            ${tagCloudHtml}
+        <div class="tag-cloud-reset" onclick="clearTagFilter()" title="显示全部文章">
+            <svg viewBox="0 0 24 24" width="14" height="14">
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            全部文章
+        </div>
+        ${filterIndicator}
+        <div class="tag-cloud-items">
+            ${tagsHtml}
         </div>
     `;
 }
 
-// 在文章加载后生成标签云
+function filterByTag(tagName) {
+    if (!allIssues || allIssues.length === 0) return;
+    
+    if (currentTagFilter === tagName) {
+        clearTagFilter();
+        return;
+    }
+    currentTagFilter = tagName;
+    
+    const filteredIssues = allIssues.filter(issue => {
+        return issue.labels.some(label => label.name === tagName);
+    });
+    
+    renderPosts(filteredIssues, tagName);
+    
+    generateTagCloud(allIssues);
+    
+    const container = document.getElementById('post-list-container');
+    if (container) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    showNotification(message, 'info');
+    
+    updateSidebarStats(filteredIssues.length);
+}
+
+function clearTagFilter() {
+    if (!currentTagFilter) return;
+    
+    currentTagFilter = null;
+    
+    const displayIssues = filterIssues(allIssues);
+    renderPosts(displayIssues);
+    
+    generateTagCloud(allIssues);
+    
+    updateSidebarStats(displayIssues.length);
+    
+    const container = document.getElementById('post-list-container');
+    if (container) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 function initTagCloud() {
-    if (typeof allIssues !== 'undefined' && allIssues.length > 0) {
+    if (allIssues && allIssues.length > 0) {
         generateTagCloud(allIssues);
     }
 }
 
-// 修改现有的文章加载函数以包含标签云初始化
+function escapeXML(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 const originalLoadAndRender = window.loadAndRender;
 if (typeof originalLoadAndRender === 'function') {
     window.loadAndRender = async function(...args) {
@@ -520,55 +576,22 @@ if (typeof originalLoadAndRender === 'function') {
     };
 }
 
-function filterByTag(tagName) {
-    if (!allIssues || allIssues.length === 0) return;
-    
-    // 过滤出包含该标签的文章
-    const filteredIssues = allIssues.filter(issue => {
-        return issue.labels.some(label => label.name === tagName);
-    });
-    
-    // 渲染过滤后的文章
-    renderPosts(filteredIssues, tagName);
-    
-    // 显示过滤提示
-    showNotification(`已筛选标签: ${tagName} (${filteredIssues.length}篇文章)`, 'info');
-    
-    // 滚动到文章列表顶部
-    const container = document.getElementById('post-list-container');
-    if (container) {
-        container.scrollIntoView({ behavior: 'smooth' });
-    }
-}
 
-function escapeXML(str) {
-    if (!str) return '';
-    return str
-        .replace(/&/g, '&')
-        .replace(/</g, '<')
-        .replace(/>/g, '>')
-        .replace(/"/g, '"')
-}
-
-// 公告功能
 function initAnnouncement() {
     const banner = document.getElementById('announcement-banner');
     if (!banner) return;
     
-    // 检查本地存储是否已关闭公告
     const announcementClosed = localStorage.getItem('announcement_closed');
     if (announcementClosed === 'true') {
         banner.style.display = 'none';
         return;
     }
     
-    // 检查功能开关
     if (CONFIG.features && CONFIG.features.announcement === false) {
         banner.style.display = 'none';
         return;
     }
     
-    // 检查配置
     if (typeof CONFIG === 'undefined' || !CONFIG.announcement || !CONFIG.announcement.enabled) {
         banner.style.display = 'none';
         return;
@@ -576,7 +599,6 @@ function initAnnouncement() {
     
     const announcement = CONFIG.announcement;
     
-    // 检查过期时间
     if (announcement.expires) {
         const expireDate = new Date(announcement.expires);
         const now = new Date();
@@ -586,7 +608,6 @@ function initAnnouncement() {
         }
     }
     
-    // 设置公告内容
     const titleEl = document.getElementById('announcement-title');
     const contentEl = document.getElementById('announcement-content');
     const iconEl = document.getElementById('announcement-icon');
@@ -599,7 +620,6 @@ function initAnnouncement() {
         contentEl.textContent = announcement.content;
     }
     
-    // 设置图标和样式
     if (iconEl) {
         const type = announcement.type || 'info';
         const icons = {
@@ -612,7 +632,6 @@ function initAnnouncement() {
         };
         iconEl.textContent = icons[type] || '📢';
         
-        // 设置背景颜色
         const colors = {
             'info': '#2196f3',
             'success': '#4caf50',
@@ -624,10 +643,8 @@ function initAnnouncement() {
         banner.style.backgroundColor = colors[type] || '#2196f3';
     }
     
-    // 显示公告
     banner.style.display = 'block';
     
-    // 关闭按钮事件
     const closeBtn = document.getElementById('announcement-close');
     if (closeBtn && announcement.show_close !== false) {
         closeBtn.onclick = () => {
@@ -638,5 +655,3 @@ function initAnnouncement() {
         closeBtn.style.display = 'none';
     }
 }
-
-// 在页面加载后初始化公告（在 load 事件中调用）

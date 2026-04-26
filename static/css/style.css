@@ -776,22 +776,114 @@ mark.search-highlight {
     }
 }
 
-/* 标签云样式 */
-.tag-cloud-item {
-    display: inline-block;
-    padding: 4px 10px;
-    margin: 2px;
-    border-radius: 15px;
-    background: var(--line);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 500;
-    white-space: nowrap;
+/* 标签云容器布局优化 */
+#tag-cloud {
+    padding: 8px 0;
 }
 
+.tag-cloud-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 16px;
+    padding: 8px 0;
+}
+
+/* 经典标签云样式 - 无背景框，强调字体变化 */
+.tag-cloud-item {
+    display: inline-block;
+    padding: 4px 0;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    line-height: 1.3;
+    color: var(--text-soft);
+}
+
+/* 标签文章计数样式 */
+.tag-count {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-left: 2px;
+    font-weight: normal;
+}
+
+/* 标签悬停效果 */
 .tag-cloud-item:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* 当前激活的标签样式 */
+.tag-cloud-item.active {
+    color: var(--accent);
+    font-weight: 700;
+    border-bottom-color: var(--accent);
+}
+
+/* 重置筛选按钮样式 */
+.tag-cloud-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    background: var(--line);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    margin-bottom: 12px;
+}
+
+.tag-cloud-reset:hover {
     background: var(--accent);
-    color: white !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.tag-cloud-reset svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* 无标签时的友好提示 */
+.tag-cloud-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+}
+
+/* 当前筛选状态指示器 */
+.filter-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--line);
+    border-radius: 20px;
+    padding: 4px 12px;
+    margin-bottom: 16px;
+    font-size: 0.75rem;
+    color: var(--text-soft);
+}
+
+.filter-indicator .tag-name {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.filter-indicator .clear-filter {
+    cursor: pointer;
+    color: var(--text-soft);
+    transition: color 0.2s;
+}
+
+.filter-indicator .clear-filter:hover {
+    color: var(--accent);
 }

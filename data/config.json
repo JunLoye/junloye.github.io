@@ -29,11 +29,12 @@
   "client_id": "Ov23liNHVCD2Mdupm4U4",
 
   "features": {
-    "share": false
+    "share": false,
+    "donation": false,
+    "announcement": false
   },
 
   "donation": {
-    "enabled": false,
     "wechat_qr": "",
     "alipay_qr": "",
     "paypal_url": "",
@@ -42,7 +43,6 @@
   },
 
   "announcement": {
-    "enabled": true,
     "type": "info",
     "title": "公告",
     "content": "欢迎访问我的博客！本站基于GitHub Issues构建，支持评论和分享功能。",

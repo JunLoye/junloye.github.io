@@ -449,3 +449,36 @@
         overflow-wrap: break-word;
     }
 }
+
+/* ===== 文章图片样式：圆角矩形 + 自适应 + 优雅阴影 ===== */
+.detail-post img,
+.detail-container img,
+#content-area img {
+    border-radius: 12px;          /* 圆角矩形 */
+    max-width: 100%;              /* 响应式缩放 */
+    height: auto;                 /* 保持比例 */
+    display: block;               /* 块级居中 */
+    margin: 1.5rem auto;          /* 上下留白，水平居中 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+}
+
+/* 悬停时阴影加深，提升互动感 */
+.detail-post img:hover,
+.detail-container img:hover,
+#content-area img:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 深色模式适配：阴影微调，保持视觉舒适 */
+[data-theme='dark'] .detail-post img,
+[data-theme='dark'] .detail-container img,
+[data-theme='dark'] #content-area img {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .detail-post img:hover,
+[data-theme='dark'] .detail-container img:hover,
+[data-theme='dark'] #content-area img:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
