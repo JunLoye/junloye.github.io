@@ -1,136 +1,151 @@
 .detail-container#about-content {
     max-width: 800px;
     margin: 0 auto;
-    padding: 40px 20px;
-    color: var(--text);
+    padding: 2rem 1.5rem;
+    color: var(--text, #1e1e2f);
     position: relative;
 }
 
+.about-wrapper {
+    background: rgba(var(--bg-rgb, 255,255,255), 0.7);
+    backdrop-filter: blur(2px);
+    border-radius: 2rem;
+    padding: 2rem 1.8rem;
+    box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+/* 头部区域 */
 .about-header-flex {
     display: flex;
     align-items: center;
-    gap: 30px;
-    margin-bottom: 20px;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.about-avatar-wrapper {
+    flex-shrink: 0;
+}
+
+.about-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(var(--accent-rgb, 100,108,255), 0.3);
+    box-shadow: 0 10px 20px -8px rgba(0,0,0,0.2);
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+.about-avatar:hover {
+    transform: scale(1.05) rotate(1deg);
+    border-color: var(--accent, #646cff);
+    box-shadow: 0 20px 30px -12px rgba(0,0,0,0.25);
 }
 
 .about-title-group {
     text-align: left;
 }
 
-.about-avatar-wrapper {
-    margin-bottom: 0;
-    display: flex;
-    justify-content: center;
+.about-title-group h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, var(--text, #1e1e2f) 0%, var(--accent, #646cff) 80%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
 }
 
-.about-avatar {
-    width: 110px;
-    height: auto;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid var(--line);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.subtitle {
+    color: var(--text-soft, #5b5b6e);
+    font-size: 1.1rem;
+    margin-top: 0.3rem;
 }
 
-.about-avatar:hover {
-    transform: scale(1.08) rotate(2deg);
-    border-color: var(--accent);
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line, #e2e2e6), transparent);
+    margin: 2rem 0;
 }
 
-.close-btn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: var(--line);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--text);
-    transition: all 0.2s ease;
-    z-index: 100;
+/* 主要文本区域 */
+.markdown-body h3 {
+    margin-top: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    position: relative;
+    display: inline-block;
 }
 
-.close-btn:hover {
-    background: var(--accent);
-    color: #fff;
+.markdown-body h3::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: var(--accent, #646cff);
+    border-radius: 4px;
 }
 
-.credits-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
+/* 联系方式列表（无下划线） */
+.contact-list {
+    padding-left: 1.2rem;
+    margin: 1rem 0 1.8rem 0;
 }
 
-.credit-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: var(--line);
-    border-radius: 10px;
-    text-decoration: none !important;
-    transition: transform 0.2s ease, background 0.2s ease;
+.contact-list li {
+    margin: 0.5rem 0;
+    color: var(--text, #1e1e2f);
 }
 
-.credit-item:hover {
-    background: var(--accent);
-    transform: translateY(-2px);
+/* 全局链接去除下划线 */
+a {
+    text-decoration: none;
 }
 
-.credit-item:hover .credit-name,
-.credit-item:hover .credit-desc {
-    color: #fff;
+.contact-list a {
+    color: var(--accent, #646cff);
+    border-bottom: none;  /* 移除虚线装饰 */
+    transition: opacity 0.2s;
 }
 
-.credit-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
+.contact-list a:hover {
+    opacity: 0.8;
 }
 
-.credit-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.credit-name {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.credit-desc {
-    font-size: 0.75rem;
-    color: var(--text-soft);
+/* GitHub footer 卡片 */
+.about-github-footer {
+    margin: 2rem 0 1.5rem;
+    padding: 0.2rem;
+    border-radius: 1.2rem;
+    background: linear-gradient(145deg, var(--line, #e2e2e6), transparent);
 }
 
 .github-badge-container {
     display: flex;
     align-items: center;
-    gap: 15px;
-    text-decoration: none;
-    padding: 15px 25px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    transition: all 0.3s ease;
-    background: transparent;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    background: var(--bg-card, #f8f9fc);
+    text-decoration: none;  /* 确保无下划线 */
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
 }
 
 .github-badge-container:hover {
-    border-color: var(--accent);
-    background: var(--selection-bg);
+    background: var(--accent-light, #eef2ff);
+    border-color: var(--accent, #646cff);
     transform: translateY(-2px);
 }
 
 .github-icon-large {
-    width: 40px;
-    height: 40px;
-    fill: var(--text);
+    width: 42px;
+    height: 42px;
+    fill: var(--text, #1e1e2f);
 }
 
 .github-badge-text {
@@ -139,36 +154,38 @@
     text-align: left;
 }
 
-.about-github-footer {
-    margin-top: 60px;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 20px;
-    padding: 20px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
 .badge-line-1 {
     font-weight: 700;
-    color: var(--text);
+    color: var(--text, #1e1e2f);
+    font-size: 1rem;
 }
 
 .badge-line-2 {
-    font-size: 0.75rem;
-    color: var(--text-soft);
+    font-size: 0.7rem;
+    color: var(--text-soft, #5b5b6e);
 }
 
-/* --- 更新日志时间轴样式 --- */
+/* 更新日志区域 */
+.changelog-section {
+    margin-top: 2rem;
+}
+
+.changelog-loading {
+    padding: 1.2rem;
+    text-align: center;
+    color: var(--text-soft, #5b5b6e);
+    font-size: 0.85rem;
+}
+
+/* 时间轴 */
 .changelog-wrapper {
-    margin-top: 20px;
-    margin-left: 10px;
-    border-left: 2px solid var(--line);
-    padding-left: 25px;
+    margin-top: 1.2rem;
+    margin-left: 0.8rem;
+    border-left: 2px solid var(--line, #e2e2e6);
+    padding-left: 1.8rem;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 1.8rem;
 }
 
 .changelog-item {
@@ -178,195 +195,135 @@
 .changelog-item::before {
     content: '';
     position: absolute;
-    left: -32px;
-    top: 6px;
+    left: -2.35rem;
+    top: 0.3rem;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--line);
-    border: 2px solid var(--bg);
-    transition: all 0.3s ease;
+    background: var(--line, #e2e2e6);
+    border: 2px solid var(--bg, #ffffff);
+    transition: all 0.2s;
 }
 
 .changelog-item:hover::before {
-    background: var(--accent);
+    background: var(--accent, #646cff);
     transform: scale(1.2);
 }
 
 .changelog-date {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
 }
 
 .commit-date-text {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent, #646cff);
     font-family: monospace;
 }
 
 .git-version-tag {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    background: var(--line);
-    color: var(--text-soft) !important;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
-    text-decoration: none !important;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
+    gap: 0.3rem;
+    background: var(--line, #e2e2e6);
+    color: var(--text-soft, #5b5b6e);
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-size: 0.65rem;
+    font-family: monospace;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
 }
 
 .git-version-tag:hover {
-    background: var(--accent);
-    color: #ffffff !important;
-    border-color: var(--accent);
+    background: var(--accent, #646cff);
+    color: white !important;
 }
 
-/* --- 链接样式修复 --- */
-.markdown-body a {
-    text-decoration: none !important;
-    color: var(--accent);
-}
-
-.changelog-msg {
+.changelog-version {
+    font-weight: 700;
     font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--text);
-    word-break: break-word;
-    white-space: pre-wrap;
+    margin: 0.5rem 0 0.25rem 0;
+    color: var(--text, #1e1e2f);
 }
 
+.changelog-desc {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-soft, #5b5b6e);
+    white-space: pre-wrap;
+    padding-left: 0.8rem;
+    border-left: 2px dotted var(--line, #e2e2e6);
+}
+
+/* 链接全局修复（再次确保无下划线） */
+.markdown-body a {
+    text-decoration: none;
+    color: var(--accent, #646cff);
+}
+
+.close-btn {
+    position: fixed;
+    top: 1.2rem;
+    left: 1.2rem;
+    background: rgba(var(--bg-rgb, 255,255,255), 0.7);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--line, #ddd);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text, #1e1e2f);
+    transition: all 0.2s;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.close-btn:hover {
+    background: var(--accent, #646cff);
+    color: white;
+    border-color: var(--accent, #646cff);
+    transform: translateX(-3px);
+}
+
+/* 响应式 */
 @media (max-width: 600px) {
     .detail-container#about-content {
-        padding: 20px 15px;
+        padding: 1rem;
     }
-    
+    .about-wrapper {
+        padding: 1.2rem;
+    }
     .about-header-flex {
         flex-direction: column;
         text-align: center;
-        gap: 15px;
+        gap: 1rem;
     }
-
     .about-title-group {
         text-align: center;
     }
-
+    .about-title-group h1 {
+        font-size: 2.4rem;
+    }
+    .about-avatar {
+        width: 85px;
+        height: 85px;
+    }
+    .changelog-wrapper {
+        padding-left: 1rem;
+        margin-left: 0.3rem;
+    }
+    .changelog-item::before {
+        left: -1.5rem;
+    }
     .changelog-date {
         flex-direction: column;
         align-items: flex-start;
-        gap: 5px;
-    }
-
-    .credits-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .about-avatar {
-        width: 80px;
-        height: 80px;
-    }
-}
-
-/* --- 更新日志时间轴样式（已重置，匹配主样式） --- */
-.changelog-wrapper {
-    margin-top: 20px;
-    margin-left: 10px;
-    border-left: 2px solid var(--line);
-    padding-left: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.changelog-item {
-    position: relative;
-}
-
-.changelog-item::before {
-    content: '';
-    position: absolute;
-    left: -32px;
-    top: 6px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--line);
-    border: 2px solid var(--bg);
-    transition: all 0.3s ease;
-}
-
-.changelog-item:hover::before {
-    background: var(--accent);
-    transform: scale(1.2);
-}
-
-.changelog-date {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.commit-date-text {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: var(--accent);
-    font-family: monospace;
-}
-
-.git-version-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--line);
-    color: var(--text-soft) !important;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
-    text-decoration: none !important;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.git-version-tag:hover {
-    background: var(--accent);
-    color: #ffffff !important;
-    border-color: var(--accent);
-}
-
-/* --- 重置后的版本号/标题样式：无背景、无边框、仅增加字重 --- */
-.changelog-version {
-    font-weight: 700;
-    font-size: 1rem;
-    margin: 8px 0 6px 0;
-    color: var(--text);
-    letter-spacing: 0.2px;
-}
-
-/* --- 更新详情描述：无左侧虚线，仅普通文本缩进 --- */
-.changelog-desc {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: var(--text-soft);
-    white-space: pre-wrap;
-    margin-top: 6px;
-    padding-left: 12px;
-}
-
-/* 移动端适配 */
-@media (max-width: 600px) {
-    .changelog-version {
-        font-size: 0.9rem;
-    }
-    .changelog-desc {
-        font-size: 0.85rem;
-        padding-left: 8px;
     }
 }

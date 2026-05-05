@@ -1,50 +1,37 @@
+<!-- about.html -->
 <button class="close-btn" onclick="closeAbout()">← BACK</button>
 <div class="detail-container" id="about-content">
-    <div style="margin-top: 40px;">
+    <div class="about-wrapper">
         <div class="about-header-flex">
             <div class="about-avatar-wrapper">
                 <img src="/image/favicon.png" alt="Site Icon" class="about-avatar">
             </div>
-            
             <div class="about-title-group">
-                <h1 style="font-size: 3rem; font-weight: 900; margin: 0;">Jun Loye</h1>
-                <p style="color: var(--text-soft); font-size: 1.1rem; margin: 5px 0 0 0;">创作者 / 开发者 / MC爱好者</p>
+                <h1>Jun Loye</h1>
+                <p class="subtitle">创作者 / 开发者 / MC爱好者</p>
             </div>
         </div>
-        
-        <div style="margin: 40px 0; height: 1px; background: var(--line);"></div>
-        
-        <div class="markdown-body" style="text-align: left;">
+
+        <div class="divider"></div>
+
+        <div class="markdown-body">
             <h3>关于我</h3>
             <p>欢迎来到我的个人博客。这里是我记录思考、技术笔记和生活点滴的角落。</p>
-            
-            <h3>鸣谢</h3>
-            <div class="credits-grid">
-                <a href="https://github.com" target="_blank" class="credit-item">
-                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="credit-icon" alt="GitHub">
-                    <div class="credit-info">
-                        <span class="credit-name">GitHub</span>
-                        <span class="credit-desc">代码托管与版本管理<br>静态页面部署服务</span>
-                    </div>
-                </a>
-                <a href="https://vercel.com" target="_blank" class="credit-item">
-                    <img src="https://assets.vercel.com/image/upload/q_auto/front/favicon/vercel/180x180.png" class="credit-icon" alt="Vercel">
-                    <div class="credit-info">
-                        <span class="credit-name">Vercel</span>
-                        <span class="credit-desc">静态页面部署服务</span>
-                    </div>
-                </a>
-                <a href="https://fonts.google.com" target="_blank" class="credit-item">
-                    <img src="https://www.gstatic.com/images/branding/product/2x/google_fonts_96dp.png" class="credit-icon" alt="Google Fonts">
-                    <div class="credit-info">
-                        <span class="credit-name">Google Fonts</span>
-                        <span class="credit-desc">字体库支持</span>
-                    </div>
-                </a>
-            </div>
+
+            <!-- 新增博客信息 -->
+            <h3>关于博客</h3>
+            <p>这个博客主要分享以下内容：</p>
+            <ul>
+                <li><strong>前端开发</strong> – HTML/CSS/JS 技巧、框架实践、性能优化</li>
+                <li><strong>个人项目</strong> – 开源工具、独立开发记录、设计思路</li>
+                <li><strong>游戏与创作</strong> – Minecraft 相关、游戏开发心得、交互设计</li>
+                <li><strong>书籍分享</strong> – 介绍我读过的有意思的书</li>
+                <li><strong>生活随笔</strong> – 阅读、旅行、灵感碎片</li>
+            </ul>
+            <p>本站采用纯静态技术构建，专注于内容与阅读体验。不定期更新，欢迎通过邮箱或 GitHub 交流。</p>
 
             <h3>联系方式</h3>
-            <ul>
+            <ul class="contact-list">
                 <li>Email: <a href="mailto:LoyeJun@qq.com">LoyeJun@qq.com</a> / <a href="mailto:LoyeJun9396@gmail.com">LoyeJun9396@gmail.com</a></li>
                 <li>Github: <a href="https://github.com/JunLoye" target="_blank">https://github.com/JunLoye</a></li>
             </ul>
@@ -61,9 +48,9 @@
                 </a>
             </div>
 
-            <div class="markdown-body" style="text-align: left; margin-top: 40px;">
+            <div class="changelog-section">
                 <h3>更新日志</h3>
-                <div id="changelog-loading" style="padding: 20px; color: var(--text-soft); font-size: 0.9rem;">正在拉取更新记录...</div>
+                <div id="changelog-loading" class="changelog-loading">正在拉取更新记录...</div>
                 <div id="changelog-list"></div>
             </div>
         </div>

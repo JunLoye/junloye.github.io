@@ -180,8 +180,45 @@ function openPost(num, pushState = true) {
     overlay.scrollTop = 0;
     document.body.style.overflow = 'hidden';
 
+    // 检查是否为反馈贴
+    const isFeedback = issue.labels.some(l => l.name === '反馈');
+    let feedbackCardHtml = '';
+    let coverImgHtml = '';
+
+    if (isFeedback) {
+        // 获取作者名和创建时间
+        const authorName = issue.user?.login || '匿名用户';
+        const createDate = new Date(issue.created_at).toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        feedbackCardHtml = `
+            <div class="feedback-banner">
+                <div class="feedback-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h10v2H7V9zm0 4h7v2H7v-2z"/>
+                    </svg>
+                </div>
+                <div class="feedback-content">
+                    <div class="feedback-title">反馈贴</div>
+                    <div class="feedback-meta">作者：${authorName} ｜ 提交于：${createDate}</div>
+                    <div class="feedback-notice">该内容为读者反馈或建议，请仔细甄别。</div>
+                </div>
+            </div>
+        `;
+        // 反馈贴：不显示封面
+        coverImgHtml = '';
+    } else {
+        // 普通帖子：正常显示封面
+        coverImgHtml = `<img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">`;
+    }
+
     area.innerHTML = `
-        <img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">
+        ${coverImgHtml}${feedbackCardHtml}
         <div class="detail-header">
             <div style="display: flex; justify-content: space-between; align-items: center; color:var(--text-soft); font-size:0.85rem;">
                 <span>${date}</span>

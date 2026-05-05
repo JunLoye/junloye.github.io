@@ -67,6 +67,7 @@ function applyFeatureFlags() {
     console.log('功能开关已应用:', features);
 }
 
+// 修改后的 fetchPosts 函数
 async function fetchPosts() {
     if (!CONFIG.username || !CONFIG.repo) return;
 
@@ -84,8 +85,9 @@ async function fetchPosts() {
     }
 
     try {
-        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue is:open`);
-        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc`);
+        // 去掉了 is:open，并增加 per_page=100
+        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue`);
+        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc&per_page=100`);
         const data = await res.json();
         allIssues = data.items || [];
 
@@ -101,11 +103,13 @@ async function fetchPosts() {
     }
 }
 
+// 修改后的 filterIssues 函数：增加了 state === 'open' 条件
 function filterIssues(issues) {
     return issues.filter(issue => {
         const isAuthor = issue.user && issue.user.login === CONFIG.username;
         const hasFeedbackTag = issue.labels.some(l => l.name === '反馈');
-        return isAuthor && !hasFeedbackTag;
+        const isOpen = issue.state === 'open';   // 新增：只显示打开的 Issue
+        return isAuthor && !hasFeedbackTag && isOpen;
     });
 }
 
@@ -494,9 +498,6 @@ function generateTagCloud(issues) {
     
     tagCloudContainer.innerHTML = `
         <div class="tag-cloud-reset" onclick="clearTagFilter()" title="显示全部文章">
-            <svg viewBox="0 0 24 24" width="14" height="14">
-                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
             全部文章
         </div>
         ${filterIndicator}
@@ -527,8 +528,6 @@ function filterByTag(tagName) {
     if (container) {
         container.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    
-    showNotification(message, 'info');
     
     updateSidebarStats(filteredIssues.length);
 }
