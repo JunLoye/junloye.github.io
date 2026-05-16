@@ -448,7 +448,7 @@ function quoteToComment(text, postNum) {
     }, 100);
     
     // 显示成功提示
-    showNotification('✅ 已引用选定内容，可直接发表评论', 'success');
+    showNotification('已引用选定内容，可直接发表评论', 'success');
 }
 
 function parseEnhancedMarkdown(rawMarkdown) {

@@ -36,11 +36,11 @@ function populateAboutStats() {
         ? filterIssues(allIssues) : [];
     const displayCount = displayIssues.length || postCount;
     
-    // 标签数量
+    // 标签数量（从过滤后的文章统计）
     let tagCount = 0;
-    if (typeof allIssues !== 'undefined' && allIssues.length > 0) {
+    if (displayIssues.length > 0) {
         const tagSet = new Set();
-        allIssues.forEach(issue => {
+        displayIssues.forEach(issue => {
             (issue.labels || []).forEach(label => {
                 if (label.name !== '反馈') tagSet.add(label.name);
             });

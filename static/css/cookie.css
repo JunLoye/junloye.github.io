@@ -1,105 +1,138 @@
 .cookie-banner {
     position: fixed;
-    bottom: 30px;
+    bottom: 24px;
     left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 600px;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
-    border-radius: 20px;
-    padding: 20px 25px;
+    transform: translateX(-50%) translateY(20px);
+    width: calc(100% - 32px);
+    max-width: 520px;
+    background: var(--bg, #ffffff);
+    border: 1px solid var(--line, rgba(0,0,0,0.08));
+    border-radius: 16px;
+    padding: 16px 20px;
     z-index: 3000;
-    
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .cookie-banner.show {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
 }
 
-.cookie-content {
+.cookie-banner-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+    gap: 12px;
 }
 
-.cookie-text h3 {
-    margin: 0 0 5px 0;
-    font-size: 1rem;
-    font-weight: 800;
+.cookie-icon {
+    flex-shrink: 0;
+    color: var(--accent, #007aff);
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+}
+
+.cookie-text {
+    flex: 1;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-soft, #666);
 }
 
 .cookie-text p {
     margin: 0;
-    font-size: 0.85rem;
-    color: var(--text-soft);
-    line-height: 1.4;
 }
 
 .cookie-actions {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 6px;
     flex-shrink: 0;
 }
 
 .cookie-btn {
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
-.cookie-btn.primary {
-    background: var(--text);
-    color: var(--bg);
+.cookie-btn-accept {
+    padding: 8px 16px;
+    background: var(--accent, #007aff);
+    color: #fff;
 }
 
-.cookie-btn.secondary {
-    background: var(--line);
-    color: var(--text-soft);
+.cookie-btn-accept:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
 }
 
-.cookie-btn:hover {
-    transform: scale(1.05);
-    opacity: 0.9;
+.cookie-btn-dismiss {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    color: var(--text-soft, #999);
+    border-radius: 8px;
+    font-size: 1rem;
+    line-height: 1;
 }
 
-/* 深色模式适配 */
+.cookie-btn-dismiss:hover {
+    background: var(--line, rgba(0,0,0,0.06));
+    color: var(--text, #333);
+}
+
+/* Dark mode */
 [data-theme='dark'] .cookie-banner {
-    background: #1a1a1a;
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    background: rgba(30, 30, 32, 0.92);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-[data-theme='dark'] .cookie-btn.primary {
-    background: var(--accent);
-    color: white;
+[data-theme='dark'] .cookie-btn-dismiss {
+    color: rgba(255,255,255,0.4);
 }
 
-[data-theme='dark'] .cookie-btn.secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-soft);
+[data-theme='dark'] .cookie-btn-dismiss:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
 }
 
-@media screen and (max-width: 600px) {
-    .cookie-content {
-        flex-direction: column;
-        text-align: center;
+/* Mobile */
+@media screen and (max-width: 480px) {
+    .cookie-banner {
+        bottom: 16px;
+        padding: 14px 16px;
     }
+
+    .cookie-banner-inner {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .cookie-text {
+        flex-basis: calc(100% - 40px);
+        font-size: 0.8rem;
+    }
+
     .cookie-actions {
         width: 100%;
-    }
-    .cookie-btn {
-        flex: 1;
+        justify-content: flex-end;
     }
 }

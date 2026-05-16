@@ -190,10 +190,25 @@ function performSearchOverlay(term) {
 
     body.innerHTML = sorted.map(issue => {
         const snippet = getSearchSnippet(issue, term);
-        const tags = issue.labels.filter(l => l.name !== '反馈').map(l => 
+        const tags = issue.labels.filter(l => l.name !== '反馈').map(l =>
             `<span class="result-tag">${highlightTerm(l.name)}</span>`
         ).join('');
         const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
+
+        // 使用 marked 渲染 markdown 片段
+        let snippetHtml = '';
+        if (snippet) {
+            snippetHtml = snippet;
+            if (typeof marked !== 'undefined') {
+                try {
+                    snippetHtml = marked.parse(snippet);
+                    // 保留高亮标记
+                    snippetHtml = snippetHtml.replace(/<mark>/g, '​<mark>').replace(/<\/mark>/g, '</mark>​');
+                } catch (e) {
+                    snippetHtml = snippet;
+                }
+            }
+        }
 
         return `
             <div class="search-overlay-result" tabindex="0" onclick="closeSearchOverlay(); setTimeout(() => openPost(${issue.number}), 100);" onkeydown="if(event.key==='Enter'){this.click()}">
@@ -202,7 +217,7 @@ function performSearchOverlay(term) {
                     <span>📅 ${date}</span>
                     <span>#${issue.number}</span>
                 </div>
-                ${snippet ? `<div class="result-snippet">${snippet}</div>` : ''}
+                ${snippet ? `<div class="result-snippet">${snippetHtml}</div>` : ''}
                 ${tags ? `<div class="result-tags">${tags}</div>` : ''}
             </div>
         `;
@@ -279,12 +294,12 @@ if (searchInputEl) {
 
 // ===== 内联搜索功能（从右键菜单调用） =====
 function searchInPage() {
-    if (!window.lastSelectedText) return;
+    if (typeof lastSelectedText === 'undefined' || !lastSelectedText) return;
     openSearchOverlay();
     setTimeout(() => {
         const input = document.getElementById('search-overlay-input');
         if (input) {
-            input.value = window.lastSelectedText;
+            input.value = lastSelectedText;
             input.dispatchEvent(new Event('input'));
         }
     }, 200);

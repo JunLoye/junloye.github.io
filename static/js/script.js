@@ -32,7 +32,7 @@ window.addEventListener('load', async () => {
     
     fetchPosts();
     initAllTemplates();
-    fetchUserIP();
+    fetchGitHubStars();
     fetchLatestVersion();
     updateBlogRunTime();
     initCookieBanner();
@@ -415,14 +415,30 @@ function updateSidebarStats(count) {
     if (countEl) countEl.textContent = `${count} 篇`;
 }
 
-async function fetchUserIP() {
+async function fetchGitHubStars() {
+    const starsEl = document.getElementById('sidebar-stars');
+    if (!starsEl || !CONFIG.username || !CONFIG.repo) return;
+    // 优先使用缓存
+    const cached = localStorage.getItem('github_stars_cache');
+    if (cached) {
+        const { count, time } = JSON.parse(cached);
+        if (Date.now() - time < 3600000) { // 1小时缓存
+            starsEl.textContent = `${count} ★`;
+            return;
+        }
+    }
     try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        const ipEl = document.getElementById('sidebar-ip');
-        if (ipEl) ipEl.textContent = data.ip;
+        const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}`);
+        if (res.ok) {
+            const data = await res.json();
+            const count = data.stargazers_count || 0;
+            starsEl.textContent = `${count} ★`;
+            localStorage.setItem('github_stars_cache', JSON.stringify({ count, time: Date.now() }));
+        } else {
+            starsEl.textContent = '- ★';
+        }
     } catch (e) {
-        if (document.getElementById('sidebar-ip')) document.getElementById('sidebar-ip').textContent = '未知';
+        starsEl.textContent = '- ★';
     }
 }
 
@@ -573,28 +589,6 @@ function searchSelectedText() {
     window.open(url, '_blank');
 }
 
-function copyAsMarkdownQuote() {
-    if (!lastSelectedText) return;
-    const lines = lastSelectedText.split('\n');
-    const quoted = lines.map(l => `> ${l}`).join('\n');
-    navigator.clipboard.writeText(quoted).then(() => {
-        showNotification('已复制为 Markdown 引用格式', 'success');
-    }).catch(() => {
-        showNotification('复制失败', 'error');
-    });
-}
-
-function searchInPage() {
-    if (!lastSelectedText) return;
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.value = lastSelectedText;
-        searchInput.focus();
-        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-        showNotification(`🔍 已在搜索框填入: "${lastSelectedText}"`, 'info');
-    }
-}
-
 function handleScroll() {
     const btn = document.getElementById('back-to-top');
     const postOverlay = document.getElementById('post-overlay');
@@ -617,7 +611,7 @@ function initCookieBanner() {
     const consent = localStorage.getItem('cookie-consent');
     const banner = document.getElementById('cookie-banner');
     if (!consent && banner) {
-        setTimeout(() => banner.classList.add('show'), 2000);
+        setTimeout(() => banner.classList.add('show'), 1000);
     }
 }
 
@@ -625,7 +619,6 @@ function setCookiePreference(status) {
     localStorage.setItem('cookie-consent', status);
     const banner = document.getElementById('cookie-banner');
     if (banner) banner.classList.remove('show');
-    showNotification(status === 'accepted' ? '已接受 Cookie' : '已拒绝非必要 Cookie', status === 'accepted' ? 'success' : 'warning');
 }
 
 async function updateAuthUI() {
@@ -682,8 +675,11 @@ function generateTagCloud(issues) {
     const tagCloudContainer = document.getElementById('tag-cloud');
     if (!tagCloudContainer) return;
     
+    // 使用过滤后的 issues 生成标签云（排除非作者、反馈标签、已关闭的 issue）
+    const filteredIssues = typeof filterIssues === 'function' ? filterIssues(issues) : issues;
+    
     const tagCount = {};
-    issues.forEach(issue => {
+    filteredIssues.forEach(issue => {
         issue.labels.forEach(label => {
             if (label.name !== '反馈') {
                 tagCount[label.name] = (tagCount[label.name] || 0) + 1;
@@ -763,7 +759,9 @@ function filterByTag(tagName) {
     }
     currentTagFilter = tagName;
     
-    const filteredIssues = allIssues.filter(issue => {
+    // 仅在已过滤的文章（排除反馈、非作者、已关闭）中按标签筛选
+    const displayIssues = typeof filterIssues === 'function' ? filterIssues(allIssues) : allIssues;
+    const filteredIssues = displayIssues.filter(issue => {
         return issue.labels.some(label => label.name === tagName);
     });
     
