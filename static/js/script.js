@@ -55,7 +55,7 @@ window.addEventListener('load', async () => {
             // 后台刷新（静默）
             fetchPostsSilent();
         }
-        showNotification('网络已恢复，已重新连接', 'success');
+        showNotification('网络已恢复', 'success');
     });
 
     window.addEventListener('offline', () => {
@@ -64,7 +64,7 @@ window.addEventListener('load', async () => {
             offlineStorage._updateNetworkStatus(false);
             offlineStorage.showOfflineNotice();
         }
-        showNotification('网络已断开，正在使用离线缓存', 'warning');
+        showNotification('网络已断开，正在使用离线内容', 'warning');
     });
 
     window.addEventListener('scroll', handleScroll);
@@ -133,7 +133,7 @@ function applyFeatureFlags() {
     console.log('功能开关已应用:', features);
 }
 
-// 显示缓存加载提示
+// 显示加载提示
 function showCacheLoadingNotice() {
     const container = document.getElementById('post-list-container');
     if (!container || container.querySelector('.post-card')) return;
@@ -204,27 +204,25 @@ async function fetchPosts() {
         return;
     }
 
-    // 有缓存时立即使用，同时显示提示
+    // 有缓存时立即使用
     if (cached && cached.data && cached.data.length > 0) {
         allIssues = cached.data;
         const displayIssues = filterIssues(allIssues);
         
-        // 如果缓存未过期，直接渲染并返回
-        if (Date.now() - cached.time < CACHE_TIME) {
-            renderPosts(displayIssues);
-            updateSidebarStats(displayIssues.length);
-            handleRouting();
-            initTagCloud();
-            showNotification('📦 已加载缓存版本', 'info');
-            return;
-        }
-        
-        // 缓存过期但有网络，先渲染缓存再异步刷新
+        // 先渲染缓存数据，标记为缓存模式（黄色）
         renderPosts(displayIssues);
         updateSidebarStats(displayIssues.length);
         handleRouting();
         initTagCloud();
-        showNotification('📦 正在刷新文章列表...', 'info');
+        if (typeof offlineStorage !== 'undefined') {
+            offlineStorage._updateNetworkStatus('cache');
+        }
+        
+        // 缓存未过期则直接返回
+        if (Date.now() - cached.time < CACHE_TIME) {
+            return;
+        }
+        // 缓存过期则继续向下执行网络请求刷新
     } else {
         // 无缓存，显示加载提示
         showCacheLoadingNotice();
@@ -241,6 +239,8 @@ async function fetchPosts() {
         
         if (typeof offlineStorage !== 'undefined') {
             offlineStorage.cachePostList(allIssues);
+            // 网络请求成功后恢复为"在线"状态
+            offlineStorage._updateNetworkStatus(navigator.onLine);
         }
         
         renderPosts(displayIssues);
@@ -273,9 +273,12 @@ async function fetchPosts() {
             initTagCloud();
         }
         
-        // 显示离线提示
-        if (typeof offlineStorage !== 'undefined' && !navigator.onLine) {
-            offlineStorage.showOfflineNotice();
+        // 同步失败时标记为离线（如果真的是离线）
+        if (typeof offlineStorage !== 'undefined') {
+            offlineStorage._updateNetworkStatus(navigator.onLine);
+            if (!navigator.onLine) {
+                offlineStorage.showOfflineNotice();
+            }
         }
     }
 }
@@ -437,7 +440,8 @@ async function initAllTemplates() {
     await Promise.all([
         loadTemplate('about-overlay', 'components/about.html'),
         loadTemplate('post-overlay', 'components/post.html'),
-        loadTemplate('publish-modal', 'components/publish.html')
+        loadTemplate('publish-modal', 'components/publish.html'),
+        loadTemplate('settings-overlay', 'components/settings.html')
     ]);
     templatesLoaded = true;
     if (typeof initPublishForm === 'function') initPublishForm();
@@ -543,6 +547,7 @@ window.onkeydown = (e) => {
         }
         if (typeof closePost === 'function') closePost();
         if (typeof closeAbout === 'function') closeAbout();
+        if (typeof closeSettings === 'function') closeSettings();
         if (typeof closePublishModal === 'function') closePublishModal();
         if (typeof closeFriends === 'function') closeFriends();
         const menu = document.getElementById('custom-context-menu');
@@ -555,8 +560,19 @@ function initContextMenu() {
     const textGroup = document.getElementById('menu-text-group');
     if (!menu) return;
 
+    // 如果设置了禁用右键菜单，则跳过初始化并阻止自定义菜单出现
+    if (window._contextMenuDisabled) {
+        menu.style.display = 'none';
+        return;
+    }
+
     document.addEventListener('contextmenu', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        // 再次检查是否被禁用（可能在运行时被切换）
+        if (window._contextMenuDisabled) {
+            return; // 不阻止原生菜单
+        }
 
         e.preventDefault();
         lastSelectedText = window.getSelection().toString().trim();
@@ -577,6 +593,18 @@ function initContextMenu() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') menu.style.display = 'none';
     });
+}
+
+/**
+ * 应用右键菜单设置（由 settings 调用）
+ * @param {boolean} enabled - 是否启用自定义右键菜单
+ */
+function applyContextMenuSetting(enabled) {
+    window._contextMenuDisabled = !enabled;
+    const menu = document.getElementById('custom-context-menu');
+    if (menu && !enabled) {
+        menu.style.display = 'none';
+    }
 }
 
 async function copySelectedText() {

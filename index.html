@@ -11,6 +11,7 @@
     
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="/static/css/history.css">
+    <link rel="stylesheet" href="/static/css/settings.css">
 </head>
 
 <body data-theme="light">
@@ -100,10 +101,14 @@
                 <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                 关于
             </span>
+            <span class="nav-item" onclick="openSettings()">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+                设置
+            </span>
 
             <div class="search-container">
                 <svg class="search-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14z"/></svg>
-                <input type="text" id="search-input" placeholder="搜索文章... (Ctrl+K)" title="按 Ctrl+K 快速搜索">
+                <input type="text" id="search-input" placeholder="搜索文章..." title="按 Ctrl+K 快速搜索">
                 <kbd class="search-kbd">⌘K</kbd>
             </div>
 
@@ -117,6 +122,7 @@
     <div id="publish-modal" class="overlay"></div>
     <div id="about-overlay" class="overlay"></div>
     <div id="post-overlay" class="overlay"></div>
+    <div id="settings-overlay" class="overlay"></div>
 
     <main class="post-grid" id="post-list-container"></main>
 
@@ -198,6 +204,7 @@
     <script src="/static/js/history.js"></script>
     <script src="/static/js/offline.js"></script>
     <script src="/static/js/cache-manager.js"></script>
+    <script src="/static/js/settings.js"></script>
     <script src="/static/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>

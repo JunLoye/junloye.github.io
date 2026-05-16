@@ -15,7 +15,6 @@
     padding: 20px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    backdrop-filter: blur(4px);
 }
 
 .history-modal-overlay.active {
@@ -46,7 +45,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px 16px;
+    padding: 16px 20px 12px;
     border-bottom: 1px solid var(--line);
     flex-shrink: 0;
 }
@@ -54,8 +53,8 @@
 .history-modal-title {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
+    gap: 8px;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text);
 }
@@ -65,11 +64,11 @@
 }
 
 .history-modal-count {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-soft);
     background: var(--line);
-    padding: 2px 10px;
+    padding: 1px 8px;
     border-radius: 10px;
     margin-left: 4px;
 }
@@ -94,7 +93,7 @@
 
 /* 弹窗主体 */
 .history-modal-body {
-    padding: 16px 24px 24px;
+    padding: 8px 16px 16px;
     overflow-y: auto;
     flex: 1;
 }
@@ -149,15 +148,15 @@
 /* 时间线 */
 .history-timeline {
     position: relative;
-    padding: 20px 0;
-    margin-top: 10px;
+    padding: 10px 0;
+    margin-top: 4px;
 }
 
 /* 时间线竖线 */
 .history-timeline::before {
     content: '';
     position: absolute;
-    left: 28px;
+    left: 22px;
     top: 0;
     bottom: 0;
     width: 2px;
@@ -167,8 +166,8 @@
 /* 时间线条目 */
 .history-timeline-item {
     position: relative;
-    padding-left: 60px;
-    padding-bottom: 24px;
+    padding-left: 48px;
+    padding-bottom: 14px;
 }
 
 .history-timeline-item:last-child {
@@ -178,39 +177,38 @@
 /* 时间线圆点 */
 .history-timeline-dot {
     position: absolute;
-    left: 20px;
+    left: 15px;
     top: 4px;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--bg);
-    border: 3px solid;
+    border: 2px solid;
     z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* 事件徽章 - 悬浮在时间线的标签 */
+/* 事件徽章 - 内联在内容卡片中 */
 .history-event-badge {
-    position: absolute;
-    left: 40px;
-    top: -2px;
-    font-size: 0.7rem;
+    display: inline-block;
+    font-size: 0.62rem;
     font-weight: 700;
-    padding: 2px 10px;
-    border-radius: 12px;
+    padding: 1px 8px;
+    border-radius: 10px;
     white-space: nowrap;
     letter-spacing: 0.3px;
     text-transform: uppercase;
+    margin-bottom: 6px;
 }
 
 /* 时间线内容卡片 */
 .history-timeline-content {
     background: var(--line);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-top: 18px;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 6px;
     transition: all 0.2s ease;
 }
 
@@ -223,15 +221,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 4px;
 }
 
 .history-actor {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     text-decoration: none;
     color: var(--text);
 }
@@ -241,40 +239,40 @@
 }
 
 .history-avatar {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    border: 2px solid var(--bg);
+    border: 1px solid var(--bg);
 }
 
 .history-actor-name {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 600;
     transition: color 0.2s ease;
 }
 
 .history-event-time {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     color: var(--text-soft);
 }
 
 /* 事件描述 */
 .history-event-desc {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     color: var(--text-soft);
-    line-height: 1.5;
+    line-height: 1.4;
     word-break: break-word;
 }
 
 /* ===== 编辑内容Diff展示 ===== */
 .history-event-diff {
-    margin-top: 10px;
-    padding-top: 10px;
+    margin-top: 6px;
+    padding-top: 6px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .history-diff-section {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .history-diff-section:last-child {
@@ -282,36 +280,36 @@
 }
 
 .history-diff-label {
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: var(--text-soft);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .history-diff-removed {
     background: rgba(203, 36, 49, 0.08);
-    border-left: 3px solid #cb2431;
-    padding: 8px 12px;
+    border-left: 2px solid #cb2431;
+    padding: 5px 10px;
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .history-diff-added {
     background: rgba(40, 167, 69, 0.08);
-    border-left: 3px solid #28a745;
-    padding: 8px 12px;
+    border-left: 2px solid #28a745;
+    padding: 5px 10px;
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;

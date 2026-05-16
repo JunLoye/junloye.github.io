@@ -513,6 +513,8 @@ async function loadComments(title, issueNum) {
             const comments = discussion.comments?.nodes || [];
             
             list.innerHTML = comments.length ? comments.map(c => {
+                const authorLogin = c.author?.login || 'Anonymous';
+                const authorUrl = c.author?.url || `https://github.com/${authorLogin}`;
                 let enhancedBody = c.bodyHTML || "";
                 enhancedBody = enhancedBody.replace(/#(\d+)\b/g, '<a href="/?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
                 enhancedBody = enhancedBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
@@ -521,7 +523,7 @@ async function loadComments(title, issueNum) {
                 <div class="comment-item">
                     <img src="${c.author?.avatarUrl || ''}" class="comment-avatar">
                     <div class="comment-content">
-                        <div class="comment-info"><strong>${c.author?.login || 'Anonymous'}</strong> <small>${new Date(c.createdAt).toLocaleString()}</small></div>
+                        <div class="comment-info"><strong><a href="${authorUrl}" target="_blank" rel="noopener noreferrer" class="comment-author-link">${authorLogin}</a></strong> <small>${new Date(c.createdAt).toLocaleString()}</small></div>
                         <div class="comment-body markdown-body">${enhancedBody}</div>
                     </div>
                 </div>`;

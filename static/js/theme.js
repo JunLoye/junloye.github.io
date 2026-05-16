@@ -19,37 +19,9 @@ function toggleDarkMode() {
     updateThemeIcon();
 }
 
-function toggleFrostedGlass() {
-    const body = document.body;
-    const isFrosted = body.getAttribute('data-frosted-glass') === 'true';
-    const newFrosted = !isFrosted;
-    
-    body.setAttribute('data-frosted-glass', newFrosted);
-    localStorage.setItem('frosted-glass', newFrosted);
-    
-    const checkbox = document.getElementById('frosted-glass-toggle');
-    if (checkbox) {
-        checkbox.checked = newFrosted;
-    }
-    
-    showNotification(newFrosted ? '毛玻璃模式已启用' : '毛玻璃模式已禁用', "success");
-}
-
-function applyFrostedGlassMode(enabled) {
-    const body = document.body;
-    if (enabled) {
-        body.setAttribute('data-frosted-glass', 'true');
-    } else {
-        body.setAttribute('data-frosted-glass', 'false');
-    }
-}
-
 (function applySavedTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
-    
-    const savedFrostedGlass = localStorage.getItem('frosted-glass') === 'true';
-    applyFrostedGlassMode(savedFrostedGlass);
 })();
 
 window.addEventListener('load', () => {

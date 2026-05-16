@@ -8,6 +8,7 @@ const offlineStorage = {
     ISSUE_CACHE_KEY: 'blog_post_issue_cache', // 原始Issue数据缓存
     MAX_SIZE: 3 * 1024 * 1024, // 3MB
     EXPIRY_TIME: 30 * 24 * 60 * 60 * 1000, // 30天
+    _cachePref: localStorage.getItem('settings_cache_pref') || 'auto',
 
     /**
      * 估算数据大小
@@ -62,6 +63,8 @@ const offlineStorage = {
      * 缓存原始Issue数据（用于离线时无需列表即可打开文章）
      */
     cacheIssueData(issueNumber, issue) {
+        // 检查缓存偏好：disabled 时不缓存
+        if (this._cachePref === 'off') return false;
         try {
             const cached = JSON.parse(localStorage.getItem(this.ISSUE_CACHE_KEY)) || {};
             this._cleanExpired(cached);
@@ -82,6 +85,8 @@ const offlineStorage = {
      * 获取缓存的原始Issue数据
      */
     getIssueData(issueNumber) {
+        // 禁用离线时禁止读取缓存
+        if (this._cachePref === 'off') return null;
         try {
             const cached = JSON.parse(localStorage.getItem(this.ISSUE_CACHE_KEY));
             if (!cached) return null;
@@ -103,6 +108,19 @@ const offlineStorage = {
      * 从GitHub API获取单个Issue并缓存
      */
     async fetchAndCacheIssue(issueNumber, owner, repo) {
+        // 禁用离线时跳过缓存，直接在线获取
+        if (this._cachePref === 'off') {
+            if (!navigator.onLine) return null;
+            try {
+                const url = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`;
+                const response = await fetch(url);
+                if (!response.ok) return null;
+                return await response.json();
+            } catch (e) {
+                console.error('获取Issue出错:', e);
+                return null;
+            }
+        }
         // 先检查缓存
         const cached = this.getIssueData(issueNumber);
         if (cached) return cached;
@@ -132,6 +150,8 @@ const offlineStorage = {
      * 缓存文章内容
      */
     cachePost(issueNumber, issue, htmlContent, metadata) {
+        // 检查缓存偏好：disabled 时不缓存
+        if (this._cachePref === 'off') return false;
         try {
             const cached = JSON.parse(localStorage.getItem(this.POST_CACHE_KEY)) || {};
 
@@ -160,6 +180,8 @@ const offlineStorage = {
      * 获取缓存的文章
      */
     getPost(issueNumber) {
+        // 禁用离线时禁止读取缓存
+        if (this._cachePref === 'off') return null;
         try {
             const cached = JSON.parse(localStorage.getItem(this.POST_CACHE_KEY));
             if (!cached) return null;
@@ -192,6 +214,8 @@ const offlineStorage = {
      * 缓存文章列表
      */
     cachePostList(issues) {
+        // 检查缓存偏好：disabled 时不缓存
+        if (this._cachePref === 'off') return false;
         try {
             const cacheData = {
                 issues: issues,
@@ -209,6 +233,8 @@ const offlineStorage = {
      * 获取缓存的文章列表
      */
     getPostList() {
+        // 禁用离线时禁止读取缓存
+        if (this._cachePref === 'off') return null;
         try {
             const cached = JSON.parse(localStorage.getItem(this.LIST_CACHE_KEY));
             if (!cached) return null;
@@ -291,6 +317,16 @@ const offlineStorage = {
     },
 
     /**
+     * 设置缓存偏好（由设置页调用）
+     * @param {string} pref - 'auto' | 'all' | 'onread' | 'off'
+     */
+    setCachePref(pref) {
+        this._cachePref = pref;
+        localStorage.setItem('settings_cache_pref', pref);
+        console.log('[offlineStorage] 缓存偏好已更新:', pref);
+    },
+
+    /**
      * 检查是否在线
      */
     isOnline() {
@@ -332,15 +368,22 @@ const offlineStorage = {
 
     /**
      * 更新网络状态指示器
+     * @param {boolean|string} status - true=在线, false=离线, 'cache'=缓存模式
      */
-    _updateNetworkStatus(isOnline) {
+    _updateNetworkStatus(status) {
         const indicator = document.getElementById('network-status-indicator');
         if (!indicator) return;
 
         const dot = indicator.querySelector('.network-status-dot');
         const text = indicator.querySelector('.network-status-text');
 
-        if (isOnline) {
+        if (status === 'cache') {
+            // 使用缓存数据模式（在线但使用缓存）
+            indicator.className = 'network-status cache';
+            if (dot) dot.style.background = '#f0ad4e';
+            if (text) text.textContent = '缓存';
+            indicator.title = '正在使用缓存数据';
+        } else if (status) {
             indicator.className = 'network-status online';
             if (dot) dot.style.background = '#28a745';
             if (text) text.textContent = '在线';

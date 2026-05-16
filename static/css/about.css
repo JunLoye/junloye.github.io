@@ -10,8 +10,7 @@
 }
 
 #about-overlay .about-wrapper {
-    background: rgba(var(--bg-rgb, 255,255,255), 0.7);
-    backdrop-filter: blur(2px);
+    background: var(--bg);
     border-radius: 2rem;
     padding: 2rem 1.8rem;
     box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
@@ -472,7 +471,8 @@
 
 /* 统一 close/back 按钮 - 所有弹窗共用 */
 #post-overlay .close-btn,
-#about-overlay .close-btn {
+#about-overlay .close-btn,
+#settings-overlay .close-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -492,11 +492,11 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     user-select: none;
     -webkit-user-select: none;
-    backdrop-filter: blur(8px);
 }
 
 #post-overlay .close-btn:hover,
-#about-overlay .close-btn:hover {
+#about-overlay .close-btn:hover,
+#settings-overlay .close-btn:hover {
     transform: scale(1.05) translateY(-1px);
     opacity: 0.9;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
@@ -504,7 +504,8 @@
 
 /* 深色模式 close/back 按钮 */
 [data-theme="dark"] #post-overlay .close-btn,
-[data-theme="dark"] #about-overlay .close-btn {
+[data-theme="dark"] #about-overlay .close-btn,
+[data-theme="dark"] #settings-overlay .close-btn {
     background: var(--accent, #0A84FF);
     color: white;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);

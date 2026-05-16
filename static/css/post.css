@@ -250,8 +250,6 @@
     max-height: 350px;
     padding: 20px;
     background: var(--bg);
-    backdrop-filter: blur(12px);
-    background-color: rgba(var(--bg-rgb, 255, 255, 255), 0.98);
     border: 1px solid var(--line);
     border-radius: 14px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
@@ -266,7 +264,7 @@
 
 /* 黑暗模式适配 */
 [data-theme='dark'] #link-preview-card {
-    background-color: rgba(30, 30, 30, 0.98); /* 使用较深的深灰色背景 */
+    background-color: #1e1e1e;
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
@@ -416,6 +414,18 @@
 .comment-info strong {
     color: var(--text);
     margin-right: 8px;
+}
+
+.comment-author-link {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.comment-author-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
 
 .comment-body {

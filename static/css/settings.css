@@ -1,0 +1,654 @@
+/* ===== 设置页面样式 ===== */
+/* 所有规则限定在 settings 上下文内，避免全局污染 */
+
+/* 页面主体 */
+#settings-overlay .detail-container#settings-content {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    color: var(--text, #1e1e2f);
+    position: relative;
+}
+
+#settings-overlay .settings-wrapper {
+    padding: 0.5rem 0;
+}
+
+/* 头部区域 */
+#settings-overlay .settings-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+#settings-overlay .settings-header-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--selection-bg);
+    border-radius: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+#settings-overlay .settings-header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 2px 0;
+    letter-spacing: -0.02em;
+}
+
+#settings-overlay .settings-subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+}
+
+/* 设置分区 */
+#settings-overlay .settings-section {
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg);
+    transition: border-color 0.2s ease;
+}
+
+#settings-overlay .settings-section:hover {
+    border-color: rgba(var(--accent-rgb), 0.2);
+}
+
+#settings-overlay .settings-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--line);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    border-bottom: 1px solid var(--line);
+}
+
+#settings-overlay .settings-section-header svg {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+#settings-overlay .settings-section-body {
+    padding: 4px 0;
+}
+
+/* 设置条目 */
+#settings-overlay .settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+#settings-overlay .settings-item:last-child {
+    border-bottom: none;
+}
+
+#settings-overlay .settings-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+#settings-overlay .settings-item-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+#settings-overlay .settings-item-desc {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    line-height: 1.3;
+}
+
+/* 开关组件 */
+#settings-overlay .settings-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+#settings-overlay .settings-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+#settings-overlay .settings-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--line);
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+}
+
+#settings-overlay .settings-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: var(--text-soft);
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#settings-overlay .settings-toggle input:checked + .settings-toggle-slider {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+#settings-overlay .settings-toggle input:checked + .settings-toggle-slider::before {
+    transform: translateX(20px);
+    background: white;
+}
+
+#settings-overlay .settings-toggle input:focus + .settings-toggle-slider {
+    box-shadow: 0 0 0 3px var(--selection-bg);
+}
+
+/* 选择框 */
+#settings-overlay .settings-select-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 160px;
+}
+
+#settings-overlay .settings-select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    font-weight: 500;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+}
+
+#settings-overlay .settings-select:hover {
+    border-color: var(--text-soft);
+}
+
+#settings-overlay .settings-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--selection-bg);
+}
+
+#settings-overlay .settings-select-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    pointer-events: none;
+}
+
+/* 滑块 */
+#settings-overlay .settings-range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+#settings-overlay .settings-range-value {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+#settings-overlay .settings-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 4px;
+    background: var(--line);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+#settings-overlay .settings-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#settings-overlay .settings-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+#settings-overlay .settings-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+}
+
+/* 按钮 */
+#settings-overlay .settings-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#settings-overlay .settings-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--selection-bg);
+}
+
+#settings-overlay .settings-btn svg {
+    flex-shrink: 0;
+}
+
+/* 危险按钮 */
+#settings-overlay .settings-btn-danger {
+    color: #dc3545;
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+#settings-overlay .settings-btn-danger:hover {
+    background: rgba(220, 53, 69, 0.08);
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+/* 危险分区 */
+#settings-overlay .settings-section-danger {
+    border-color: rgba(220, 53, 69, 0.15);
+}
+
+#settings-overlay .settings-section-danger .settings-section-header {
+    background: rgba(220, 53, 69, 0.06);
+    color: #dc3545;
+}
+
+#settings-overlay .settings-section-danger .settings-section-header svg {
+    color: #dc3545;
+}
+
+/* 调试面板 */
+#settings-overlay .settings-debug-panel {
+    padding: 12px 18px;
+    background: rgba(0, 0, 0, 0.02);
+    border-top: 1px solid var(--line);
+}
+
+[data-theme="dark"] #settings-overlay .settings-debug-panel {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+#settings-overlay .settings-debug-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#settings-overlay .debug-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.8rem;
+}
+
+#settings-overlay .debug-info-label {
+    color: var(--text-soft);
+    font-weight: 500;
+}
+
+#settings-overlay .debug-info-value {
+    color: var(--text);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+}
+
+/* 底部文字 */
+#settings-overlay .settings-footer {
+    text-align: center;
+    padding: 1rem 0 2rem;
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    opacity: 0.6;
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] #settings-overlay .settings-section:hover {
+    border-color: rgba(10, 132, 255, 0.25);
+}
+
+[data-theme="dark"] #settings-overlay .settings-section-header {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] #settings-overlay .settings-select {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] #settings-overlay .settings-debug-panel {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    #settings-overlay .detail-container#settings-content {
+        padding: 1.2rem 1rem;
+    }
+
+    #settings-overlay .settings-header h1 {
+        font-size: 1.5rem;
+    }
+
+    #settings-overlay .settings-item {
+        padding: 12px 14px;
+        flex-wrap: wrap;
+    }
+
+    #settings-overlay .settings-select-wrapper {
+        min-width: 130px;
+    }
+
+    #settings-overlay .settings-range {
+        width: 90px;
+    }
+
+    #settings-overlay .settings-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+}
+
+/* ===== 缓存管理面板（内联在设置页） ===== */
+#settings-overlay .settings-cache-card {
+    border: 1px solid var(--line);
+}
+
+#settings-overlay .settings-cache-actions {
+    gap: 8px;
+}
+
+#settings-overlay .settings-cache-actions .settings-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    padding: 7px 8px;
+    font-size: 0.75rem;
+}
+
+#settings-overlay .settings-cache-details {
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+}
+
+/* ===== 分段控件 (Segmented Control) ===== */
+#settings-overlay .settings-segmented-control {
+    display: flex;
+    background: var(--line);
+    border-radius: 8px;
+    padding: 2px;
+    flex-shrink: 0;
+    gap: 1px;
+}
+
+#settings-overlay .segmented-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+#settings-overlay .segmented-option:hover {
+    color: var(--text);
+    background: rgba(128, 128, 128, 0.1);
+}
+
+#settings-overlay .segmented-option.active {
+    background: var(--bg);
+    color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#settings-overlay .segmented-option svg {
+    flex-shrink: 0;
+}
+
+/* ===== 颜色选择器 ===== */
+#settings-overlay .settings-color-picker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+#settings-overlay .color-option {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    outline: none;
+}
+
+#settings-overlay .color-option:hover {
+    transform: scale(1.15);
+}
+
+#settings-overlay .color-option.active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px currentColor;
+}
+
+#settings-overlay .color-option-custom {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px dashed var(--text-soft);
+    background: var(--bg);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-soft);
+    transition: all 0.2s ease;
+    padding: 0;
+    outline: none;
+}
+
+#settings-overlay .color-option-custom:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(1.15);
+}
+
+/* ===== 调试子选项 ===== */
+#settings-overlay #settings-debug-sub-options {
+    border-top: 1px solid var(--line);
+}
+
+#settings-overlay .settings-debug-actions {
+    border-top: 1px solid var(--line);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+/* ===== 维护工具进度反馈 ===== */
+#settings-overlay .settings-progress-bar {
+    height: 4px;
+    background: var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 18px;
+}
+
+#settings-overlay .settings-progress-bar .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+#settings-overlay .settings-progress-text {
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    text-align: center;
+    padding: 4px 18px 12px;
+}
+
+/* ===== 响应式增强 ===== */
+@media (max-width: 768px) {
+    #settings-overlay .settings-segmented-control {
+        width: 100%;
+    }
+
+    #settings-overlay .segmented-option {
+        flex: 1;
+        justify-content: center;
+        padding: 6px 8px;
+        font-size: 0.7rem;
+    }
+
+    #settings-overlay .settings-color-picker {
+        gap: 4px;
+    }
+
+    #settings-overlay .color-option,
+    #settings-overlay .color-option-custom {
+        width: 24px;
+        height: 24px;
+    }
+
+    #settings-overlay .settings-debug-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    #settings-overlay .settings-select-wrapper {
+        min-width: 100%;
+    }
+
+    #settings-overlay .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    #settings-overlay .settings-range-wrapper {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #settings-overlay .settings-range {
+        flex: 1;
+    }
+
+    #settings-overlay .debug-info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    #settings-overlay .segmented-option {
+        font-size: 0.65rem;
+        padding: 5px 6px;
+    }
+
+    #settings-overlay .settings-segmented-control {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #settings-overlay .settings-header {
+        gap: 12px;
+    }
+
+    #settings-overlay .settings-header-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    #settings-overlay .settings-header h1 {
+        font-size: 1.3rem;
+    }
+}
+
+/* ===== 深色模式适配 ===== */
+[data-theme="dark"] #settings-overlay .segmented-option.active {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] #settings-overlay .color-option.active {
+    border-color: rgba(255, 255, 255, 0.8);
+}
