@@ -539,9 +539,7 @@ blockquote.quotable-item .quote-this-btn {
         padding: 2px 8px;
         float: right;
     }
-}
-
-@media (max-width: 768px) {
+    
     .detail-post,
     .detail-container,
     #content-area,
@@ -555,6 +553,22 @@ blockquote.quotable-item .quote-this-btn {
         width: 100%;
         word-wrap: break-word;
         overflow-wrap: break-word;
+    }
+    
+    .detail-post img,
+    .detail-container img,
+    #content-area img {
+        border-radius: 8px;
+        margin: 1rem auto;
+    }
+    
+    .post-references {
+        padding: 15px;
+        margin-top: 30px;
+    }
+    
+    .detail-header h1 {
+        font-size: 1.5rem !important;
     }
 }
 

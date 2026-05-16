@@ -1,7 +1,6 @@
 # ===== GitHub Actions: 博客文章URL转换工作流 =====
 # 功能：当有新 Issue 被创建/发布时，自动将其转换为博客文章链接格式
 # - 生成 /post/{issue_number} 格式的规范URL
-# - 更新 RSS feed 使用新URL格式
 # - 兼容旧的 ?post={number} 格式
 # - 筛选规则：只处理作者本人创建的、非"反馈"标签的、状态为 open 的 Issue
 
@@ -14,36 +13,6 @@ on:
     types: [created, edited]
 
 jobs:
-  convert-and-update:
-    if: >
-      github.event.issue.state == 'open' &&
-      github.event.issue.user.login == github.repository_owner &&
-      !contains(github.event.issue.labels.*.name, '反馈')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Configure Git
-        run: |
-          git config --global user.name 'Jun Loye Bot'
-          git config --global user.email 'bot@junloye.github.io'
-
-      - name: Generate RSS Feed
-        run: node scripts/generate-rss.js
-
-      - name: Commit and Push Changes
-        run: |
-          git add rss.xml post-list.json
-          git diff --staged --quiet || (git commit -m "chore: auto-update RSS feed with /post/NUM URLs [skip ci]" && git push)
-
   add-post-url-comment:
     if: >
       github.event.issue.state == 'open' &&
@@ -57,8 +26,7 @@ jobs:
           script: |
             const issueNumber = context.issue.number;
             const owner = context.repo.owner;
-            const postUrl = `https://${owner}.github.io/post/${issueNumber}`;
-            const legacyUrl = `https://${owner}.github.io/?post=${issueNumber}`;
+            const postUrl = `https://${owner}.github.io/?post=${issueNumber}`;
 
             const comments = await github.rest.issues.listComments({
               issue_number: issueNumber,
@@ -75,6 +43,6 @@ jobs:
                 issue_number: issueNumber,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `## 📝 博客文章链接\n\n您的文章已自动生成以下链接：\n\n**规范链接（推荐）：** [${postUrl}](${postUrl})\n\n**兼容旧版链接：** [${legacyUrl}](${legacyUrl})\n\n> 两种链接均可正常访问，新链接格式为 \`/post/{文章编号}\``
+                body: `## 📝 博客文章链接\n\n您的文章已自动生成以下链接：\n\n**文章链接：** [${postUrl}](${postUrl})\n\n> 请使用 \`?post={文章编号}\` 格式访问`
               });
             }

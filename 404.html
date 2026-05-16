@@ -7,16 +7,13 @@
     <script type="text/javascript">
         (function() {
             var l = window.location;
-            // 匹配以 /post/ 开头的路径，如 /post/77
-            if (l.pathname.indexOf('/post/') !== -1) {
-                var num = l.pathname.match(/\/post\/(\d+)/);
-                if (num && num[1]) {
-                    // 直接重定向到首页，带上 post 参数
-                    var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-                        '/?post=' + num[1];
-                    l.replace(redirectUrl);
-                    return;
-                }
+            // 兼容旧版 /post/NUM 路径，自动重定向到 ?post=NUM
+            var postMatch = l.pathname.match(/\/post\/(\d+)/);
+            if (postMatch) {
+                var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+                    '/?post=' + postMatch[1];
+                l.replace(redirectUrl);
+                return;
             }
         })();
     </script>

@@ -815,21 +815,28 @@ mark.search-highlight {
     }
 
     nav {
-        padding: 15px 0;
+        padding: 12px 0;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
     }
 
     .brand {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
     }
 
     .nav-right {
-        gap: 10px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
-    .nav-item {
-        font-size: 0.75rem;
+    .nav-item, .nav-right a.nav-item {
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
+    }
+
+    .nav-icon {
+        width: 15px;
+        height: 15px;
     }
 
     .search-kbd {
@@ -837,50 +844,169 @@ mark.search-highlight {
     }
 
     #search-input {
-        width: 120px;
-        font-size: 0.75rem;
-        padding-right: 12px;
+        width: 100px;
+        font-size: 0.72rem;
+        padding: 6px 10px 6px 30px;
     }
     #search-input:focus {
-        width: 150px;
+        width: 130px;
+    }
+    
+    .search-icon {
+        left: 10px;
+        width: 14px;
+        height: 14px;
     }
 
     .post-grid {
         grid-template-columns: 1fr;
-        gap: 25px;
+        gap: 20px;
+    }
+    
+    .post-card {
+        padding: 8px;
+        margin: -8px;
+    }
+    
+    .post-cover {
+        height: 160px;
+        border-radius: 12px;
+    }
+    
+    .post-card-title {
+        font-size: 1.1rem;
     }
 
     .detail-container {
-        padding: 50px 20px 80px;
+        padding: 40px 16px 70px;
     }
 
     .detail-hero-img {
-        height: 240px;
+        height: 200px;
         border-radius: 12px;
     }
 
     #post-overlay .close-btn,
     #about-overlay .close-btn {
-        top: 15px;
-        left: 15px;
-        padding: 8px 15px;
-        font-size: 0.8rem;
+        top: 12px;
+        left: 12px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    #notification-container {
+        top: 10px;
+        right: 10px;
+        max-width: calc(100vw - 20px);
+    }
+    
+    .toast-message {
+        min-width: auto;
+        max-width: 100%;
+        padding: 10px 14px;
+        font-size: 0.82rem;
     }
 
     #theme-toggle-btn {
-        bottom: 20px;
-        left: 20px;
-        width: 44px;
-        height: 44px;
+        bottom: 18px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    #theme-toggle-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .post-action-buttons {
+        display: flex !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        gap: 6px !important;
+        z-index: 1000 !important;
+    }
+    
+    .history-toggle-btn,
+    .edit-btn {
+        padding: 5px 10px !important;
+        font-size: 0.7rem !important;
+        border-radius: 14px !important;
+    }
+    
+    .history-toggle-text {
+        display: none;
+    }
+
+    .donation-section {
+        padding: 20px 15px !important;
+    }
+    
+    .donation-methods {
+        gap: 15px !important;
+    }
+    
+    .donation-qr {
+        width: 120px !important;
+        height: 120px !important;
     }
 }
 
 @media screen and (max-width: 480px) {
+    nav {
+        padding: 10px 0;
+    }
+    
     .nav-right {
         width: 100%;
-        justify-content: space-between;
+        justify-content: flex-end;
+        gap: 6px;
         border-top: 1px solid var(--line);
-        padding-top: 10px;
+        padding-top: 8px;
+        margin-top: 2px;
+    }
+    
+    .nav-item, .nav-right a.nav-item {
+        font-size: 0.65rem;
+        gap: 3px;
+    }
+    
+    .nav-icon {
+        width: 13px;
+        height: 13px;
+    }
+    
+    .nav-item span {
+        font-size: 0.65rem;
+    }
+    
+    #github-login-btn {
+        padding: 3px 7px;
+        font-size: 0.65rem;
+        border-radius: 6px;
+    }
+    
+    #login-text {
+        max-width: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    #search-input {
+        width: 80px;
+        font-size: 0.68rem;
+        padding: 5px 8px 5px 26px;
+    }
+    #search-input:focus {
+        width: 110px;
+    }
+    
+    .search-icon {
+        left: 8px;
+        width: 12px;
+        height: 12px;
     }
 }
 
@@ -1160,4 +1286,143 @@ mark.search-highlight {
 
 .filter-indicator .clear-filter:hover {
     color: var(--accent);
+}
+
+/* ===== 缓存加载提示样式 ===== */
+.cache-loading-notice {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    color: var(--text-soft);
+}
+
+.cache-loading-spinner {
+    animation: spin 2s linear infinite;
+    margin-bottom: 20px;
+    opacity: 0.4;
+}
+
+.cache-loading-spinner svg {
+    width: 48px;
+    height: 48px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.cache-loading-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cache-loading-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cache-loading-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+}
+
+/* ===== 网络状态指示器 ===== */
+.network-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: var(--line);
+    color: var(--text-soft);
+    white-space: nowrap;
+}
+
+.network-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #28a745;
+    display: inline-block;
+}
+
+.network-status.offline {
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.network-status-text {
+    font-size: 0.65rem;
+}
+
+/* ===== 离线提示条 ===== */
+.offline-notice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    animation: slideDown 0.3s ease;
+}
+
+[data-theme='dark'] .offline-notice {
+    background: #2d2d1a;
+    color: #ffc107;
+    border-bottom: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.offline-notice-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: inherit;
+    padding: 0 4px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.offline-notice-close:hover {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .network-status-text {
+        display: none;
+    }
+    
+    .network-status {
+        padding: 3px 6px;
+    }
+    
+    .offline-notice {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+        gap: 6px;
+    }
 }

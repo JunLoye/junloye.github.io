@@ -133,6 +133,25 @@ function applyFeatureFlags() {
     console.log('功能开关已应用:', features);
 }
 
+// 显示缓存加载提示
+function showCacheLoadingNotice() {
+    const container = document.getElementById('post-list-container');
+    if (!container || container.querySelector('.post-card')) return;
+    container.innerHTML = `
+        <div class="cache-loading-notice">
+            <div class="cache-loading-spinner">
+                <svg viewBox="0 0 24 24" width="32" height="32">
+                    <path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+                </svg>
+            </div>
+            <div class="cache-loading-text">
+                <span class="cache-loading-title">正在加载文章列表</span>
+                <span class="cache-loading-subtitle">请稍候...</span>
+            </div>
+        </div>
+    `;
+}
+
 // 增强的 fetchPosts 函数
 async function fetchPosts() {
     if (!CONFIG.username || !CONFIG.repo) return;
@@ -141,20 +160,9 @@ async function fetchPosts() {
     const CACHE_TIME = 5 * 60 * 1000;
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
     
-    // 缓存有效且在线时优先使用缓存（更快渲染）
-    if (cached && (Date.now() - cached.time < CACHE_TIME)) {
-        allIssues = cached.data;
-        const displayIssues = filterIssues(allIssues);
-        renderPosts(displayIssues);
-        updateSidebarStats(displayIssues.length);
-        handleRouting();
-        initTagCloud();
-        return;
-    }
-
     // 离线时立即使用任何可用缓存
     if (!navigator.onLine) {
-        if (cached && cached.data) {
+        if (cached && cached.data && cached.data.length > 0) {
             allIssues = cached.data;
             const displayIssues = filterIssues(allIssues);
             renderPosts(displayIssues);
@@ -194,6 +202,32 @@ async function fetchPosts() {
             `;
         }
         return;
+    }
+
+    // 有缓存时立即使用，同时显示提示
+    if (cached && cached.data && cached.data.length > 0) {
+        allIssues = cached.data;
+        const displayIssues = filterIssues(allIssues);
+        
+        // 如果缓存未过期，直接渲染并返回
+        if (Date.now() - cached.time < CACHE_TIME) {
+            renderPosts(displayIssues);
+            updateSidebarStats(displayIssues.length);
+            handleRouting();
+            initTagCloud();
+            showNotification('📦 已加载缓存版本', 'info');
+            return;
+        }
+        
+        // 缓存过期但有网络，先渲染缓存再异步刷新
+        renderPosts(displayIssues);
+        updateSidebarStats(displayIssues.length);
+        handleRouting();
+        initTagCloud();
+        showNotification('📦 正在刷新文章列表...', 'info');
+    } else {
+        // 无缓存，显示加载提示
+        showCacheLoadingNotice();
     }
 
     try {
@@ -475,33 +509,12 @@ async function handleRouting() {
         return;
     }
 
-    // 1. 支持 ?post=NUM 格式（旧格式）
+    // 仅支持 ?post=NUM 格式
     const urlParams = new URLSearchParams(window.location.search);
     let postId = urlParams.get('post');
 
-    // 2. 支持 /post/NUM 路径格式（新格式，兼容404重定向）
+    // 兼容 ?=post=NUM 旧格式变体
     if (!postId) {
-        const pathMatch = window.location.pathname.match(/^\/post\/(\d+)(?:\/|$)/);
-        if (pathMatch) {
-            postId = pathMatch[1];
-            // 可选：移除旧的 legacy redirect ?p= 参数
-        }
-    }
-
-    // 3. 支持 ?p=/post/NUM 格式（来自404页面的重定向）
-    if (!postId) {
-        const pParam = urlParams.get('p');
-        if (pParam) {
-            const pMatch = pParam.match(/^\/post\/(\d+)/);
-            if (pMatch) {
-                postId = pMatch[1];
-            }
-        }
-    }
-
-    // 4. 支持 ?=post=NUM 格式（旧格式变体）
-    if (!postId) {
-        // 检查类似 ?=post=77 的老格式
         const legacyMatch = window.location.search.match(/[?&]=?post=(\d+)/);
         if (legacyMatch) {
             postId = legacyMatch[1];
@@ -511,13 +524,6 @@ async function handleRouting() {
     if (postId) {
         const num = parseInt(postId);
         if (!isNaN(num)) {
-            // 保持 URL 格式：如果已经是 /post/NUM 格式则保留，否则规范化
-            const isNewFormat = /^\/post\/\d+/.test(window.location.pathname);
-            if (!isNewFormat) {
-                // 旧格式（?post=NUM 或 ?=post=NUM）保持兼容
-                // 新开文章时会 push /post/NUM 格式
-            }
-            
             if (typeof openPost === 'function') {
                 openPost(num, false);
             }
