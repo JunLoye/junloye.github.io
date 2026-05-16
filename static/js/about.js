@@ -24,7 +24,51 @@ async function openAbout(pushState = true) {
         content.classList.add('show');
     }, 50);
 
+    // 填充统计数据和元信息
+    populateAboutStats();
     fetchGitHubCommits();
+}
+
+function populateAboutStats() {
+    // 博文总数
+    const postCount = typeof allIssues !== 'undefined' ? allIssues.length : 0;
+    const displayIssues = typeof filterIssues === 'function' && typeof allIssues !== 'undefined'
+        ? filterIssues(allIssues) : [];
+    const displayCount = displayIssues.length || postCount;
+    
+    // 标签数量
+    let tagCount = 0;
+    if (typeof allIssues !== 'undefined' && allIssues.length > 0) {
+        const tagSet = new Set();
+        allIssues.forEach(issue => {
+            (issue.labels || []).forEach(label => {
+                if (label.name !== '反馈') tagSet.add(label.name);
+            });
+        });
+        tagCount = tagSet.size;
+    }
+    
+    // 运行天数
+    const startTime = new Date('2026-01-01');
+    const now = new Date();
+    const days = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
+    
+    // 版本号
+    const version = document.getElementById('sidebar-version')?.textContent || 'v1.0';
+    
+    // 填充到各个卡片
+    const setText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+    
+    setText('about-post-count', `${displayCount} 篇博文`);
+    setText('about-run-time', `${days} 天`);
+    setText('about-version', version);
+    setText('about-stat-posts', displayCount);
+    setText('about-stat-tags', tagCount);
+    setText('about-stat-runtime', days);
+    setText('about-stat-version', version);
 }
 
 async function fetchGitHubCommits() {

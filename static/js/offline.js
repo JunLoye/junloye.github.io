@@ -378,6 +378,34 @@ const offlineStorage = {
                 setTimeout(() => notice.remove(), 300);
             }
         }, 5000);
+    },
+
+    /**
+     * 注册 Service Worker
+     */
+    registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('SW 注册成功:', reg.scope);
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            if (typeof showNotification === 'function') {
+                                showNotification('网站有新版本可用，请关闭所有标签页后重新打开', 'info');
+                            }
+                        }
+                    });
+                });
+            }).catch(err => {
+                console.warn('SW 注册失败:', err);
+            });
+
+            // 离线时也尝试注册
+            navigator.serviceWorker.ready.then(() => {
+                console.log('SW 已就绪');
+            });
+        }
     }
 };
 
@@ -385,5 +413,6 @@ const offlineStorage = {
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof offlineStorage !== 'undefined') {
         offlineStorage.initNetworkListener();
+        offlineStorage.registerServiceWorker();
     }
 });

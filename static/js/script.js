@@ -1,13 +1,28 @@
-let CONFIG = {}; 
+let CONFIG = {};
 let allIssues = [];
 let templatesLoaded = false;
 let lastSelectedText = "";
 let currentTagFilter = null;
 const ORIGINAL_TITLE = document.title;
+let networkOnline = navigator.onLine; // 跟踪网络状态
 
 window.addEventListener('load', async () => {
     const configLoaded = await loadConfig();
-    if (!configLoaded) return;
+    if (!configLoaded) {
+        // 配置加载失败时，如果有离线缓存也尝试显示
+        if (typeof offlineStorage !== 'undefined') {
+            const offlineList = offlineStorage.getPostList();
+            if (offlineList && offlineList.length > 0) {
+                allIssues = offlineList;
+                const displayIssues = filterIssues(allIssues);
+                renderPosts(displayIssues);
+                updateSidebarStats(displayIssues.length);
+                handleRouting();
+                initTagCloud();
+            }
+        }
+        return;
+    }
 
     applyFeatureFlags();
     initAnnouncement();
@@ -27,10 +42,61 @@ window.addEventListener('load', async () => {
     
     initContextMenu();
 
+    // 网络状态变化时重新加载
+    window.addEventListener('online', () => {
+        networkOnline = true;
+        if (typeof offlineStorage !== 'undefined') {
+            offlineStorage._updateNetworkStatus(true);
+        }
+        // 自动刷新文章列表
+        if (allIssues.length === 0) {
+            fetchPosts();
+        } else {
+            // 后台刷新（静默）
+            fetchPostsSilent();
+        }
+        showNotification('网络已恢复，已重新连接', 'success');
+    });
+
+    window.addEventListener('offline', () => {
+        networkOnline = false;
+        if (typeof offlineStorage !== 'undefined') {
+            offlineStorage._updateNetworkStatus(false);
+            offlineStorage.showOfflineNotice();
+        }
+        showNotification('网络已断开，正在使用离线缓存', 'warning');
+    });
+
     window.addEventListener('scroll', handleScroll);
     const postOverlay = document.getElementById('post-overlay');
     if (postOverlay) postOverlay.addEventListener('scroll', handleScroll);
 });
+
+/**
+ * 静默刷新文章列表（不显示加载错误）
+ */
+async function fetchPostsSilent() {
+    if (!CONFIG.username || !CONFIG.repo) return;
+    try {
+        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue`);
+        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc&per_page=100`);
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+            allIssues = data.items;
+            const displayIssues = filterIssues(allIssues);
+            localStorage.setItem('blog_posts_cache', JSON.stringify({ time: Date.now(), data: data.items }));
+            if (typeof offlineStorage !== 'undefined') {
+                offlineStorage.cachePostList(data.items);
+            }
+            renderPosts(displayIssues);
+            updateSidebarStats(displayIssues.length);
+            initTagCloud();
+        }
+    } catch (e) {
+        // 静默失败，不通知用户
+        console.warn('静默刷新文章列表失败:', e);
+    }
+}
 
 async function loadConfig() {
     try {
@@ -67,7 +133,7 @@ function applyFeatureFlags() {
     console.log('功能开关已应用:', features);
 }
 
-// 修改后的 fetchPosts 函数
+// 增强的 fetchPosts 函数
 async function fetchPosts() {
     if (!CONFIG.username || !CONFIG.repo) return;
 
@@ -75,38 +141,33 @@ async function fetchPosts() {
     const CACHE_TIME = 5 * 60 * 1000;
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
     
+    // 缓存有效且在线时优先使用缓存（更快渲染）
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
         allIssues = cached.data;
         const displayIssues = filterIssues(allIssues);
         renderPosts(displayIssues);
         updateSidebarStats(displayIssues.length);
         handleRouting();
+        initTagCloud();
         return;
     }
 
-    try {
-        // 去掉了 is:open，并增加 per_page=100
-        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue`);
-        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc&per_page=100`);
-        const data = await res.json();
-        allIssues = data.items || [];
-
-        const displayIssues = filterIssues(allIssues);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
-        
-        // 缓存文章列表到离线存储
-        if (typeof offlineStorage !== 'undefined') {
-            offlineStorage.cachePostList(allIssues);
+    // 离线时立即使用任何可用缓存
+    if (!navigator.onLine) {
+        if (cached && cached.data) {
+            allIssues = cached.data;
+            const displayIssues = filterIssues(allIssues);
+            renderPosts(displayIssues);
+            updateSidebarStats(displayIssues.length);
+            handleRouting();
+            initTagCloud();
+            if (typeof offlineStorage !== 'undefined') {
+                offlineStorage.showOfflineNotice();
+            }
+            return;
         }
-        
-        renderPosts(displayIssues);
-        updateSidebarStats(displayIssues.length);
-        handleRouting();
-        initTagCloud();
-    } catch (e) {
-        showNotification("文章列表同步失败", 'error');
-        // 离线时尝试从离线缓存加载列表
-        if (typeof offlineStorage !== 'undefined' && !navigator.onLine) {
+        // 尝试离线存储
+        if (typeof offlineStorage !== 'undefined') {
             const offlineList = offlineStorage.getPostList();
             if (offlineList && offlineList.length > 0) {
                 allIssues = offlineList;
@@ -119,19 +180,68 @@ async function fetchPosts() {
                 return;
             }
         }
-        // 尝试从常规缓存加载
-        if (cached && cached.data) {
-            allIssues = cached.data;
+        // 完全离线且无缓存
+        const container = document.getElementById('post-list-container');
+        if (container) {
+            container.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-soft);">
+                    <svg viewBox="0 0 24 24" width="64" height="64" style="opacity: 0.2; margin-bottom: 20px;">
+                        <path fill="currentColor" d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+                    </svg>
+                    <h2 style="font-weight: 400; margin-bottom: 10px;">您当前处于离线状态</h2>
+                    <p style="font-size: 0.9rem;">请联网后可浏览完整博客内容</p>
+                </div>
+            `;
+        }
+        return;
+    }
+
+    try {
+        const query = encodeURIComponent(`repo:${CONFIG.username}/${CONFIG.repo} is:issue`);
+        const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=created&order=desc&per_page=100`);
+        const data = await res.json();
+        allIssues = data.items || [];
+
+        const displayIssues = filterIssues(allIssues);
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
+        
+        if (typeof offlineStorage !== 'undefined') {
+            offlineStorage.cachePostList(allIssues);
+        }
+        
+        renderPosts(displayIssues);
+        updateSidebarStats(displayIssues.length);
+        handleRouting();
+        initTagCloud();
+    } catch (e) {
+        showNotification("文章列表同步失败，已加载缓存版本", 'warning');
+        
+        // 回退到任何可用缓存
+        let fallbackData = null;
+        
+        if (typeof offlineStorage !== 'undefined') {
+            const offlineList = offlineStorage.getPostList();
+            if (offlineList && offlineList.length > 0) {
+                fallbackData = offlineList;
+            }
+        }
+        
+        if (!fallbackData && cached && cached.data) {
+            fallbackData = cached.data;
+        }
+        
+        if (fallbackData) {
+            allIssues = fallbackData;
             const displayIssues = filterIssues(allIssues);
             renderPosts(displayIssues);
             updateSidebarStats(displayIssues.length);
             handleRouting();
             initTagCloud();
-            if (!navigator.onLine) {
-                if (typeof offlineStorage !== 'undefined') {
-                    offlineStorage.showOfflineNotice();
-                }
-            }
+        }
+        
+        // 显示离线提示
+        if (typeof offlineStorage !== 'undefined' && !navigator.onLine) {
+            offlineStorage.showOfflineNotice();
         }
     }
 }
@@ -245,13 +355,37 @@ function updateLatencyUI(el, ms) {
 function showNotification(msg, type = 'error') {
     const container = document.getElementById('notification-container');
     if (!container) return;
+    
+    // 限制最多同时显示3条通知
+    const existingToasts = container.querySelectorAll('.toast-message');
+    if (existingToasts.length >= 3) {
+        existingToasts[0].classList.add('hide');
+        setTimeout(() => existingToasts[0].remove(), 400);
+    }
+    
     const toast = document.createElement('div');
     toast.className = `toast-message ${type}`;
-    const icon = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '🌟';
+    
+    const iconMap = {
+        'error': '❌',
+        'warning': '⚠️',
+        'success': '✅',
+        'info': 'ℹ️'
+    };
+    const icon = iconMap[type] || 'ℹ️';
+    
     toast.innerHTML = `<span>${icon} ${msg}</span>`;
     container.appendChild(toast);
-    const dismiss = () => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); };
-    setTimeout(dismiss, 5000);
+    
+    const dismiss = () => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 400);
+    };
+    
+    // 不同消息类型不同显示时长
+    const durations = { 'error': 6000, 'warning': 5000, 'success': 3500, 'info': 3000 };
+    setTimeout(dismiss, durations[type] || 5000);
+    
     toast.onclick = dismiss;
 }
 
@@ -320,19 +454,71 @@ function updateBlogRunTime() {
 }
 
 async function handleRouting() {
-    if (!templatesLoaded) { 
-        setTimeout(handleRouting, 100); 
-        return; 
+    if (!templatesLoaded) {
+        setTimeout(handleRouting, 100);
+        return;
     }
+
+    // 1. 支持 ?post=NUM 格式（旧格式）
     const urlParams = new URLSearchParams(window.location.search);
-    const postId = urlParams.get('post');
+    let postId = urlParams.get('post');
+
+    // 2. 支持 /post/NUM 路径格式（新格式，兼容404重定向）
+    if (!postId) {
+        const pathMatch = window.location.pathname.match(/^\/post\/(\d+)(?:\/|$)/);
+        if (pathMatch) {
+            postId = pathMatch[1];
+            // 可选：移除旧的 legacy redirect ?p= 参数
+        }
+    }
+
+    // 3. 支持 ?p=/post/NUM 格式（来自404页面的重定向）
+    if (!postId) {
+        const pParam = urlParams.get('p');
+        if (pParam) {
+            const pMatch = pParam.match(/^\/post\/(\d+)/);
+            if (pMatch) {
+                postId = pMatch[1];
+            }
+        }
+    }
+
+    // 4. 支持 ?=post=NUM 格式（旧格式变体）
+    if (!postId) {
+        // 检查类似 ?=post=77 的老格式
+        const legacyMatch = window.location.search.match(/[?&]=?post=(\d+)/);
+        if (legacyMatch) {
+            postId = legacyMatch[1];
+        }
+    }
+
     if (postId) {
-        if (typeof openPost === 'function') openPost(parseInt(postId), false);
+        const num = parseInt(postId);
+        if (!isNaN(num)) {
+            // 保持 URL 格式：如果已经是 /post/NUM 格式则保留，否则规范化
+            const isNewFormat = /^\/post\/\d+/.test(window.location.pathname);
+            if (!isNewFormat) {
+                // 旧格式（?post=NUM 或 ?=post=NUM）保持兼容
+                // 新开文章时会 push /post/NUM 格式
+            }
+            
+            if (typeof openPost === 'function') {
+                openPost(num, false);
+            }
+        }
     }
 }
 
-window.onkeydown = (e) => { 
+window.onkeydown = (e) => {
     if (e.key === 'Escape') {
+        // 搜索覆盖层优先关闭
+        const searchOverlay = document.getElementById('search-overlay');
+        if (searchOverlay && searchOverlay.classList.contains('active')) {
+            if (typeof closeSearchOverlay === 'function') {
+                closeSearchOverlay();
+                return;
+            }
+        }
         if (typeof closePost === 'function') closePost();
         if (typeof closeAbout === 'function') closeAbout();
         if (typeof closePublishModal === 'function') closePublishModal();
@@ -362,7 +548,13 @@ function initContextMenu() {
         menu.style.top = `${y}px`;
     });
 
-    document.addEventListener('click', () => menu.style.display = 'none');
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target)) menu.style.display = 'none';
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') menu.style.display = 'none';
+    });
 }
 
 async function copySelectedText() {
@@ -379,6 +571,28 @@ function searchSelectedText() {
     if (!lastSelectedText) return;
     const url = `https://www.google.com/search?q=${encodeURIComponent(lastSelectedText)}`;
     window.open(url, '_blank');
+}
+
+function copyAsMarkdownQuote() {
+    if (!lastSelectedText) return;
+    const lines = lastSelectedText.split('\n');
+    const quoted = lines.map(l => `> ${l}`).join('\n');
+    navigator.clipboard.writeText(quoted).then(() => {
+        showNotification('已复制为 Markdown 引用格式', 'success');
+    }).catch(() => {
+        showNotification('复制失败', 'error');
+    });
+}
+
+function searchInPage() {
+    if (!lastSelectedText) return;
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = lastSelectedText;
+        searchInput.focus();
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        showNotification(`🔍 已在搜索框填入: "${lastSelectedText}"`, 'info');
+    }
 }
 
 function handleScroll() {

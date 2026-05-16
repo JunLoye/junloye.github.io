@@ -7,15 +7,16 @@
     <script type="text/javascript">
         (function() {
             var l = window.location;
-            // 匹配以 /post/ 开头的路径
+            // 匹配以 /post/ 开头的路径，如 /post/77
             if (l.pathname.indexOf('/post/') !== -1) {
-                var segmentCount = 0; // 根目录部署
-                var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-                    l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
-                    l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-                    (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-                    l.hash;
-                l.replace(redirectUrl);
+                var num = l.pathname.match(/\/post\/(\d+)/);
+                if (num && num[1]) {
+                    // 直接重定向到首页，带上 post 参数
+                    var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+                        '/?post=' + num[1];
+                    l.replace(redirectUrl);
+                    return;
+                }
             }
         })();
     </script>

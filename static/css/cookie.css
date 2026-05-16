@@ -74,6 +74,23 @@
     opacity: 0.9;
 }
 
+/* 深色模式适配 */
+[data-theme='dark'] .cookie-banner {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .cookie-btn.primary {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme='dark'] .cookie-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-soft);
+}
+
 @media screen and (max-width: 600px) {
     .cookie-content {
         flex-direction: column;

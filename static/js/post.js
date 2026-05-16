@@ -86,7 +86,7 @@ async function openPost(num, pushState = true) {
     }
     
     if (pushState) {
-        history.pushState({ page: 'detail', id: num }, issue.title, `?post=${num}`);
+        history.pushState({ page: 'detail', id: num }, issue.title, `/post/${num}`);
     }
 
     const owner = (typeof CONFIG !== 'undefined') ? CONFIG.owner : 'Blog';
@@ -165,29 +165,29 @@ async function openPost(num, pushState = true) {
     let shareButtonsHtml = '';
     if (shareEnabled) {
         shareButtonsHtml = `
-            <!-- 分享按钮 -->
-            <div class="share-buttons">
-                <button class="share-btn weibo" onclick="shareToWeibo('${issue.title}', '${window.location.origin}?post=${num}')" title="分享到微博">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20.194 3.46c-1.802.817-3.73 1.371-5.757 1.617a9.86 9.86 0 0 0 1.923-5.077 19.9 19.9 0 0 1-6.26 2.39A9.86 9.86 0 0 0 4.93 0C2.206 0 0 2.206 0 4.93c0 .77.17 1.5.47 2.17A9.826 9.826 0 0 1 1.35 4.68a9.86 9.86 0 0 0 3.18 8.23 9.78 9.78 0 0 1-4.45-1.23v.12c0 4.78 3.4 8.77 7.92 9.68-.83.22-1.7.34-2.6.34-.64 0-1.26-.06-1.86-.18a9.86 9.86 0 0 0 9.2 6.83 19.76 19.76 0 0 1-12.2 4.23c-.8 0-1.58-.05-2.35-.14A27.9 27.9 0 0 0 15.07 24c18.06 0 27.94-14.96 27.94-27.94 0-.43 0-.85-.03-1.27a19.9 19.9 0 0 0 4.88-5.07l-4.67-2.16z"/></svg>
-                    微博
-                </button>
-                <button class="share-btn wechat" onclick="showWechatShare('${issue.title}', '${window.location.origin}?post=${num}')" title="微信分享">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4C5.36 4 2 6.69 2 10c0 1.89 1.08 3.56 2.78 4.66L4 17l2.5-1.5c.61.22 1.26.34 1.94.34H12l2-2v-2c1.31-.83 2-2.18 2-3.5C16 6.69 12.64 4 9.5 4zm6 12v2l2.5 1.5 2.5-1.5v-2c1.39-.83 2-2.17 2-3.5C22 6.69 18.64 4 15.5 4S9 6.69 9 10c0 1.89 1.08 3.56 2.78 4.66L11 17l2.5-1.5c.61.22 1.26.34 1.94.34h1.56l.44.44z"/></svg>
-                    微信
-                </button>
-                <button class="share-btn twitter" onclick="shareToTwitter('${issue.title}', '${window.location.origin}?post=${num}')" title="分享到Twitter">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
-                    Twitter
-                </button>
-                <button class="share-btn facebook" onclick="shareToFacebook('${window.location.origin}?post=${num}')" title="分享到Facebook">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m13 2h-2.5A3.5 3.5 0 0 0 12 8.5V11h-2v3h2v7h3v-7h3v-3h-3V9a1 1 0 0 1 1-1h2V5z"/></svg>
-                    Facebook
-                </button>
-                <button class="share-btn copy-link" onclick="copyPostLink('${window.location.origin}?post=${num}')" title="复制链接">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    复制链接
-                </button>
-            </div>`;
+    <!-- 分享按钮 -->
+    <div class="share-buttons">
+        <button class="share-btn weibo" onclick="shareToWeibo('${issue.title.replace(/'/g, "\\'")}', '${window.location.origin}/post/${num}')" title="分享到微博">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20.194 3.46c-1.802.817-3.73 1.371-5.757 1.617a9.86 9.86 0 0 0 1.923-5.077 19.9 19.9 0 0 1-6.26 2.39A9.86 9.86 0 0 0 4.93 0C2.206 0 0 2.206 0 4.93c0 .77.17 1.5.47 2.17A9.826 9.826 0 0 1 1.35 4.68a9.86 9.86 0 0 0 3.18 8.23 9.78 9.78 0 0 1-4.45-1.23v.12c0 4.78 3.4 8.77 7.92 9.68-.83.22-1.7.34-2.6.34-.64 0-1.26-.06-1.86-.18a9.86 9.86 0 0 0 9.2 6.83 19.76 19.76 0 0 1-12.2 4.23c-.8 0-1.58-.05-2.35-.14A27.9 27.9 0 0 0 15.07 24c18.06 0 27.94-14.96 27.94-27.94 0-.43 0-.85-.03-1.27a19.9 19.9 0 0 0 4.88-5.07l-4.67-2.16z"/></svg>
+            微博
+        </button>
+        <button class="share-btn wechat" onclick="showWechatShare('${issue.title.replace(/'/g, "\\'")}', '${window.location.origin}/post/${num}')" title="微信分享">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4C5.36 4 2 6.69 2 10c0 1.89 1.08 3.56 2.78 4.66L4 17l2.5-1.5c.61.22 1.26.34 1.94.34H12l2-2v-2c1.31-.83 2-2.18 2-3.5C16 6.69 12.64 4 9.5 4zm6 12v2l2.5 1.5 2.5-1.5v-2c1.39-.83 2-2.17 2-3.5C22 6.69 18.64 4 15.5 4S9 6.69 9 10c0 1.89 1.08 3.56 2.78 4.66L11 17l2.5-1.5c.61.22 1.26.34 1.94.34h1.56l.44.44z"/></svg>
+            微信
+        </button>
+        <button class="share-btn twitter" onclick="shareToTwitter('${issue.title.replace(/'/g, "\\'")}', '${window.location.origin}/post/${num}')" title="分享到Twitter">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+            Twitter
+        </button>
+        <button class="share-btn facebook" onclick="shareToFacebook('${window.location.origin}/post/${num}')" title="分享到Facebook">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m13 2h-2.5A3.5 3.5 0 0 0 12 8.5V11h-2v3h2v7h3v-7h3v-3h-3V9a1 1 0 0 1 1-1h2V5z"/></svg>
+            Facebook
+        </button>
+        <button class="share-btn copy-link" onclick="copyPostLink('${window.location.origin}/post/${num}')" title="复制链接">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            复制链接
+        </button>
+    </div>`;
     }
     
     // 打赏部分HTML
@@ -314,7 +314,7 @@ async function openPost(num, pushState = true) {
             title: issue.title,
             date: date,
             labels: issue.labels.filter(l => l.name !== '反馈').map(l => l.name),
-            url: `${window.location.origin}?post=${num}`
+            url: `${window.location.origin}/post/${num}`
         };
         offlineStorage.cachePost(num, issue, htmlContent, metadata);
         // 同时缓存原始Issue数据，以便离线时直接打开
@@ -368,16 +368,26 @@ function setupQuoteAction(postNum) {
 
     const targets = postBody.querySelectorAll('p, li, blockquote, pre');
     targets.forEach(el => {
+        // 跳过太短的元素（少于15个字符）或纯空白元素
+        const textContent = el.textContent.replace(/\s+/g, ' ').trim();
+        if (textContent.length < 15 || textContent === postBody.textContent?.trim()) return;
+
         el.style.position = 'relative';
         el.classList.add('quotable-item');
 
         const quoteBtn = document.createElement('button');
         quoteBtn.className = 'quote-this-btn';
-        quoteBtn.innerHTML = '引用';
-        quoteBtn.title = '引用此段内容到评论';
+        quoteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg><span>引用</span>';
+        quoteBtn.title = '引用此段到评论';
         
-        quoteBtn.onclick = () => {
-            const text = el.innerText.replace('引用', '').trim();
+        quoteBtn.onclick = (e) => {
+            e.stopPropagation();
+            const text = el.innerText.replace(/引用/g, '').trim();
+            
+            // 视觉反馈动画
+            quoteBtn.classList.add('quote-flash');
+            setTimeout(() => quoteBtn.classList.remove('quote-flash'), 600);
+            
             quoteToComment(text, postNum);
         };
 
@@ -387,27 +397,64 @@ function setupQuoteAction(postNum) {
 
 function quoteToComment(text, postNum) {
     const textarea = document.getElementById('comment-text');
+    
+    // 检查评论表单是否存在
     if (!textarea) {
-        showNotification("请先登录 GitHub 以启用评论功能", "error");
-        document.getElementById('comment-form-area').scrollIntoView({ behavior: 'smooth' });
+        // 尝试滚动到评论区域并显示登录提示
+        const formArea = document.getElementById('comment-form-area');
+        if (formArea) {
+            formArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        showNotification("请先登录 GitHub 以启用引用评论功能", "error");
         return;
     }
 
-    const quoteText = `> ${text}\n> #${postNum}\n\n`;
+    // 清理文本：移除多余空白、截断过长的引用
+    const cleanedText = text
+        .replace(/\s+/g, ' ')
+        .replace(/^引用\s*/g, '')
+        .trim();
+    
+    // 如果文本太长，截断并添加省略号
+    const maxQuoteLen = 500;
+    const finalText = cleanedText.length > maxQuoteLen
+        ? cleanedText.substring(0, maxQuoteLen) + '...'
+        : cleanedText;
+    
+    const quotedLine = `> ${finalText}`;
+    const refLine = `> #${postNum}`;
+    const quoteBlock = `${quotedLine}\n${refLine}\n\n`;
+    
     const currentText = textarea.value;
+    if (currentText.trim()) {
+        textarea.value = currentText + '\n\n' + quoteBlock;
+    } else {
+        textarea.value = quoteBlock;
+    }
     
-    textarea.value = currentText ? (currentText + "\n\n" + quoteText) : quoteText;
+    // 更新预览
+    if (typeof updateCommentPreview === 'function') {
+        updateCommentPreview();
+    }
     
-    updateCommentPreview();
+    // 平滑滚动到评论框并聚焦
+    setTimeout(() => {
+        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        textarea.focus();
+        
+        // 触发输入事件以便任何绑定监听器响应
+        const inputEvent = new Event('input', { bubbles: true });
+        textarea.dispatchEvent(inputEvent);
+    }, 100);
     
-    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    textarea.focus();
+    // 显示成功提示
+    showNotification('✅ 已引用选定内容，可直接发表评论', 'success');
 }
 
 function parseEnhancedMarkdown(rawMarkdown) {
     let content = rawMarkdown;
     content = content.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
-    content = content.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
+    content = content.replace(/#(\d+)\b/g, '<a href="/post/$1" class="post-ref-link" data-num="$1">#$1</a>');
 
     let html = "";
     try {
@@ -467,7 +514,7 @@ async function loadComments(title, issueNum) {
             
             list.innerHTML = comments.length ? comments.map(c => {
                 let enhancedBody = c.bodyHTML || "";
-                enhancedBody = enhancedBody.replace(/#(\d+)\b/g, '<a href="?post=$1" class="post-ref-link" data-num="$1">#$1</a>');
+                enhancedBody = enhancedBody.replace(/#(\d+)\b/g, '<a href="/post/$1" class="post-ref-link" data-num="$1">#$1</a>');
                 enhancedBody = enhancedBody.replace(/\[(\d+)\]/g, '<a href="#ref-$1" class="ref-link">[$1]</a>');
                 
                 return `
@@ -756,52 +803,22 @@ function initLinkPreview() {
             const targetIssue = issuesSource.find(i => i.number === num);
             
             if (targetIssue) {
-                let rawExcerpt = "";
-                const feedbackSummaryMatch = targetIssue.body?.match(/### 🔍 错误描述与建议\s*([\s\S]*?)(?=###|$)/);
-                const contentMatch = targetIssue.body?.match(/\[Content\]\s*([\s\S]*?)(?=\[References\]|---|$)/);
-                const summaryMatch = targetIssue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\[Content\]|---|$)/);
-                
-                if (feedbackSummaryMatch) {
-                    rawExcerpt = feedbackSummaryMatch[1].trim().substring(0, 500);
-                } else if (contentMatch && contentMatch[1].trim()) {
-                    rawExcerpt = contentMatch[1].trim().substring(0, 800);
-                } else if (summaryMatch) {
-                    rawExcerpt = summaryMatch[1].trim();
-                } else {
-                    rawExcerpt = targetIssue.body?.substring(0, 200);
+                previewCard.innerHTML = renderPreviewFromIssue(targetIssue);
+            } else if (typeof offlineStorage !== 'undefined') {
+                const cachedIssue = offlineStorage.getIssueData(num);
+                if (cachedIssue) {
+                    previewCard.innerHTML = renderPreviewFromIssue(cachedIssue);
                 }
-
-                const renderedExcerpt = parseEnhancedMarkdown(rawExcerpt);
-
-                const date = new Date(targetIssue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
-                const label = targetIssue.labels[0]?.name || 'MEMO';
-                const avatar = targetIssue.user?.avatar_url || 'https://github.com/github.png';
-
-                previewCard.innerHTML = `
-                    <div class="preview-header">
-                        <img src="${avatar}" class="preview-avatar">
-                        <div class="preview-meta">
-                            <span class="preview-author">${targetIssue.user?.login || 'Author'}</span>
-                            <span class="preview-date">发布于 ${date}</span>
-                        </div>
-                    </div>
-                    <div class="preview-title">${targetIssue.title}</div>
-                    <div class="preview-excerpt markdown-body">${renderedExcerpt}</div>
-                    <div class="preview-footer">
-                        <span class="preview-label">${label}</span>
-                    </div>
-                `;
-
+            }
+            
+            if (previewCard.innerHTML) {
                 previewCard.style.display = 'block';
                 const rect = link.getBoundingClientRect();
                 const cardHeight = previewCard.offsetHeight;
-                
                 let top = rect.top - cardHeight - 15;
                 if (top < 10) top = rect.bottom + 15;
-                
                 let left = rect.left;
                 if (left + 420 > window.innerWidth) left = window.innerWidth - 440;
-
                 previewCard.style.top = `${top}px`;
                 previewCard.style.left = `${left}px`;
                 setTimeout(() => previewCard.classList.add('active'), 10);
@@ -832,12 +849,56 @@ function initLinkPreview() {
     });
 }
 
+/**
+ * 渲染Issue预览卡片（供链接预览使用）
+ */
+function renderPreviewFromIssue(targetIssue) {
+    let rawExcerpt = "";
+    const feedbackSummaryMatch = targetIssue.body?.match(/### 🔍 错误描述与建议\s*([\s\S]*?)(?=###|$)/);
+    const contentMatch = targetIssue.body?.match(/\[Content\]\s*([\s\S]*?)(?=\[References\]|---|$)/);
+    const summaryMatch = targetIssue.body?.match(/\[Summary\]\s*([\s\S]*?)(?=\[Content\]|---|$)/);
+    
+    if (feedbackSummaryMatch) {
+        rawExcerpt = feedbackSummaryMatch[1].trim().substring(0, 500);
+    } else if (contentMatch && contentMatch[1].trim()) {
+        rawExcerpt = contentMatch[1].trim().substring(0, 800);
+    } else if (summaryMatch) {
+        rawExcerpt = summaryMatch[1].trim();
+    } else {
+        rawExcerpt = targetIssue.body?.substring(0, 200);
+    }
+
+    const renderedExcerpt = parseEnhancedMarkdown(rawExcerpt);
+    const date = new Date(targetIssue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
+    const label = targetIssue.labels[0]?.name || 'MEMO';
+    const avatar = targetIssue.user?.avatar_url || 'https://github.com/github.png';
+
+    return `
+        <div class="preview-header">
+            <img src="${avatar}" class="preview-avatar">
+            <div class="preview-meta">
+                <span class="preview-author">${targetIssue.user?.login || 'Author'}</span>
+                <span class="preview-date">发布于 ${date}</span>
+            </div>
+        </div>
+        <div class="preview-title">${targetIssue.title}</div>
+        <div class="preview-excerpt markdown-body">${renderedExcerpt}</div>
+        <div class="preview-footer">
+            <span class="preview-label">${label}</span>
+        </div>
+    `;
+}
+
 function closePost() {
     const urlParams = new URLSearchParams(window.location.search);
     const owner = (typeof CONFIG !== 'undefined') ? CONFIG.owner : 'Blog';
-    if (urlParams.has('post')) {
-        history.pushState({}, "Blog |" + owner, window.location.pathname);
+    
+    // 检查是否匹配 /post/NUM 路径或 ?post=NUM 参数
+    const isPostPath = /^\/post\/\d+/.test(window.location.pathname);
+    if (isPostPath || urlParams.has('post')) {
+        history.pushState({}, "Blog |" + owner, window.location.pathname.replace(/\/post\/\d+.*$/, ''));
     }
+    
     const area = document.getElementById('content-area');
     const overlay = document.getElementById('post-overlay');
     const progressBar = document.getElementById('reading-progress');
@@ -871,7 +932,7 @@ function closePost() {
 
 // 分享功能函数
 function shareToWeibo(title, url) {
-    const shareUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    const shareUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title || '')}`;
     window.open(shareUrl, '_blank', 'width=600,height=400');
 }
 
@@ -920,7 +981,7 @@ function showWechatShare(title, url) {
 }
 
 function shareToTwitter(title, url) {
-    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title || '')}&url=${encodeURIComponent(url)}`;
     window.open(shareUrl, '_blank', 'width=600,height=400');
 }
 
@@ -937,33 +998,6 @@ function copyPostLink(url) {
         console.error('复制失败:', err);
         showNotification('复制失败，请手动复制', 'error');
     });
-}
-
-function showNotification(message, type = 'info') {
-    const container = document.getElementById('notification-container');
-    if (!container) return;
-    
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
-        color: white;
-        border-radius: 5px;
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
-    `;
-    
-    container.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
 }
 
 /**
@@ -1027,11 +1061,7 @@ function loadPostHistory(issueNumber) {
                 const repo = typeof CONFIG !== 'undefined' ? CONFIG.repo : '';
                 if (owner && repo) {
                     const cached = postHistory.getCache(owner, repo, issueNumber);
-                    if (cached && cached.length > 0) {
-                        countEl.textContent = `${cached.length}`;
-                    } else {
-                        countEl.textContent = '';
-                    }
+                    countEl.textContent = (cached && cached.length > 0) ? `${cached.length}` : '';
                 }
             });
         } else {
@@ -1044,28 +1074,30 @@ function loadPostHistory(issueNumber) {
 
     // 尝试从缓存快速显示计数
     if (typeof postHistory !== 'undefined') {
-        ensureConfig().then(() => {
+        ensureConfig().then(async () => {
             const owner = typeof CONFIG !== 'undefined' ? CONFIG.username : '';
             const repo = typeof CONFIG !== 'undefined' ? CONFIG.repo : '';
-            if (owner && repo) {
-                const cached = postHistory.getCache(owner, repo, issueNumber);
-                if (cached && cached.length > 0) {
-                    countEl.textContent = `${cached.length}`;
-                    // 有缓存，标记已加载，打开弹窗时不重复请求
-                    _historyLoaded = true;
+            if (!owner || !repo) return;
+
+            const cached = postHistory.getCache(owner, repo, issueNumber);
+            if (cached && cached.length > 0) {
+                countEl.textContent = `${cached.length}`;
+                // 有缓存：渲染到弹窗容器中，标记已加载
+                const historyContainer = document.getElementById('history-list');
+                if (historyContainer) {
+                    historyContainer.innerHTML = postHistory.generateHistoryHTML(cached);
+                }
+                _historyLoaded = true;
+            } else {
+                // 无缓存时预加载并等待完成后更新计数
+                _historyLoaded = true; // 标记为已加载，避免弹窗时重复请求
+                await postHistory.loadAndDisplay(issueNumber, 'history-list');
+                // loadAndDisplay 完成后，缓存中已有数据，直接读取
+                const updatedCache = postHistory.getCache(owner, repo, issueNumber);
+                if (updatedCache && updatedCache.length > 0) {
+                    countEl.textContent = `${updatedCache.length}`;
                 } else {
-                    // 无缓存时预加载
-                    _historyLoaded = true; // 标记为已加载，避免弹窗时重复请求
-                    postHistory.loadAndDisplay(issueNumber, 'history-list');
-                    // 获取实际数量
-                    setTimeout(() => {
-                        const updatedCache = postHistory.getCache(owner, repo, issueNumber);
-                        if (updatedCache && updatedCache.length > 0) {
-                            countEl.textContent = `${updatedCache.length}`;
-                        } else {
-                            countEl.textContent = '0';
-                        }
-                    }, 1200);
+                    countEl.textContent = '0';
                 }
             }
         });

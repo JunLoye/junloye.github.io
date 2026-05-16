@@ -134,15 +134,19 @@ const postHistory = {
         const timelineEvents = [];
         let page = 1;
         const perPage = 100;
+        // 尝试使用已登录用户的 token 进行认证请求，提高限流配额
+        const token = localStorage.getItem('gh_access_token');
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        };
+        if (token) {
+            headers['Authorization'] = `token ${token}`;
+        }
 
         try {
             while (true) {
                 const url = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}/timeline?per_page=${perPage}&page=${page}`;
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
+                const response = await fetch(url, { headers });
 
                 if (response.status === 404) {
                     console.warn('Timeline API 返回404，该Issue可能不存在');
@@ -153,12 +157,9 @@ const postHistory = {
                     console.warn('Timeline API 返回410（已不可用），将回退到Events API');
                     break;
                 }
-                if (response.status === 403) {
-                    console.warn('Timeline API 被限流');
-                    if (page <= 1) {
-                        await new Promise(r => setTimeout(r, 1000));
-                        continue;
-                    }
+                if (response.status === 403 || response.status === 429) {
+                    // 403/429 限流，无需重试直接放弃，避免耗尽配额影响Events API
+                    console.warn('Timeline API 限流(' + response.status + ')，跳过Timeline，使用Events API');
                     break;
                 }
                 if (!response.ok) {
@@ -220,15 +221,19 @@ const postHistory = {
         let page = 1;
         const perPage = 30;
         const maxEvents = 100;
+        // 尝试使用已登录用户的 token 进行认证请求
+        const token = localStorage.getItem('gh_access_token');
+        const headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        };
+        if (token) {
+            headers['Authorization'] = `token ${token}`;
+        }
 
         try {
             while (events.length < maxEvents) {
                 const url = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}/events?per_page=${perPage}&page=${page}`;
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
+                const response = await fetch(url, { headers });
 
                 if (response.status === 404) {
                     console.warn('Events API 返回404，Issue可能不存在或已被删除');
@@ -238,13 +243,9 @@ const postHistory = {
                     console.warn('Events API 返回410，事件已过期不可用');
                     break;
                 }
-                if (response.status === 403) {
-                    console.warn('Events API 被限流，等待后重试');
-                    // 限流时等待一秒后重试一次
-                    if (page <= 1) {
-                        await new Promise(r => setTimeout(r, 1000));
-                        continue;
-                    }
+                if (response.status === 403 || response.status === 429) {
+                    // 限流时直接放弃，避免连锁限流
+                    console.warn('Events API 限流(' + response.status + ')，跳过Events API');
                     break;
                 }
                 if (!response.ok) {
@@ -293,8 +294,12 @@ const postHistory = {
     /**
      * 获取Issue编辑历史（综合Timeline API和Events API）
      * Timeline API优先，Events API补充
+     * @param {number} issueNumber - Issue编号
+     * @param {string} owner - 仓库所有者
+     * @param {string} repo - 仓库名
+     * @param {object} [issueData] - 可选的Issue数据，用于在API限流时生成兜底事件，避免额外API请求
      */
-    async fetchIssueHistory(issueNumber, owner, repo) {
+    async fetchIssueHistory(issueNumber, owner, repo, issueData) {
         // 先检查缓存（仅当缓存非空时使用）
         const cached = this.getCache(owner, repo, issueNumber);
         if (cached && cached.length > 0) {
@@ -331,7 +336,67 @@ const postHistory = {
             this.setCache(owner, repo, issueNumber, mergedEvents);
         }
 
+        // 4. 即使API没有返回历史事件，也生成一条"创建"事件作为兜底
+        //    这样任何已发布的文章至少会显示一条创建记录
+        //    优先使用传入的issueData，避免额外API请求(可能被限流)
+        if (mergedEvents.length === 0) {
+            const syntheticEvent = this.generateLocalCreatedEvent(issueNumber, issueData);
+            if (syntheticEvent) {
+                mergedEvents.push(syntheticEvent);
+                this.setCache(owner, repo, issueNumber, mergedEvents);
+            }
+        }
+
         return mergedEvents;
+    },
+
+    /**
+     * 根据已有的Issue数据生成兜底的"创建"事件（无需额外API调用）
+     * 当所有API都无法获取到编辑历史时，使用已有数据生成一条创建事件
+     */
+    generateLocalCreatedEvent(issueNumber, issueData) {
+        // 优先使用传入的issueData
+        if (issueData && issueData.created_at) {
+            return {
+                id: `created-${issueNumber}-local`,
+                type: 'created',
+                actor: issueData.user ? {
+                    login: issueData.user.login,
+                    avatar_url: issueData.user.avatar_url,
+                    html_url: issueData.user.html_url
+                } : null,
+                created_at: issueData.created_at,
+                issue_edit: null,
+                changes: null,
+                label: null,
+                rename: null
+            };
+        }
+
+        // 其次尝试从全局 allIssues 中查找
+        if (typeof allIssues !== 'undefined' && Array.isArray(allIssues)) {
+            const found = allIssues.find(i => i.number === issueNumber);
+            if (found && found.created_at) {
+                return {
+                    id: `created-${issueNumber}-local`,
+                    type: 'created',
+                    actor: found.user ? {
+                        login: found.user.login,
+                        avatar_url: found.user.avatar_url,
+                        html_url: found.user.html_url
+                    } : null,
+                    created_at: found.created_at,
+                    issue_edit: null,
+                    changes: null,
+                    label: null,
+                    rename: null
+                };
+            }
+        }
+
+        // 无法获取任何数据，返回null
+        console.warn('无法生成兜底创建事件: 缺少Issue数据');
+        return null;
     },
 
     /**
@@ -495,24 +560,30 @@ const postHistory = {
             
             switch (event.type) {
                 case 'issue_edit':
-                    // Timeline API的issue_edit事件 - 包含完整的编辑前后内容
-                    if (event.issue_edit) {
-                        const changes = [];
-                        const titleChanges = event.issue_edit.title;
-                        const bodyChanges = event.issue_edit.body;
-                        
-                        if (titleChanges && titleChanges.from) {
-                            changes.push(`标题已修改`);
+                    // Timeline/Events API的issue_edit事件
+                    // 注意: GitHub Timeline API返回的issue_edit事件将编辑前后内容
+                    // 放在 event.changes 字段中，而不是 event.issue_edit
+                    // event.issue_edit 字段始终为空，需要从 changes 读取
+                    {
+                        const editData = event.changes || event.issue_edit || null;
+                        if (editData) {
+                            const changeDesc = [];
+                            const titleChanges = editData.title;
+                            const bodyChanges = editData.body;
+                            
+                            if (titleChanges && titleChanges.from) {
+                                changeDesc.push(`标题已修改`);
+                            }
+                            if (bodyChanges && bodyChanges.from) {
+                                changeDesc.push('文章内容已编辑');
+                            }
+                            description = changeDesc.join('；') || '文章已编辑';
+                            
+                            // 生成diff展示
+                            diffHtml = this.generateDiffHTML(titleChanges, bodyChanges);
+                        } else {
+                            description = '文章已编辑';
                         }
-                        if (bodyChanges && bodyChanges.from) {
-                            changes.push('文章内容已编辑');
-                        }
-                        description = changes.join('；') || '文章已编辑';
-                        
-                        // 生成diff展示
-                        diffHtml = this.generateDiffHTML(titleChanges, bodyChanges);
-                    } else {
-                        description = '文章已编辑';
                     }
                     break;
                     
@@ -598,11 +669,11 @@ const postHistory = {
     },
 
     /**
-     * 加载并显示历史记录
+     * 加载并显示历史记录，返回事件数组
      */
     async loadAndDisplay(issueNumber, containerId) {
         const container = document.getElementById(containerId);
-        if (!container) return;
+        if (!container) return [];
 
         // 显示加载状态
         container.innerHTML = '<div class="history-loading"><div class="history-spinner"></div><span>加载编辑历史...</span></div>';
@@ -614,7 +685,7 @@ const postHistory = {
 
         if (!owner || !repo) {
             container.innerHTML = '<div class="history-error">无法加载历史记录：配置缺失</div>';
-            return;
+            return [];
         }
 
         // 离线时先尝试从缓存加载
@@ -622,7 +693,7 @@ const postHistory = {
             const cached = this.getCache(owner, repo, issueNumber);
             if (cached && cached.length > 0) {
                 container.innerHTML = this.generateHistoryHTML(cached);
-                return;
+                return cached;
             }
             container.innerHTML = `
                 <div class="history-empty">
@@ -630,11 +701,23 @@ const postHistory = {
                     <p>离线状态下无法加载编辑历史</p>
                     <p style="font-size:0.8rem; margin-top:4px;">联网后将自动获取</p>
                 </div>`;
-            return;
+            return [];
+        }
+
+        // 从已加载的数据中获取Issue信息，用于兜底事件生成（避免额外API请求）
+        let issueData = null;
+        if (typeof allIssues !== 'undefined' && Array.isArray(allIssues)) {
+            issueData = allIssues.find(i => i.number === issueNumber);
+        }
+        // 如果allIssues中没有，尝试从offlineStorage获取
+        if (!issueData && typeof offlineStorage !== 'undefined') {
+            issueData = offlineStorage.getIssueData(issueNumber);
         }
 
         // 使用综合方法获取历史（Timeline API + Events API）
-        const events = await this.fetchIssueHistory(issueNumber, owner, repo);
+        // 传入issueData用于API限流时的兜底创建事件
+        const events = await this.fetchIssueHistory(issueNumber, owner, repo, issueData);
         container.innerHTML = this.generateHistoryHTML(events);
+        return events;
     }
 };

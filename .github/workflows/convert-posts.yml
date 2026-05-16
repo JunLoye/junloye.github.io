@@ -1,0 +1,216 @@
+# ===== GitHub Actions: 博客文章URL转换工作流 =====
+# 功能：当有新 Issue 被创建/发布时，自动将其转换为博客文章链接格式
+# - 生成 /post/{issue_number} 格式的规范URL
+# - 更新 RSS feed 使用新URL格式
+# - 兼容旧的 ?post={number} 格式
+# - 筛选规则：只处理作者本人创建的、非"反馈"标签的、状态为 open 的 Issue
+
+name: Convert Posts to Web URLs
+
+on:
+  issues:
+    types: [opened, reopened, labeled, unlabeled]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  convert-and-update:
+    # 只有以下情况才运行：
+    # 1. Issue 作者是仓库 owner
+    # 2. Issue 没有被标记为"反馈"
+    # 3. Issue 状态是 open
+    if: >
+      github.event.issue.state == 'open' &&
+      github.event.issue.user.login == github.repository_owner &&
+      !contains(github.event.issue.labels.*.name, '反馈')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'Jun Loye Bot'
+          git config --global user.email 'bot@junloye.github.io'
+
+      - name: Generate RSS Feed
+        id: generate-rss
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const https = require('https');
+
+          const OWNER = process.env.GITHUB_REPOSITORY_OWNER;
+          const REPO = process.env.GITHUB_REPOSITORY.split('/')[1];
+          const SITE_URL = `https://${OWNER}.github.io`;
+
+          console.log(`Generating RSS for: ${OWNER}/${REPO}`);
+
+          function fetch(url) {
+            return new Promise((resolve, reject) => {
+              https.get(url, { headers: { 'User-Agent': 'GitHub-Actions' } }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                  try { resolve(JSON.parse(data)); }
+                  catch(e) { reject(e); }
+                });
+              }).on('error', reject);
+            });
+          }
+
+          async function main() {
+            try {
+              // 获取所有 open 的 Issue（作者本人的，且非反馈标签）
+              const query = encodeURIComponent(`repo:${OWNER}/${REPO} is:issue is:open`);
+              const result = await fetch(
+                `https://api.github.com/search/issues?q=${query}&sort=created&order=desc&per_page=100`
+              );
+
+              if (!result.items || result.items.length === 0) {
+                console.log('No items found');
+                return;
+              }
+
+              const items = result.items.filter(issue => {
+                const isAuthor = issue.user && issue.user.login === OWNER;
+                const hasFeedbackTag = issue.labels.some(l => l.name === '反馈');
+                return isAuthor && !hasFeedbackTag;
+              });
+
+              if (items.length === 0) {
+                console.log('No valid items after filtering');
+                return;
+              }
+
+              // 构建 RSS XML
+              const pubDate = new Date().toUTCString();
+              const rssItems = items.map(issue => {
+                const title = escapeXml(issue.title);
+                const postUrl = `${SITE_URL}/post/${issue.number}`;
+                const createdDate = new Date(issue.created_at).toUTCString();
+                const label = issue.labels && issue.labels.length > 0
+                  ? escapeXml(issue.labels[0].name)
+                  : 'Blog';
+                
+                // 生成摘要（纯文本）
+                let description = '';
+                if (issue.body) {
+                  // 提取 Summary 部分
+                  const summaryMatch = issue.body.match(/\[Summary\]\s*([\s\S]*?)(?=\n---|\[Content\]|###|$)/);
+                  if (summaryMatch) {
+                    description = summaryMatch[1].split('\n').filter(Boolean).slice(0, 3).join(' ').substring(0, 300);
+                  } else {
+                    description = issue.body.replace(/\[Cover\]\s*http\S+/g, '')
+                      .replace(/\[Content\]/g, '').replace(/\[Summary\]/g, '')
+                      .replace(/\[References\]/g, '').replace(/!\[.*?\]\(.*?\)/g, '')
+                      .replace(/#{1,6}\s+/g, '').replace(/```[\s\S]*?```/g, '')
+                      .trim().substring(0, 300);
+                  }
+                }
+
+                return `
+    <item>
+        <title>${title}</title>
+        <description><![CDATA[<p>${escapeXml(description.substring(0, 200))}</p>]]></description>
+        <link>${postUrl}</link>
+        <guid isPermaLink="true">${postUrl}</guid>
+        <pubDate>${createdDate}</pubDate>
+        <category>${label}</category>
+    </item>`;
+              }).join('');
+
+              const rssXml = `<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+    <title>${escapeXml(OWNER)}'s Blog</title>
+    <link>${SITE_URL}</link>
+    <description>${escapeXml(OWNER)} 的个人博客，分享编程技术、生活点滴与思考。</description>
+    <language>zh-cn</language>
+    <lastBuildDate>${pubDate}</lastBuildDate>
+    <pubDate>${pubDate}</pubDate>
+    <generator>GitHub Issues Blog System (Auto-Generated)</generator>
+    <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml"/>
+    ${rssItems}
+</channel>
+</rss>`;
+
+              fs.writeFileSync('rss.xml', rssXml, 'utf-8');
+              console.log(`RSS feed generated with ${items.length} items`);
+              console.log(`Posts written as /post/NUM format`);
+
+              // 输出文章列表供后续使用
+              const postList = items.map(i => ({
+                number: i.number,
+                title: i.title,
+                url: `/post/${i.number}`,
+                createdAt: i.created_at
+              }));
+              fs.writeFileSync('post-list.json', JSON.stringify(postList, null, 2), 'utf-8');
+
+            } catch (err) {
+              console.error('Error:', err);
+              process.exit(1);
+            }
+          }
+
+          function escapeXml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&')
+              .replace(/</g, '<').replace(/>/g, '>')
+              .replace(/"/g, '"').replace(/'/g, ''');
+          }
+
+          main();
+          EOF
+
+      - name: Commit and Push Changes
+        run: |
+          git add rss.xml post-list.json
+          git diff --staged --quiet || (git commit -m "chore: auto-update RSS feed with /post/NUM URLs [skip ci]" && git push)
+
+  # 额外的 job：当 Issue 被标记时更新标签
+  update-labels:
+    if: >
+      github.event.issue.state == 'open' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Post URL as Issue Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const owner = context.repo.owner;
+            const postUrl = `https://${owner}.github.io/post/${issueNumber}`;
+            const legacyUrl = `https://${owner}.github.io/?post=${issueNumber}`;
+
+            // 检查是否已有URL注释
+            const comments = await github.rest.issues.listComments({
+              issue_number: issueNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const botComment = comments.data.find(c =>
+              c.user.type === 'Bot' && c.body && c.body.includes('博客文章链接')
+            );
+
+            if (!botComment) {
+              // 添加URL注释
+              await github.rest.issues.createComment({
+                issue_number: issueNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 📝 博客文章链接\n\n您的文章已自动生成以下链接：\n\n**规范链接（推荐）：** [${postUrl}](${postUrl})\n\n**兼容旧版链接：** [${legacyUrl}](${legacyUrl})\n\n> 两种链接均可正常访问，新链接格式为 \`/post/{文章编号}\``
+              });
+            }

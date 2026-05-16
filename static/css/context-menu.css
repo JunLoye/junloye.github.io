@@ -48,6 +48,14 @@
 
 [data-theme='dark'] .menu-item { color: #f5f5f7; }
 
+[data-theme='dark'] .menu-item svg {
+    fill: #f5f5f7;
+}
+
+.menu-item:hover svg {
+    fill: currentColor;
+}
+
 .menu-item:hover {
     background-color: var(--accent, #007aff);
     color: white !important;

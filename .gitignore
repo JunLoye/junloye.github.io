@@ -10,3 +10,6 @@ build/
 .idea/
 *.vscode/
 .DS_Store
+
+# 自动生成的文件
+post-list.json

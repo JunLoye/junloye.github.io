@@ -1,503 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
+<rss version="2.0"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
     <title>Jun Loye's Blog</title>
     <link>https://junloye.github.io</link>
     <description>Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖技术、算法与数据结构等内容</description>
     <language>zh-cn</language>
+    <lastBuildDate>Sat, 16 May 2026 02:43:52 GMT</lastBuildDate>
     <pubDate>Sat, 16 May 2026 02:43:52 GMT</pubDate>
     <generator>GitHub Issues Blog System</generator>
-    <atom:link href="https://junloye.github.io/rss.xml" rel="self" type="application/rss+xml" xmlns:atom="http://www.w3.org/2005/Atom"/>
+    <atom:link href="https://junloye.github.io/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
         <title>魔杖学</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p>在《哈利·波特》魔法世界的宏大叙事中，<strong>魔杖学</strong>（Wandlore）远不只是关于一根木棍的学问。它是魔法与巫师灵魂交织的古老艺术，是贯穿整个系列的核心魔法体系，更是理解巫师身份与命运的关键密码。从公元前382年奥利凡德家族创立至今，魔杖学经历了德鲁伊传统的传承、罗马扩张带来的工艺革命、三大至尊杖芯的确立，以及无数震惊魔法界的魔杖归属之争。其历史之悠久、体系之精密、内涵之深邃，堪比任何一本魔法史书。</p>
-<h2>一、起源与早期历史：罗马扩张与德鲁伊传统</h2>
-<h3>1.1 创立背景：公元前382年的魔杖王朝</h3>
-<p>魔杖学的历史几乎与魔杖制作本身一样古老，可追溯至数千年前。在英伦三岛，奥利凡德家族随着罗马帝国向不列颠的扩张而来，向当地古代巫师出售魔杖——那些巫师的魔杖相比之下做工粗糙、性能极不稳定。 奥利凡德这个姓氏本身意为"拥有橄榄木魔杖的人"，暗示家族最初来自地中海地区，因为橄榄树并非英国本土树种。</p>
-<p>根据加里克·奥利凡德的研究，家族最早的不列颠祖先在罗马人到来时便在此设摊售杖，随后发展为店铺。已知最早的家族成员是中世纪活跃的杰兰特·奥利凡德（Geraint Ollivander）。到了18世纪90年代，家族在霍格莫德分店的珍贵传家魔杖被助手理查德·杰克道偷走，一个世纪后才被发现已遭毁坏。</p>
-<h3>1.2 古代德鲁伊与魔杖传统</h3>
-<p>在奥利凡德家族到来之前，古代德鲁伊已是魔杖制作与魔杖学的大师。他们认为任何具有木质茎干的植物都是树，因此用藤蔓制作魔杖——这一传统在20世纪被加里克·奥利凡德继承并发扬光大。 德鲁伊的哲学深刻影响了后世魔杖学的发展：魔杖不仅是工具，更是巫师灵魂的延伸与映射。</p>
-<p>魔杖学知识在魔法世界中主要通过文化渗透传承，但大多数巫师对此仅有粗浅了解。霍格沃茨魔法学校六年级魔法史课程会简要涉及这一主题，图书馆中也有相关藏书，但魔杖学并非正式课程。 阿不思·邓布利多曾在《诗翁彼豆故事集》的评注中提到自己精通魔杖学， 比尔·韦斯莱也以博学著称，而汤姆·里德尔虽在其他魔法领域造诣颇深，在魔杖学上却相对欠缺。</p>
-<h2>二、魔杖的三重构造：木材、杖芯与长度</h2>
-<h3>2.1 魔杖木材：性格与命运的映射</h3>
-<p>魔杖木材是魔杖学中最直观也最深奥的维度。加里克·奥利凡德对数十种木材进行了系统研究，每一种都与特定性格的主人产生共鸣。</p>
-<p><strong>冬青木</strong>（Holly）是一种较为稀有的魔杖木材，林业工作者较少种植。它倾向于选择那些需要克服易怒和冲动倾向的巫师。冬青木与凤凰羽毛杖芯的组合极为危险，因为两者性质相反；然而，一旦这种配对找到了理想主人，任何人和事都不应试图阻挡他们的道路。 哈利·波特的魔杖正是冬青木与凤凰羽毛的组合，这根魔杖在系列中扮演了至关重要的角色。</p>
-<p><strong>紫杉木</strong>（Yew）则与冬青形成鲜明对比。紫杉树全身有毒（除果肉外），其魔杖被认为赋予持有者生死之力。与紫杉相似，伏地魔的魔杖给无数受害者带来了死亡，而他的纯血统至上信念同样具有毒性。有趣的是，紫杉在树死后仍保持毒性；同样，伏地魔的魂器和食死徒在他于高锥克山谷"死亡"后依然存续，继续毒害人心、摧毁生命。</p>
-<p><strong>接骨木</strong>（Elder）是所有魔杖木材中最稀有、也是最不祥的一种。接骨木魔杖蕴含强大魔力，但鄙视任何不能超越同伴的主人；只有非凡的巫师才能长期保有接骨木魔杖。正如巫师界流传的谚语所说："接骨木魔杖，永远不会兴旺。" 这种迷信其实毫无根据，那些拒绝使用接骨木的愚蠢魔杖制作人更多是因为怀疑自己的产品卖不出去，而非害怕与这种木材打交道。</p>
-<p><strong>山楂木</strong>（Hawthorn）复杂而迷人，最适合它的主人也同样复杂。它有时被称为"医生的魔杖"或"健康之杖"，擅长治疗魔法，但同样精通诅咒。山楂木不易驾驭，只有将其交给已证明才华的巫师才是明智之举，否则后果可能灾难性。</p>
-<p><strong>葡萄藤木</strong>（Vine）是较为罕见的类型，强烈吸引具有隐藏深度的个性。其理想主人几乎总是那些寻求超越平凡的目标、拥有非凡愿景的巫师。葡萄藤木在检测潜在匹配方面比其他任何木材都更敏感，当完美主人仅仅进入房间时，它们就会开始释放魔法效果。 赫敏·格兰杰的魔杖正是葡萄藤木与龙心弦的组合。</p>
-<h3>2.2 至尊杖芯：龙心弦、独角兽毛与凤凰羽毛</h3>
-<p>每一根魔杖都包含一个魔法杖芯，可能在魔杖雕刻完成后被魔法注入。这些杖芯增强魔杖的魔力或赋予木材魔法能力。 加里克·奥利凡德只使用三种他认为是最佳、最强大的魔法杖芯：龙心弦、独角兽尾毛和凤凰羽毛，他称之为"至尊杖芯"（Supreme Cores）。</p>
-<p><strong>龙心弦</strong>（Dragon Heartstring）产生的魔法最为强大和华丽，学习咒语更快更容易，但更容易发生事故。它们是三种杖芯中最可能改变忠诚的，但总会与当前主人建立强烈联系，也是最容易转向黑魔法的杖芯——尽管它不会自动转向黑暗。 赫敏·格兰杰、贝拉特里克斯·莱斯特兰奇、米勒娃·麦格、卢修斯·马尔福等人的魔杖都使用了龙心弦。</p>
-<p><strong>凤凰羽毛</strong>（Phoenix Feather）能够施展最广泛的魔法，尽管可能需要更长时间才能展现这一点。它们表现出最大的主动性，有时会自行行动——这一特质让许多巫师感到不安。凤凰羽毛魔杖对潜在主人最为挑剔，其忠诚通常难以赢得，也是最难驯服和个性化的。 哈利·波特和伏地魔的魔杖都使用了来自同一只凤凰——福克斯（Fawkes）的羽毛，这使它们成为"兄弟魔杖"。</p>
-<p><strong>独角兽尾毛</strong>（Unicorn Tail Hair）产生的魔法不算非常强大，但最为稳定可靠，最不容易发生事故，也最不可能改变忠诚。它们也是最难转向黑魔法的杖芯，但如果处理不当容易枯萎。 塞德里克·迪戈里、德拉科·马尔福、罗恩·韦斯莱（第二根魔杖）等人的魔杖都使用了独角兽尾毛。</p>
-<p>除了三大至尊杖芯，魔法世界还存在许多其他杖芯材料。<strong>夜骐尾毛</strong>（Thestral Tail Hair）被认为是最不稳定、最难驾驭的杖芯物质，只有能够接受死亡的巫师才能掌握；老魔杖正是使用这种杖芯。 <strong>媚娃头发</strong>（Veela Hair）制作的魔杖性情暴躁，芙蓉·德拉库尔的魔杖便使用了这种材料。 <strong>蛇怪角</strong>（Basilisk Horn）则具有强烈的黑魔法亲和力，萨拉查·斯莱特林的魔杖便使用了这种杖芯，且可以通过蛇佬腔命令远程停用。</p>
-<h3>2.3 魔杖长度与弹性：被忽视的关键参数</h3>
-<p>所有魔杖都有各自的长度，通常在9至14英寸之间，但也存在更短（8英寸及以下）和更长（15英寸及以上）的魔杖。长魔杖倾向于适合那些个性鲜明、魔法风格更为开阔和戏剧化的巫师；整洁的魔杖则偏爱优雅精致的施法。 特别短的魔杖会选择性格上有所欠缺的巫师——这一点在多洛雷斯·乌姆里奇身上得到了印证，她的魔杖"异常短小而粗笨"，而她以极端偏执、缺乏同理心和残忍著称。</p>
-<p>魔杖长度与巫师体型之间可能存在某种关联。半巨人鲁伯·海格拥有已知最长的魔杖之一：16英寸长的橡木魔杖；而乌姆里奇则被描述为矮胖如蟾蜍。 然而，奥利凡德认为仅凭身高来匹配魔杖是一种粗劣的衡量方式。</p>
-<p>魔杖的弹性或硬度同样重要，它表征了魔杖与巫师配对愿意改变和适应的程度。例如，哈利的魔杖被描述为"又好又柔软"（nice and supple），贝拉特里克斯的魔杖则是"不屈不挠"（unyielding），德拉科的魔杖"相当有弹性"（reasonably springy），而海格的魔杖"相当弯曲"（rather bendy）。</p>
-<h2>三、著名魔杖与主人：选择与被选中的故事</h2>
-<h3>3.1 哈利与伏地魔：冬青与紫杉的宿命对决</h3>
-<p>哈利·波特与伏地魔的魔杖关系是整个系列最深刻的魔杖学叙事。两根魔杖共享来自福克斯的凤凰羽毛杖芯，使它们成为"兄弟魔杖"。 这种联系在《哈利·波特与火焰杯》中产生了决定性影响：当两根魔杖被迫互相争斗时，它们产生了<strong>闪回前咒</strong>（Priori Incantato）现象，哈利的魔杖迫使伏地魔的魔杖以反向顺序重现其上一个咒语，包括塞德里克·迪戈里、弗兰克·布莱斯、伯莎·乔金斯等人的幻影。</p>
-<p>然而，两根魔杖的木材揭示了主人的本质差异。冬青是传统上象征幸运、繁荣和抵御邪恶的植物，被用于罗马农神节、异教冬至和圣诞节等庆祝仪式。 正如冬青树一样，哈利以"大难不死的男孩"身份抵御了伏地魔的邪恶，团结了魔法界共同庆祝。紫杉则全身有毒，象征着伏地魔带来的死亡与毒性信念。</p>
-<h3>3.2 老魔杖：接骨木与夜骐尾毛的传说</h3>
-<p><strong>老魔杖</strong>（Elder Wand），又称"死亡棒"或"命运之杖"，是死亡圣器之一，据传说由死神本人用接骨木制成。它的杖芯是夜骐尾毛——一种极其强大但极难驾驭的物质，只有能够接受死亡的巫师才能掌握。</p>
-<p>老魔杖的历史充满血腥。从安提俄克·佩弗利尔开始，它经历了埃默里克、埃格伯特、戈德洛特、赫里沃德、巴纳巴斯·德弗里尔、洛希亚斯等无数主人，几乎总是通过谋杀传递。 1945年，阿不思·邓布利多击败盖勒特·格林德沃，获得了老魔杖的忠诚。在邓布利多手中，这根魔杖被大量用于正义事业，包括制造古卜莱仙火——一种被施了魔法永不熄灭的火焰。</p>
-<p>然而，老魔杖的忠诚转移机制最终决定了巫师战争的命运。1997年，德拉科·马尔福在天文塔上解除了邓布利多的武装，无意中成为了老魔杖的新主人——尽管斯内普执行了杀戮咒。 1998年，哈利在马尔福庄园解除了德拉科的武装，从而获得了老魔杖的忠诚。当伏地魔在霍格沃茨大战中使用老魔杖对哈利施放杀戮咒时，魔杖拒绝伤害其真正的主人，咒语反弹，终结了黑魔王的统治。</p>
-<p>战后，哈利用老魔杖修复了自己断裂的冬青木魔杖，随后将其归还邓布利多的坟墓，并计划在自然死亡时让老魔杖的力量随之终结。</p>
-<h3>3.3 其他标志性魔杖</h3>
-<p><strong>赫敏·格兰杰的魔杖</strong>（葡萄藤木，龙心弦，10¾英寸）选择了这位以智慧和正义感著称的女巫。葡萄藤木强烈吸引具有隐藏深度的个性，其理想主人总是那些寻求超越平凡目标的人——这完美契合了赫敏的性格。</p>
-<p><strong>罗恩·韦斯莱的第二根魔杖</strong>（柳木，独角兽尾毛，14英寸）来自哥哥查理。柳木是一种不常见的魔杖木材，具有治愈力量，其理想主人通常有某种（通常是不必要的）不安全感。奥利凡德家族相信"旅途最远的人与柳木同行最快"。</p>
-<p><strong>塞德里克·迪戈里的魔杖</strong>（白蜡木，独角兽尾毛，12¼英寸）体现了白蜡木的特性：白蜡木魔杖忠于其唯一真正的原始主人，如果传给他人——尤其是杖芯为独角兽毛时——会失去力量和技能。</p>
-<p><strong>鲁伯·海格的魔杖</strong>（橡木，16英寸，相当弯曲）在1943年因他被诬陷打开密室而被折断（但疑似被老魔杖修复）。橡木魔杖要求伴侣具有力量、勇气和忠诚，而海格正是这样的人。</p>
-<h2>四、魔杖的忠诚与转移：魔法世界的伦理困境</h2>
-<h3>4.1 魔杖选择巫师：双向选择的深层机制</h3>
-<p>"魔杖选择巫师"（The wand chooses the wizard）是奥利凡德最著名的论断，也是魔杖学的核心原则。这一机制远比表面看起来复杂。魔杖不仅是被动工具，更是具有某种"意识"的魔法实体，能够感知潜在主人的性格、命运和魔法潜力。</p>
-<p>葡萄藤木魔杖能够在完美主人进入房间时就开始释放魔法效果； 凤凰羽毛魔杖最为挑剔，其忠诚通常难以赢得； 冬青木与凤凰羽毛的组合危险而强大，但一旦找到理想匹配便无可阻挡。 这种双向选择机制意味着，巫师不能简单地通过购买或继承获得最适合自己的魔杖——必须是魔杖本身认可了这位巫师。</p>
-<h3>4.2 击败与继承：魔杖忠诚的转移法则</h3>
-<p>魔杖忠诚的转移是魔杖学中最具争议也最致命的领域。对于大多数魔杖，忠诚转移需要前任主人被击败——通常指解除武装或击杀。然而，不同杖芯和木材对此反应各异：龙心弦魔杖最容易改变忠诚，独角兽毛魔杖最不容易改变忠诚，而凤凰羽毛魔杖的忠诚最难赢得也最难以转移。</p>
-<p>老魔杖的忠诚转移机制最为极端和危险。它只承认通过击败前任主人而获得它的巫师，这种"击败"可以是解除武装，不必是谋杀。 这正是邓布利多的计划所在：他安排斯内普杀死自己，希望由于这是预先约定的死亡，老魔杖的力量会随他而终。然而，德拉科·马尔福在天文塔上先一步解除了他的武装，使德拉科成为了老魔杖的主人——这一细节连德拉科本人都不知情。</p>]]></description>
-        <link>https://junloye.github.io/?post=77</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/77</guid>
+        <description><![CDATA[<p>在《哈利·波特》魔法世界的宏大叙事中，魔杖学（Wandlore）远不只是关于一根木棍的学问。它是魔法与巫师灵魂交织的古老艺术...</p>]]></description>
+        <link>https://junloye.github.io/post/77</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/77</guid>
         <pubDate>Sun, 26 Apr 2026 03:16:45 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>古灵阁：巫师世界的唯一金融机构</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p>在《哈利·波特》魔法世界的宏大叙事中，<strong>古灵阁巫师银行</strong>（Gringotts Wizarding Bank）远不只是一个存取金币的场所。它是妖精与巫师数百年权力博弈的见证者，是魔法经济体系的绝对核心，更是贯穿整个系列的关键叙事节点。从1474年成立至今，古灵阁经历了妖精叛乱、魔法部接管、两次巫师战争以及多次震惊世界的抢劫案，其历史之悠久、结构之复杂、秘密之深邃，堪比任何一本魔法史书。</p>
-<h2>一、起源与早期历史：泡沫、肥皂与金融革命</h2>
-<h3>1.1 创立背景：14世纪经济泡沫的余波</h3>
-<p>古灵阁的创立并非偶然，而是直接源于<strong>14世纪巫师经济泡沫</strong>（14th Century Wizarding Economic Bubble）的破裂。这场泡沫在<strong>1378年肥皂暴风雪</strong>（Soap Blizzard of 1378）事件中达到顶峰并彻底崩溃——一场由魔法实验失控引发的灾难，导致经济体系几近瘫痪。一个世纪后，妖精<strong>格林戈特</strong>（Gringott）于<strong>1474年</strong>在伦敦对角巷建立了这座金融堡垒，旨在为混乱的巫师经济提供稳定的存储与流通机制。</p>
-<p>银行最初的格言是拉丁文"<em>Fortius Quo Fidelius</em>"，意为"<em>忠诚带来力量</em>"（<em>Strength through loyalty</em>）。这一格言既是对客户的承诺，也是对妖精员工的警示——背叛银行秘密将被视为"卑鄙的背叛"（base treachery）。</p>
-<h3>1.2 早期管理权的变迁</h3>
-<p>尽管由妖精创立，古灵阁并未长期保持独立。<strong>16世纪初</strong>（约1500年代），英国魔法部开始介入银行管理。历史记录显示，当<strong>特提乌斯</strong>（Tertius）在1500年代申请成为<strong>解咒员</strong>（Curse-Breaker）时，他面对的是两位在门口讨论职位空缺的巫师，这表明此时银行已处于某种程度的巫师监管之下。</p>
-<p>这种"共治"状态持续了三个多世纪，期间妖精与巫师的关系因一系列<strong>妖精叛乱</strong>（Goblin Rebellions）而持续紧张。</p>
-<h2>二、妖精叛乱：血与火中的权利斗争</h2>
-<p>古灵阁的历史与妖精叛乱史密不可分。这些叛乱不仅塑造了妖精与巫师的政治关系，也深刻影响了银行的控制权归属。</p>
-<h3>2.1 1612年叛乱：霍格莫德的烽火</h3>
-<p><strong>1612年</strong>，第一次有详细记载的妖精叛乱在<strong>霍格莫德村</strong>附近爆发。这场叛乱的核心诉求是<strong>妖精在巫师法庭（Wizengamot）中缺乏代表权</strong>。巫师们将<strong>三把扫帚酒馆</strong>（或猪头酒吧）作为平叛指挥部，而妖精们则在附近山区游击作战。</p>
-<p>这场叛乱被描述为"血腥而恶毒"，虽然双方伤亡数字不详，但恐慌程度足以让<strong>霍格沃茨停学一年</strong>。叛乱结束后，魔法部为了安抚妖精情绪，被迫做出让步——尽管古灵阁仍未完全归还妖精管理，但妖精获得了更多自治权。有趣的是，一个妖精用来集结军队的号角战后被发现藏在猪头酒吧的戈尔贡佐拉奶酪中，后来被陈列在霍格沃茨钟楼门厅的陈列柜里。</p>
-<h3>2.2 18世纪叛乱：与狼人的联盟</h3>
-<p><strong>1752年</strong>，更大规模的叛乱席卷英国。这次叛乱的导火索包括：魔法部派遣未经训练的巨怪保安导致妖精<strong>纳格诺克</strong>（Nagnok）意外死亡；臭名昭著的暴力分子<strong>霍卓德</strong>（Hodrod the Horny-Handed）被监禁；以及年轻巫师将妖精激进分子<strong>邋遢鬼拉拉</strong>（Urg the Unclean）按入池塘等事件。</p>
-<p>叛乱中，妖精与<strong>狼人</strong>结成战略联盟，给魔法部造成巨大压力。时任魔法部长<strong>艾伯特·布特</strong>（Albert Boot）因处理不善辞职，其继任者<strong>巴兹尔·弗莱克</strong>（Basil Flack）仅在任两个月便因无法应对妖精-狼人联军而离职。最终，<strong>赫斯菲斯托斯·戈尔</strong>（Hesphaestus Gore）以残酷手段镇压了叛乱，并签订了《1752年妖精协定》（<em>1752 Goblin Accords</em>）。</p>
-<p><strong>邋遢鬼拉拉</strong>（Urg the Unclean）因参与此次叛乱而被载入巧克力蛙卡片，成为妖精反抗精神的象征。罗恩·韦斯莱在四年级考试中甚至靠猜测写对了他的名字。</p>
-<h3>2.3 1890年叛乱：古代魔法的诱惑</h3>
-<blockquote>
-<p>[!NOTE]</p>
-<p>该部分内容源自游戏《霍格沃茨之遗》剧情</p>
-</blockquote>
-<p><strong>1890年</strong>，由<strong>兰洛克</strong>（Ranrok）领导的叛乱将古灵阁本身变成了战场。兰洛克企图利用<strong>古代魔法</strong>（Ancient Magic）为妖精争取竞争优势，其支持者甚至渗透到古灵阁内部。</p>
-<p><strong>1890年9月1日</strong>，兰洛克在一名忠于他的守卫协助下闯入古灵阁，谋杀了一名抗议的妖精银行家，强行进入<strong>12号金库</strong>（Vault 12）——这是由<strong>珀西瓦尔·拉克姆</strong>（Percival Rackham）和<strong>查尔斯·鲁克伍德</strong>（Charles Rookwood）于银行创立初期委托建造的高安全级别金库，受古代魔法保护。</p>
-<p>尽管兰洛克最终被一名霍格沃茨学生击败，但此次事件暴露了古灵阁内部的安全漏洞。更重要的是，它证明了妖精对巫师魔法的渴望——这种渴望源于<strong>1631年魔法部法令</strong>禁止非巫师生物持有魔杖的规定。</p>
-<h2>三、1865年转折：完全妖精自治的确立</h2>
-<p><strong>1865年</strong>是古灵阁历史的分水岭。在这一年，英国魔法部正式将古灵阁的<strong>完全控制权</strong>归还给妖精。这一决定并非慷慨，而是数百年叛乱与妥协的结果。</p>
-<p>归还控制权后，古灵阁建立了独特的<strong>双重治理结构</strong>：</p>
-<ul>
-<li><strong>前台与日常运营</strong>：完全由妖精掌控，包括金库管理、货币发行、客户服务等核心职能</li>
-<li><strong>解咒员与外勤</strong>：雇佣巫师担任<strong>解咒员</strong>（Curse-Breaker），负责在埃及等古墓地破解诅咒、寻找宝藏</li>
-</ul>
-<p>比尔·韦斯莱毕业后便担任此职，其工作被描述为"涉及旅行、冒险和与危险相关的高额宝藏奖金"。芙蓉·德拉库尔也曾为练习英语在古灵阁兼职。</p>
-<p>然而，这种自治是有限度的。魔法部仍通过<strong>魔杖管制</strong>、<strong>反妖精立法</strong>和<strong>经济监控</strong>维持对妖精群体的系统性压制。妖精可以管理银行，但不能持有魔杖；可以铸造货币，但不能打造其他魔法物品——这是1865年法案的核心限制。</p>
-<h2>四、建筑结构与安保系统：地下迷宫的工程学奇迹</h2>
-<h3>4.1 地上建筑：威严与排斥</h3>
-<p>古灵阁位于对角巷北侧，靠近<strong>破釜酒吧</strong>（Leaky Cauldron），毗邻帕特奇坩埚店、<strong>丽痕书店</strong>和<strong>弗洛林冷饮店</strong>。建筑外观为雪白的（snowy white）多层大理石结构，高耸于周围商铺之上，青铜大门后是一条通道，通向银色内门和大理石大厅。</p>
-<p>大厅内，妖精职员坐在长柜台后，用天平仔细称量客户带来的贵金属。这种刻意的"低效"服务既体现了妖精<code>对细节的执着</code>，也是一种心理威慑——在古灵阁，没有什么是仓促的。</p>
-<h3>4.2 地下金库：深度与防御的层级体系</h3>
-<p>古灵阁地下绵延数英里，金库按安全级别分层：</p>
-<p><strong>表层金库（低安全级别）</strong>：</p>
-<ul>
-<li>使用<strong>钥匙</strong>开启，如<strong>687号金库</strong>（哈利·波特的金库）</li>
-<li>距离地面较近，矿车行程较短</li>
-<li>韦斯莱家的金库可能位于此层，内含少量西可和一枚加隆</li>
-</ul>
-<p><strong>深层金库（高安全级别）</strong>：</p>
-<ul>
-<li><strong>711号金库</strong>：属于<strong>小天狼星·布莱克</strong>，需钥匙开启，内含"相当数量的黄金"</li>
-<li><strong>713号金库</strong>：曾存放<strong>魔法石</strong>，位于极深处，需妖精用手指划过门缝才能开启。若非古灵阁妖精尝试开启，会被吸入门内困住，大约每十年检查一次</li>
-</ul>
-<p><strong>最高安全级别金库</strong>：</p>
-<ul>
-<li><strong>莱斯特兰奇家族金库</strong>：由<strong>乌克兰铁肚皮龙</strong>守卫，需妖精将<strong>整个手掌</strong>贴于门上开启。内部施有<strong>复制咒</strong>（Gemino Curse）和<strong>烈火咒</strong>（Flagrante Curse），触碰物品会疯狂增殖并燃烧</li>
-</ul>
-<h3>4.3 动态安保系统</h3>
-<p>古灵阁的防御不仅是静态的，更是动态的：</p>
-<p><strong>防贼瀑布</strong>（Thief's Downfall）：洗去所有伪装咒语、混淆魔法和复方汤剂效果，强制显形</p>
-<p><strong>矿车系统</strong>：由妖精驾驶的小型魔法矿车（mine carts），在铁轨上高速行驶。这些矿车是<strong>自动推进的</strong>（self-propelled），似乎能自行沿着地下通道的轨道 转向，妖精无需操控方向。矿车只有一个速度，这让海格感到非常不适。</p>
-<p><strong>守卫力量</strong>：</p>
-<ul>
-<li><strong>妖精守卫</strong>：配备长矛，训练有素</li>
-<li><strong>安全巨怪</strong>（Security Trolls）：曾用于守卫高安全级别金库，但因1752年纳格诺克事件后一度被撤换</li>
-<li><strong>龙</strong>：半盲的乌克兰铁肚皮龙，对特定频率声音产生条件反射（如丁当片），被囚禁于地下多年</li>
-<li><strong>斯芬克斯</strong>：1998年抢劫案后短暂替代龙，但因出谜语难倒客户（如<strong>马洛里·特威德尔</strong>投诉无法回答斯芬克斯的谜题）而于1999年2月恢复用龙</li>
-</ul>
-<h2>五、两次震惊世界的抢劫案</h2>
-<h3>5.1 1991年抢劫案：奇洛的失败的尝试</h3>
-<p><strong>1991年7月31日</strong>，<strong>奎里纳斯·奇洛</strong>在伏地魔的指令下闯入<strong>713号金库</strong>，试图窃取<strong>魔法石</strong>。然而，<strong>鲁伯·海格</strong>在同一天早些时候已按邓布利多的命令取走魔法石，将其转移至霍格沃茨保护。</p>
-<p>这是古灵阁历史上首次已知的安全漏洞。《预言家日报》报道此事时，妖精发言人坚称"什么都没被偷走"，并拒绝透露金库原存放何物。</p>
-<h3>5.2 1998年抢劫案：黄金三人组的"成功"与毁灭</h3>
-<p><strong>1998年5月</strong>，<strong>哈利·波特、罗恩·韦斯莱和赫敏·格兰杰</strong>在妖精<strong>拉环</strong>（Griphook）的协助下，实施了古灵阁历史上最成功的抢劫——也是最灾难性的安全 breach。</p>
-<p><strong>作案过程</strong>：</p>
-<ul>
-<li><strong>伪装</strong>：赫敏使用<strong>复方汤剂</strong>伪装成<strong>贝拉特里克斯·莱斯特兰奇</strong>，但立即因行为举止不符而引起妖精怀疑</li>
-<li><strong>控制</strong>：哈利对妖精<strong>博格罗德</strong>（Bogrod）和食死徒<strong>特拉弗斯</strong>（Travers）施<strong>夺魂咒</strong>（Imperius Curse）</li>
-<li><strong>突破</strong>：使用<strong>隐形衣</strong>、<strong>混淆咒</strong>和<strong>昏迷咒</strong>突破防线</li>
-<li><strong>盗取</strong>：进入莱斯特兰奇金库，利用<strong>格兰芬多宝剑</strong>的仿制品欺骗拉环，取得<strong>赫奇帕奇的金杯</strong></li>
-<li><strong>逃脱</strong>：骑乘半盲龙撞破穹顶逃离，导致古灵阁部分建筑损毁</li>
-</ul>
-<p><strong>后果</strong>：</p>
-<ul>
-<li>伏地魔得知后，<strong>亲手屠杀</strong>了多名古灵阁守卫和职员，包括拉环</li>
-<li>古灵阁被迫于1998年7月31日前将龙换成斯芬克斯，但于1999年2月恢复用龙</li>
-<li>此次事件严重损害了古灵阁"不可攻破"的声誉</li>
-</ul>
-<h2>六、货币体系：加隆、西可与纳特的魔法经济学</h2>
-<p>古灵阁发行并管理着巫师世界的唯一法定货币，其设计体现了妖精对贵金属的痴迷与对巫师的微妙抵抗。</p>
-<h3>6.1 货币规格与材质</h3>
-<p>| 货币单位 | 材质 | 直径 | 重量 | 价值换算 | 麻瓜货币参考（1991年） |</p>
-<p>|---------|------|------|------|---------|---------------------|</p>
-<p>| <strong>加隆</strong>（Galleon） | 纯金 | 约1.5英寸（38mm） | 0.2盎司（5.7克） | 基准单位 | 约£4.93（按金价）/ £5.00（实际购买力） |</p>
-<p>| <strong>西可</strong>（Sickle） | 纯银 | 略小于加隆 | 未明确 | 1加隆 = 17西可 | 约£0.29 |</p>
-<p>| <strong>纳特</strong>（Knut） | 青铜 | 最小 | 未明确 | 1西可 = 29纳特 | 约£0.01 |</p>
-<p>这套<strong>十七进制与二十九进制混合</strong>的体系被罗琳设计为"对数学不好者最不友好的货币系统"。17和29都是质数，使得心算极为困难——这或许是妖精有意为之的专业壁垒。</p>
-<h3>6.2 货币铸造与流通</h3>
-<p>所有货币均由古灵阁妖精<strong>手工铸造</strong>，边缘刻有复杂纹路以防伪造。根据<strong>《魔杖条例》</strong>，妖精被禁止持有魔杖，但他们在铸造过程中使用<strong>天生魔法</strong>（inherent magic），使货币具有抗腐蚀、易识别等特性。</p>
-<p><strong>货币回收机制</strong>：麻瓜兑换的英镑最终会通过妖精的渠道重新流入麻瓜经济体系，但具体运作方式不明。这种单向或双向的货币流动，构成了巫师与麻瓜经济体系的脆弱连接点。</p>
-<h3>6.3 金融服务的缺失</h3>
-<p>与现代银行不同，古灵阁<strong>不提供以下服务</strong>：</p>
-<ul>
-<li><strong>存款利息</strong>：巫师存钱不会增值，这解释了为何纯血家族如马尔福家倾向于囤积实物财富</li>
-<li><strong>贷款业务</strong>：没有证据表明古灵阁提供贷款，巫师似乎依赖家族积蓄或私人借贷</li>
-<li><strong>投资产品</strong>：无股票、债券或基金，巫师经济停留在前资本主义阶段</li>
-<li><strong>信用体系</strong>：无信用卡、支票，所有交易均为现金或金库直接转账</li>
-</ul>
-<p>这种"原始性"可能是魔法部限制的结果，也可能是妖精维持控制权的策略——通过保持金融系统的简单性，防止巫师获得经济自主权。</p>
-<h2>七、妖精哲学：制造者权利与财产观念的冲突</h2>
-<p>古灵阁的核心矛盾在于<strong>妖精与巫师对"所有权"的根本分歧</strong>。</p>
-<h3>7.1 制造者权利理论（Maker's Right）</h3>
-<p>妖精认为，<strong>物品的制造者才是其永久所有者</strong>，购买者仅拥有使用权，无权在死后传给后代。这一观念在《死亡圣器》中通过拉环对<strong>格兰芬多宝剑</strong>的索求达到高潮——拉环坚持认为宝剑属于妖精制造者<strong>莱格纳克一世</strong>（Ragnuk the First），格兰芬多只是"借用"。</p>
-<p>这种哲学解释了为何古灵阁金库中堆满"无人认领"的宝物：许多妖精打造的物品在巫师死后被收回，或因继承争议而滞留银行。</p>
-<h3>7.2 中立性的伦理</h3>
-<p>妖精严格遵守<strong>绝对中立</strong>原则：不为善恶所动，只为契约服务。他们既为邓布利多的盟友保管财富，也为伏地魔的追随者（如莱斯特兰奇家族）守护金库；既接受哈利的存款，也接受黑巫师的脏钱。</p>
-<p>这种中立性在<strong>第二次巫师战争</strong>期间达到极致。当魔法部被伏地魔控制后，食死徒<strong>特拉弗斯</strong>等人被派驻古灵阁"监督"运营，但妖精仍维持基本服务。然而，这种中立也是脆弱的——当哈利等人抢劫金库后，伏地魔的屠杀证明，妖精的中立在绝对暴力面前不堪一击。</p>
-<h2>八、与魔法部的关系：控制与自治的拉锯</h2>
-<p>古灵阁与英国魔法部的关系史，是一部<strong>监管与反监管</strong>的斗争史：</p>
-<p>| 时期 | 控制状态 | 关键事件 |</p>
-<p>|------|---------|---------|</p>
-<p>| 1474-1500s | 完全妖精自治 | 格林戈特创立银行 |</p>
-<p>| 1500s-1865 | 魔法部共治/监管 | 妖精叛乱频发，魔法部逐步介入 |</p>
-<p>| 1865-1997 | 完全妖精自治 | 《1865年古灵阁法案》归还控制权 |</p>
-<p>| 1997-1998 | 魔法部/食死徒控制 | 伏地魔掌控魔法部，派驻食死徒"监督" |</p>
-<p>| 1998至今 | 恢复妖精自治 | 金斯莱·沙克尔波特任部长后归还控制权 |</p>
-<p><strong>1997-1998年的接管</strong>尤为特殊。这不是正常的政府监管，而是<strong>伏地魔恐怖统治</strong>的延伸。食死徒<strong>特拉弗斯</strong>等人被安插进银行，使用<strong>诚实探测器</strong>（Probity Probes）检查客户，古灵阁被迫配合搜查。这种状态下，银行虽在运营，但已丧失核心机密性——这正是妖精最珍视的价值。</p>
-<h2>九、文化隐喻与现实映射</h2>
-<h3>9.1 历史原型：中世纪犹太银行家</h3>
-<p>古灵阁的设定明显借鉴了<strong>中世纪欧洲犹太银行家</strong>的历史。正如犹太人在基督教世界被禁止拥有土地而从事金融业，妖精在巫师世界被禁止持有魔杖而掌控银行；正如犹太人遭受排犹主义的刻板印象（鹰钩鼻、贪婪、阴谋论），妖精也被描绘为外貌奇特、唯利是图、不可信任。</p>
-<p>这种映射在当代引发了学术批评，认为罗琳无意中复制了有害的种族刻板印象。然而，从叙事角度看，这种设定成功创造了巫师世界的"他者"经济族群，强化了魔法社会的阶层分化。</p>
-<h3>9.2 经济哲学：金本位制的魔法回归</h3>
-<p>古灵阁的货币体系是一种<strong>纯粹的金本位制</strong>：每一枚加隆都有对应的黄金价值，无信用货币、无通货膨胀（理论上）、无央行调控。这种"原始"体系反映了罗琳对现代金融体系的某种怀旧式拒绝——在魔法世界，钱就是钱，不是数字，不是债务，而是沉甸甸的金属。</p>
-<h3>9.3 阶级象征：金库深度与家族历史</h3>
-<p>在古灵阁，<strong>深度即地位</strong>。最古老的纯血家族（布莱克、莱斯特兰奇、马尔福）拥有最深的金库，而像韦斯莱这样的"血统叛徒"或贫困家族只能在表层金库有一小堆西可。这种空间政治学将经济资本转化为象征资本，巩固了巫师世界的阶级秩序。</p>
-<h2>十、未解之谜与争议</h2>
-<p>尽管资料丰富，古灵阁仍存在诸多谜团：</p>
-<p><strong>1. 创始人格林戈特的归宿</strong>：这位1474年创立银行的妖精，其生平、死亡及继承关系从未被详细记载。</p>
-<p><strong>2. 12号金库的真相</strong>：1890年事件中，拉克姆和鲁克伍德留下的<strong>冥想盆</strong>（Pensieve）及其中的记忆，暗示古灵阁可能还隐藏着更多古代魔法的秘密。</p>
-<p><strong>3. 妖精颠覆集团的现状</strong>：《预言家日报》曾透露，现代仍有秘密妖精组织对抗魔法部，但从未被证实。</p>
-<p><strong>4. 国际古灵阁网络</strong>：古灵阁在"各国都设有分行"，但这些分行的自治程度、与英国总部的关系，以及各国妖精叛乱的历史，仍是一片空白。</p>
-<p><strong>5. 龙的权利问题</strong>：古灵阁使用的龙被囚禁于地下多年，导致半盲和条件反射性服从。这种对魔法生物的虐待，在巫师伦理中从未被质疑。</p>
-<h2>结语：不朽的金融堡垒</h2>
-<p>古灵阁巫师银行是J.K.罗琳世界构建中最复杂、最具历史纵深的设定之一。它不仅是哈利冒险的起点（第一次取钱）和终点（夺取魂器），更是理解魔法社会权力结构的钥匙。在这座由妖精守护的大理石宫殿里，每一枚加隆都承载着五百年的血与火，每一道金库门都见证着叛乱与妥协。</p>
-<p>当拉环在临死前仍执着于格兰芬多宝剑的归属时，他体现的是妖精不可动摇的制造者信念；当妖精们在1998年后迅速恢复用龙守卫金库时，他们展示的是对安全神话的执着重建。古灵阁的真正魔法，不在于它的防贼瀑布或复制咒，而在于它如何在巫师与妖精的永恒张力中，维持着那个脆弱而必要的平衡。</p>]]></description>
-        <link>https://junloye.github.io/?post=76</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/76</guid>
+        <description><![CDATA[<p>在《哈利·波特》魔法世界的宏大叙事中，古灵阁巫师银行（Gringotts Wizarding Bank）远不只是一个存取金币的场所...</p>]]></description>
+        <link>https://junloye.github.io/post/76</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/76</guid>
         <pubDate>Tue, 17 Feb 2026 13:14:32 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>破釜酒吧详细解析</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<blockquote>
-<p>[!AI]</p>
-<p>由于已确认的信息远超出原著，本篇文章由AI辅助生成，已对内容进行审核修正，如有错漏，请点击<code>纠错/反馈</code>按钮进行反馈</p>
-</blockquote>
-<blockquote>
-<p>[!CAUTION]</p>
-<p>本文中大部分内容在原著中没有具体说明，原著党谨慎阅读</p>
-</blockquote>
-<h2>前记</h2>
-<p><strong>破釜酒吧</strong>（<strong>The Leaky Cauldron</strong>）是J.K.罗琳创造的《哈利·波特》魔法世界中最古老、最重要的机构（某种意义上的）之一。作为伦敦查令十字路上一间看似破旧的小酒吧，它不仅是通往对角巷的唯一官方入口，更是英国巫师社会与麻瓜世界之间的关键连接点。本文将从历史渊源、建筑结构、历任店主、魔法机制、重要事件及文化象征等多个维度，对这一传奇场所进行前所未有的深度解析。</p>]]></description>
-        <link>https://junloye.github.io/?post=74</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/74</guid>
+        <description><![CDATA[<p>破釜酒吧（The Leaky Cauldron）是J.K.罗琳创造的《哈利·波特》魔法世界中最古老、最重要的机构之一...</p>]]></description>
+        <link>https://junloye.github.io/post/74</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/74</guid>
         <pubDate>Sun, 15 Feb 2026 13:46:17 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>对角巷详细解析</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p>对角巷（Diagon Alley）是J.K.罗琳创造的《哈利·波特》魔法世界中最具标志性的地点，也是英国巫师界最繁华的商业中心。这条隐藏在伦敦查令十字路破釜酒吧后院的鹅卵石街道，不仅承载着千年的魔法商业传统，更是连接麻瓜世界与魔法世界的重要门户。本文将对对角巷的<strong>每一家已知店铺</strong>进行前所未有的详细解析，包括地理位置、历史渊源、店主信息、商品详情、经典场景及文化意义。</p>]]></description>
-        <link>https://junloye.github.io/?post=73</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/73</guid>
+        <description><![CDATA[<p>对角巷（Diagon Alley）是J.K.罗琳创造的《哈利·波特》魔法世界中最具标志性的地点...</p>]]></description>
+        <link>https://junloye.github.io/post/73</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/73</guid>
         <pubDate>Sun, 15 Feb 2026 03:31:45 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>霍格沃茨魔法学校介绍（变形术篇）</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p><strong>变形术</strong>（Transfiguration）被公认为霍格沃茨魔法学校最复杂、最危险、也最优雅的魔法学科之一。作为一门改变物体形态与本质的魔法艺术，变形术要求学生具备极高的专注力、精确性和理论基础。本文将从历史渊源、理论体系、历任教授、课程内容及魔法法则等多个维度，全面解析这门核心魔法课程。</p>]]></description>
-        <link>https://junloye.github.io/?post=62</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/62</guid>
+        <description><![CDATA[<p>变形术（Transfiguration）被公认为霍格沃茨魔法学校最复杂、最危险、也最优雅的魔法学科之一...</p>]]></description>
+        <link>https://junloye.github.io/post/62</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/62</guid>
         <pubDate>Wed, 11 Feb 2026 10:06:10 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>霍格沃茨魔法学校介绍（教授篇）</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<blockquote>
-<p>[!IMPORTANT]</p>
-<p>本文基于J.K.罗琳《哈利·波特》系列小说、Pottermore/Wizarding World官方资料及《霍格沃茨之遗》游戏设定整理</p>
-</blockquote>
-<p>霍格沃茨魔法学校作为英国最负盛名的魔法教育机构，其辉煌历史与历任教授的卓越贡献密不可分。本文将系统梳理这所千年学府的教授阵容，从创校四巨头到当代名师，全面展现魔法教育界的群星璀璨。</p>]]></description>
-        <link>https://junloye.github.io/?post=58</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/58</guid>
+        <description><![CDATA[<p>霍格沃茨魔法学校作为英国最负盛名的魔法教育机构，其辉煌历史与历任教授的卓越贡献密不可分...</p>]]></description>
+        <link>https://junloye.github.io/post/58</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/58</guid>
         <pubDate>Wed, 11 Feb 2026 05:23:55 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>霍格沃茨魔法学校介绍（校长篇）</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<blockquote>
-<p>[!IMPORTANT]</p>
-<p>本文基于J.K.罗琳《哈利·波特》系列小说、Pottermore/Wizarding World官方资料及《霍格沃茨之遗》游戏设定整理</p>
-</blockquote>
-<h2>引言</h2>
-<p>霍格沃茨魔法学校（Hogwarts School of Witchcraft and Wizardry），作为英国最负盛名的魔法教育机构，不仅培养了无数杰出的巫师，更因其独特的校长传承而充满传奇色彩。本文将带你深入了解这所古老学校的创始人、校长制度及其历任掌舵者的详细生平。</p>]]></description>
-        <link>https://junloye.github.io/?post=57</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/57</guid>
+        <description><![CDATA[<p>霍格沃茨魔法学校（Hogwarts School of Witchcraft and Wizardry），作为英国最负盛名的魔法教育机构...</p>]]></description>
+        <link>https://junloye.github.io/post/57</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/57</guid>
         <pubDate>Wed, 11 Feb 2026 02:32:12 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>霍格沃茨魔法学校介绍（地图篇）</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<p><em>欢迎来到世界上最伟大的魔法学府——霍格沃茨魔法学校！</em></p>]]></description>
-        <link>https://junloye.github.io/?post=56</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/56</guid>
+        <description><![CDATA[<p>欢迎来到世界上最伟大的魔法学府——霍格沃茨魔法学校！</p>]]></description>
+        <link>https://junloye.github.io/post/56</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/56</guid>
         <pubDate>Tue, 10 Feb 2026 13:52:42 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>个人博客介绍</title>
-        <description><![CDATA[<h2>🫠欢迎来到 JunLoye 的个人博客</h2>
-<p>欢迎来到我的个人博客！这是一个专注于分享技术、生活和音乐的地方。在这里，我将记录我的学习历程、技术分享以及生活中的点滴，希望能与大家一起交流和成长。</p>
-<h2>项目简介</h2>
-<p>这个博客是基于静态网站生成器构建的，旨在提供一个简洁、美观且高效的个人博客平台。以下是项目的主要功能和特点：</p>
-<h3>功能特色</h3>
-<ul>
-<li><strong>文章发布与管理</strong></li>
-<p>- 提供简单易用的文章发布页面，支持 Markdown 格式，方便快速撰写和发布内容。</p>
-<p>- 支持文章分类和标签功能，便于内容的组织和查找。</p>
-</ul>
-<ul>
-<li><strong>音乐播放器</strong></li>
-<p>- 内置音乐播放器，支持播放精选音乐，提升阅读体验。</p>
-<p>- 自定义样式的音乐播放器，支持多种主题切换。</p>
-</ul>
-<ul>
-<li><strong>响应式设计</strong></li>
-<p>- 适配多种设备，无论是手机、平板还是电脑，都能获得良好的浏览体验。</p>
-</ul>
-<ul>
-<li><strong>静态资源管理</strong></li>
-<p>- 项目包含了丰富的静态资源文件夹（如 <code>static/</code>），用于存储博客图片、CSS 样式表和 JavaScript 脚本。</p>
-</ul>
-<ul>
-<li><strong>自定义主题</strong></li>
-<p>- 提供多种主题样式，用户可以根据自己的喜好切换主题。</p>
-</ul>
-<h3>项目结构</h3>
-<p>以下是项目的主要目录结构：</p>
-<pre><code>.
-<p>├── index.html          # 首页</p>
-<p>├── components/         # 各种页面组件</p>
-<p>│   ├── about.html      # 关于页面</p>
-<p>│   ├── post.html       # 文章页面</p>
-<p>│   └── publish.html    # 发布文章页面</p>
-<p>├── image/              # 图片资源</p>
-<p>├── music/              # 音乐资源</p>
-<p>├── static/             # 静态资源</p>
-<p>│   ├── css/            # 样式文件</p>
-<p>│   │   ├── markdown-body.css</p>
-<p>│   │   ├── music-player.css</p>
-<p>│   │   ├── post.css</p>
-<p>│   │   ├── publish.css</p>
-<p>│   │   └── style.css</p>
-<p>│   └── js/             # JavaScript 文件</p>
-<p>│       ├── about.js</p>
-<p>│       ├── login.js</p>
-<p>│       ├── music-player.js</p>
-<p>│       ├── post.js</p>
-<p>│       ├── publish.js</p>
-<p>│       ├── script.js</p>
-<p>│       ├── search.js</p>
-<p>│       └── theme.js</p>
-<p>├── LICENSE             # 项目许可证</p>
-<p>├── README.md           # 项目说明文档</p>
-<p>└── test.html           # 测试页面</code></pre></p>
-<h3>技术栈</h3>
-<ul>
-<li><strong>HTML5</strong> 和 <strong>CSS3</strong>：用于构建页面结构和样式。</li>
-<li><strong>JavaScript</strong>：实现动态交互功能。</li>
-<li><strong>Markdown</strong>：支持以 Markdown 格式撰写博客内容。</li>
-<li><strong>静态资源管理</strong>：通过 <code>static</code> 文件夹管理 CSS 和 JS 文件，提升加载速度。</li>
-</ul>
-<h3>项目亮点</h3>
-<ul>
-<li><strong>轻量级</strong>：整个项目基于静态文件，无需后端支持，部署简单。</li>
-<li><strong>可定制性强</strong>：用户可以根据自己的需求修改样式和功能。</li>
-<li><strong>开源</strong>：项目代码完全开源，欢迎大家一起参与改进和优化。</li>
-</ul>
-<h3>未来计划</h3>
-<ul>
-<li>支持更多的文章分类和标签功能。</li>
-<li>增加更多的主题样式，满足不同用户的需求。</li>
-</ul>]]></description>
-        <link>https://junloye.github.io/?post=51</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/51</guid>
+        <description><![CDATA[<p>欢迎来到我的个人博客！这是一个专注于分享技术、生活和音乐的地方。</p>]]></description>
+        <link>https://junloye.github.io/post/51</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/51</guid>
         <pubDate>Sat, 24 Jan 2026 14:38:09 GMT</pubDate>
         <category>Blog</category>
     </item>
     <item>
         <title>《哈利·波特》系列中到底有多少咒语？</title>
-        <description><![CDATA[<p><img src="https://assets.hpfl.net/images/news/hp_exhibition/hpe_logo01.png" alt="Cover" /></p>
-<blockquote>
-<p>[!TIP]</p>
-<p>人工整理，可能有缺漏或错误，欢迎纠错！（根据英文字母排序）</p>
-</blockquote>
-<h2>基本魔咒[2]</h2>
-<p>| 中文名称 | 英文原名 | 魔法介绍 | 使用方法/效果 |</p>
-<p>| --- | --- | --- | --- |</p>
-<p>| 飞来咒 | Accio | 召唤咒，将远处的物体召唤到手中 | 念出<code>Accio + 物体名</code>，心中想象该物体 |</p>
-<p>| 阿拉霍洞开 | Alohomora | 开锁咒，打开锁住的门窗 | 魔杖指向锁扣，轻敲并念咒 |</p>
-<p>| 止步不前 | Arresto Momentum | 减震咒，使目标减速或停止坠落 | 赫敏曾用它救下从高处坠落的哈利 |</p>
-<p>| 急急现形 | Aparecium | 显形咒，使隐形墨水或隐藏物显现 | 用魔杖轻拍纸张或目标 |</p>
-<p>| 飞鸟群群 | Avis | 从魔杖顶端召唤出一群小鸟 | 挥动魔杖，常配合“攻心术”使用 |</p>
-<p>| 爆破隆隆 | Bombarda | 爆破咒，引发小型爆炸，炸毁障碍物 | 指向墙壁或锁头，威力巨大 |</p>
-<p>| 混淆视听 | Confundo | 混淆咒，使目标变得迷惑、健忘或顺从 | 指向对方，使其暂时丧失判断力 |</p>
-<p>| 四分五裂 | Diffindo | 切割咒，精确地切开或撕裂物体 | 常用于剪开皮囊或断开绳索 |</p>
-<p>| 左右分离 | Dissendium | 开启通往霍格莫德的密道 | 敲击独眼女巫雕像 |</p>
-<p>| 护身护卫 | Ennervate | 振奋咒，使昏迷的人清醒 | 常用于解除<code>昏昏倒地</code>的效果 |</p>
-<p>| 速速变大 | Engorgio | 使物体体积迅速膨胀 | 指向目标，反咒为<code>速速缩小(Reducio)</code> |</p>
-<p>| 愈合如初 | Episkey | 愈合咒，治疗小伤口，如断掉的鼻子 | 指向伤口，会伴随一种冰冷或灼热感 |</p>
-<p>| 呼神护卫 | Expecto Patronum | 守护神咒，驱赶摄魂怪，也可传递信息 | 集中精神想最快乐的回忆，挥动魔杖 |</p>
-<p>| 除你武器 | Expelliarmus | 缴械咒，哈利最常用的招式 | 使对方魔杖飞脱，威力大时可击飞对手 |</p>
-<p>| 咒立停 | Finite Incantatem | 终止现场正在生效的所有咒语 | 挥动魔杖，通常用于解除恶咒 |</p>
-<p>| 障碍重重 | Impedimenta | 减缓、阻挡或推开进攻者 | 在战斗中用于拖延对手 |</p>
-<p>| 帝王禁锢 | Incarcerous | 用粗绳索捆绑住对手 | 魔法部和高级巫师常用的束缚术 |</p>
-<p>| 火焰熊熊 | Incendio | 点燃火焰 | 指向壁炉或目标，发射出火苗 |</p>
-<p>| 倒挂金钟 | Levicorpus | 无声咒，反咒为<code>金钟落地</code> | 将目标从脚踝处吊起 |</p>
-<p>| 金钟落地 | Liberacorpus | <code>倒挂金钟</code>的反咒 | 解除“倒挂金钟”咒的效果 |</p>
-<p>| 荧光闪烁 | Lumos | 魔杖顶端发光 | 基础咒语，反咒为<code>诺克斯(Nox)</code> |</p>
-<p>| 移动咒 | Mobilicorpus | 移动人体（通常针对昏迷者） | 使目标像木偶一样漂浮移动 |</p>
-<p>| 腿立僵停死 | Locomotor Mortis | 锁腿咒，使目标双腿粘在一起 | 早期哈利和纳威曾被此咒所困 |</p>
-<p>| 一忘皆空 | Obliviate | 遗忘咒，修改或删除对方的记忆 | 极其危险，操作不当会导致永久失忆 |</p>
-<p>| 统统石化 | Petrificus Totalus | 全身束缚咒，使人身体僵硬如石 | 目标手脚并拢，像木板一样倒下 |</p>
-<p>| 盔甲护身 | Protego | 反弹咒语或物理攻击 | 在身体前方制造无形的屏障 |</p>
-<p>| 恢复如初 | Reparo | 修复咒，修复破碎的无生命物体 | 指向碎片，使其重新聚合 |</p>
-<p>| 速速缩小 | Reducio | 使物体恢复正常大小或变得更小 | <code>速速变大</code>的反咒 |</p>
-<p>| 粉身碎骨 | Reducto | 粉碎咒，将坚硬的固体炸成粉末 | 用于清理道路障碍 |</p>
-<p>| 滑稽滑稽 | Riddikulus | 对付博格特 | 想象博格特变成滑稽的样子，大声念咒 |</p>
-<p>| 清理一新 | Scourgify | 清理咒，清除污渍或产生肥皂泡沫 | 常用于家务或惩罚说脏话的人 |</p>
-<p>| 神锋无影 | Sectumsempra | 割裂咒，斯内普发明的黑魔法 | 像隐形的剑一样切开对手，造成重伤 |</p>
-<p>| 蛇道齐来 | Serpensortia | 召唤一条活蛇 | 德拉科·马尔福在决斗俱乐部中使用过 |</p>
-<p>| 声音洪亮 | Sonorus | 使嗓音变大，类似扩音器 | 反咒为<code>噤声(Quietus)</code> |</p>
-<p>| 昏昏倒地 | Stupefy | 昏迷咒，决斗中最常见的攻击魔咒 | 发射红光，使对方瞬间失去意识 |</p>
-<p>| 塔朗泰拉舞 | Tarantallegra | 迫使对方的双脚狂乱跳舞 | 指向对方的腿部 |</p>
-<p>| 羽加迪姆勒维奥萨 | Wingardium Leviosa | 悬浮咒，让物体漂浮 | 动作要领<code>挥一挥，抖一抖</code> |</p>]]></description>
-        <link>https://junloye.github.io/?post=7</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/7</guid>
+        <description><![CDATA[<p>人工整理，可能有缺漏或错误，欢迎纠错！</p>]]></description>
+        <link>https://junloye.github.io/post/7</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/7</guid>
         <pubDate>Fri, 02 Jan 2026 06:11:10 GMT</pubDate>
         <category>HP</category>
     </item>
     <item>
         <title>PCL2启动器，你值得拥有</title>
-        <description><![CDATA[<p><img src="https://github.com/user-attachments/assets/7b225bfe-c711-4ec8-9c65-b7c7e684cf4f" alt="Cover" /></p>
-<blockquote>
-<p>[!AI]</p>
-<p>本篇文章由AI辅助生成，已对内容进行审核修正</p>
-</blockquote>
-<h3><strong>1. 概述与开发背景</strong></h3>
-<p>PCL2，全称Plain Craft Launcher 2，是一款由国内独立开发者“龙腾猫跃”开发、面向全球 Minecraft Java版玩家的开源、免费第三方启动器。其诞生直接源于原版官方启动器在中国网络环境下长期存在的痛点，如下载速度缓慢、网络连接不稳定、以及对于模组（Mod）和整合包管理功能薄弱等。PCL2的设计哲学可以概括为 <strong>“让玩家专注游戏，而非配置”</strong> ，旨在通过技术手段简化从环境部署到游戏管理的全流程，降低玩家，尤其是新手的入门门槛。</p>
-<p>自发布以来，PCL2凭借其卓越的本地化优化、稳定高效的表现以及人性化的功能设计，迅速赢得了国内数百万玩家的信赖，被誉为“国内最受信赖的启动器之一”，成为连接中国玩家与丰富多元的Minecraft模组生态的核心工具。</p>
-<h3><strong>2. 核心功能与技术特点</strong></h3>
-<blockquote>
-<p>[!NOTE]</p>
-<p>截至写稿时间（2026.01.01），联机功能仍未在正式版稳定上线</p>
-</blockquote>
-<p>PCL2的功能体系围绕“管理、优化、便捷”三大核心构建，其技术实现精准地解决了玩家在实际游戏过程中的高频需求。</p>
-<p><strong>2.1 智能化游戏与模组管理</strong></p>
-<p>这是PCL2最核心的竞争力。启动器实现了对游戏版本、模组加载器（如Forge、Fabric）、模组和资源包的统一纳管。</p>
-<p>*   <strong>一键安装与智能配置</strong>：用户可一键下载任意官方游戏版本，PCL2会自动完成Java运行环境的匹配、Forge/Fabric等模组加载器的安装及配置，全程无需手动干预。</p>
-<p>*   <strong>革命性的模组管理</strong>：支持直接将<code>.jar</code>格式的模组文件拖拽至启动器窗口完成安装。其内置的“模组分析器”能主动检测模组间的版本冲突、识别重复模组并提示缺失的前置依赖，极大减少了因兼容性问题导致的游戏崩溃。</p>
-<p>*   <strong>强大的整合包支持</strong>：对于流行的整合包（如RLCraft、天空工厂），PCL2支持直接拖拽<code>.zip</code>或<code>.mrpack</code>格式文件导入。启动器会自动解析并为其创建独立的游戏实例，确保不同整合包之间的配置、模组和存档完全隔离，互不干扰。</p>
-<p><strong>2.2 深度性能优化与网络加速</strong></p>
-<p>PCL2针对中国玩家的硬件和网络环境进行了深度优化。</p>
-<p>*   <strong>内存与启动参数优化</strong>：允许用户为每个游戏实例自定义分配内存。针对进阶玩家，提供了高级Java虚拟机（JVM）参数预设，例如推荐使用<code>-Xmx6G -Xms4G -XX:+UseG1GC</code>等参数组合以优化垃圾回收，减少游戏卡顿。</p>
-<p>*   <strong>多源下载与网络加速</strong>：集成国内镜像源，为游戏本体、模组和资源提供高速下载通道，有效解决了官方源下载缓慢的问题。同时支持P2P加速和代理（SOCKS5）配置，进一步保障网络访问的流畅性。</p>
-<p><strong>2.3 高度的可定制性与扩展性</strong></p>
-<p>*   <strong>界面个性化</strong>：提供主题色、背景图片的自定义选项，支持动态主题，玩家可以打造个性化的启动器界面。</p>
-<p>*   <strong>插件系统</strong>：PCL2社区版提供了扩展插件系统，支持使用JavaScript编写自定义插件，例如实现自动截图上传、服务器状态监控等额外功能，展现了良好的可扩展性。</p>
-<h3><strong>3. 使用与配置指南</strong></h3>
-<p><strong>3.1 安装与初始设置</strong></p>
-<ul>
-<li><strong>获取</strong>：从以下几个链接下载：</li>
-</ul>
-<p>| 渠道 | 主要优势 | 注意事项 |</p>
-<p>| :--- | :--- | :--- |</p>
-<p>| <strong><a href="https://afdian.com/a/LTCat">爱发电</a></strong> | <strong>最直接的官方渠道</strong>，可支持开发者，常提供详细更新日志和问题反馈途径。 | 需要找到正确的创作者主页（如“龙腾猫跃”）。 |</p>
-<p>| <strong><a href="https://github.com/Meloong-Git/PCL">GitHub</a></strong> | 获取官方开源代码和发布版本的<strong>最权威平台</strong>，适合进阶用户。 | 国内访问可能不稳定，对新手不如图形化网站友好。 |</p>
-<ul>
-<li><strong>解压</strong>：将压缩包解压至<strong>纯英文路径</strong>的目录下（如<code>D:\Games\Minecraft\PCL2</code>），以避免潜在的路径识别错误。</li>
-<li><strong>运行</strong>：双击<code>Plain Craft Launcher 2.exe</code>即可启动，无需安装。首次运行会自动生成必要的配置文件。</li>
-</ul>
-<p><strong>3.2 核心操作流程</strong></p>
-<p>*   <strong>启动原版游戏</strong>：在“版本下载”中选择目标游戏版本（如1.21.8），点击“安装并启动”。</p>
-<p>*   <strong>导入整合包</strong>：在“版本列表”界面点击“导入整合包”，选择本地整合包文件。导入成功后，该整合包将作为一个独立的游戏版本出现在列表中。</p>
-<p>*   <strong>安装单个模组</strong>：最便捷的方式是将模组<code>.jar</code>文件直接拖拽到PCL2主窗口。也可手动放入对应游戏版本的<code>.minecraft/mods/</code>文件夹中。</p>
-<h3><strong>4. 对比分析与适用场景</strong></h3>
-<p>与主流启动器相比，PCL2在易用性和本地化方面优势显著。</p>
-<p>| 特性维度 | PCL2 启动器 | HMCL (Hello Minecraft! Launcher) | 官方启动器 |</p>
-<p>| :--- | :--- | :--- | :--- |</p>
-<p>| <strong>核心优势</strong> | <strong>整合包兼容性极佳</strong>，<strong>操作最简便</strong>，<strong>国内下载速度最快</strong> | 功能全面，自定义程度高，支持高级Java参数 | 原生支持，与Mojang账户体系无缝集成 |</p>
-<p>| <strong>下载速度</strong> | ⭐⭐⭐⭐⭐ (国内镜像/ P2P加速) | ⭐⭐⭐ (依赖网络环境) | ⭐⭐ (国际源，国内常需加速) |</p>
-<p>| <strong>整合包支持</strong>| ⭐⭐⭐⭐⭐ (一键导入，自动隔离) | ⭐⭐⭐⭐ (支持导入，需一定配置) | ⭐ (几乎无管理功能) |</p>
-<p>| <strong>模组管理</strong> | ⭐⭐⭐⭐⭐ (拖拽安装，冲突检测) | ⭐⭐⭐⭐ (手动管理能力强) | ⭐ (需完全手动操作) |</p>
-<p>| <strong>上手难度</strong> | <strong>极易</strong>，适合新手 | 中等，适合有一定经验的玩家 | 简单，但扩展功能弱 |</p>
-<p>| <strong>适用人群</strong> | <strong>国内新手玩家、整合包爱好者</strong>、追求便捷的普通玩家 | 进阶玩家、技术爱好者、多版本开发者 | 仅游玩原版或官方领域的玩家 |</p>
-<p><strong>结论</strong>：PCL2是<strong>国内新手玩家和整合包玩家的首选启动器</strong>。它能将复杂的模组游戏准备过程简化到极致，让玩家能快速投入游戏本身。而对于需要深度定制JVM参数、进行模组开发或追求极限性能调优的硬核玩家，HMCL可能提供更细致的控制选项。</p>
-<h3><strong>5. 社区生态、维护与未来展望</strong></h3>
-<p><strong>5.1 开源与社区驱动</strong></p>
-<p>PCL2项目已在GitHub上开源，这吸引了众多开发者参与贡献。社区版（PCL2 Community Edition）的更新日志显示，开发团队持续进行着活跃的维护，修复问题、增加新功能（如投影原理图支持、存档备份等）并优化用户体验。这种开源模式保障了工具的透明度和可持续性。</p>
-<p><strong>5.2 问题解决与支持</strong></p>
-<p>PCL2内置了崩溃诊断功能，能生成错误报告并提供初步修复建议。对于复杂问题，玩家可以通过其内置的社区渠道或前往GitHub项目页面提交问题（Issue），通常能获得来自开发者或其他资深玩家的有效帮助。</p>
-<h3><strong>6. 结语</strong></h3>
-<p>PCL2启动器不仅仅是一个游戏启动工具，它更是中国Minecraft玩家社区智慧与需求的结晶。它通过精湛的技术实现，成功地在不稳定的网络环境和复杂的模组生态之间，搭建起了一座坚固而便捷的桥梁。其“用户至上”的设计理念、持续的开源维护以及对本地化痛点的精准打击，使其成为了国产独立软件中的一个典范。对于任何一位希望轻松畅游 Minecraft 模组海洋的中国玩家而言，PCL2几乎是一个无可替代的得力伙伴，它真正实现了让创造与冒险的乐趣，始于简单，归于专注。</p>]]></description>
-        <link>https://junloye.github.io/?post=5</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/5</guid>
+        <description><![CDATA[<p>PCL2，全称Plain Craft Launcher 2，是一款由国内独立开发者开发的开源免费第三方启动器。</p>]]></description>
+        <link>https://junloye.github.io/post/5</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/5</guid>
         <pubDate>Thu, 01 Jan 2026 12:32:26 GMT</pubDate>
         <category>Game</category>
     </item>
     <item>
         <title>2025，从Copilot到Commander，AI都改变了什么</title>
-        <description><![CDATA[<p><img src="https://github.com/user-attachments/assets/492d9548-eb43-4d00-999b-c4d6c72707fa" alt="Cover" /></p>
-<blockquote>
-<p>手指悬在Tab键上的时间比放在其他任何键位都要长，这是2025年程序员们最真实的工作写照。</p>
-</blockquote>
-<p>深夜，窗外的城市逐渐安静下来，只剩显示器前一位程序员与他的AI伙伴仍在忙碌。屏幕上，一行行代码流畅地生成、修正、优化，整个过程几乎不需要他的直接介入——他更像是指挥家而非演奏家。</p>
-<p>这正是2025年编程世界的真实缩影：TRAE的年度报告显示，AI工具在这一年写了惊人的1000亿行代码。</p>
-<p>开发者角色的转变不是渐进式的，而是革命性的。当吴恩达将这一年定义为“AI工业时代的黎明”时，他指出的不仅仅是工具变化，更是一个全新生态系统的形成。</p>]]></description>
-        <link>https://junloye.github.io/?post=3</link>
-        <guid>https://github.com/JunLoye/junloye.github.io/issues/3</guid>
+        <description><![CDATA[<p>手指悬在Tab键上的时间比放在其他任何键位都要长，这是2025年程序员们最真实的工作写照。</p>]]></description>
+        <link>https://junloye.github.io/post/3</link>
+        <guid isPermaLink="true">https://junloye.github.io/post/3</guid>
         <pubDate>Thu, 01 Jan 2026 07:33:06 GMT</pubDate>
         <category>Tech</category>
     </item>

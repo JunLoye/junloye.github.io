@@ -67,6 +67,28 @@
     margin-top: 0.3rem;
 }
 
+#about-overlay .about-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+#about-overlay .about-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    color: var(--text-soft, #5b5b6e);
+    background: var(--line, #e2e2e6);
+    padding: 3px 12px;
+    border-radius: 20px;
+}
+
+#about-overlay .about-meta-item svg {
+    opacity: 0.7;
+}
+
 #about-overlay .divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--line, #e2e2e6), transparent);
@@ -93,15 +115,171 @@
     border-radius: 4px;
 }
 
+/* 技术栈卡片 */
+#about-overlay .tech-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 1.5rem 0;
+}
+
+#about-overlay .tech-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    background: var(--line, #e2e2e6);
+    border-radius: 14px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+#about-overlay .tech-item:hover {
+    border-color: var(--accent, #646cff);
+    transform: translateY(-2px);
+    background: var(--selection-bg, #eef2ff);
+}
+
+#about-overlay .tech-icon {
+    font-size: 1.3rem;
+}
+
+#about-overlay .tech-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text, #1e1e2f);
+}
+
+#about-overlay .tech-desc {
+    font-size: 0.75rem;
+    color: var(--text-soft, #5b5b6e);
+}
+
+/* 站点统计卡 */
+#about-overlay .site-quick-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 1.5rem 0;
+}
+
+#about-overlay .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: var(--line, #e2e2e6);
+    border-radius: 14px;
+    transition: all 0.25s ease;
+}
+
+#about-overlay .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+#about-overlay .stat-icon {
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg, #ffffff);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+#about-overlay .stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#about-overlay .stat-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text, #1e1e2f);
+    line-height: 1.2;
+}
+
+#about-overlay .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-soft, #5b5b6e);
+    font-weight: 500;
+}
+
+/* 缓存管理描述 */
+#about-overlay .section-desc {
+    color: var(--text-soft, #5b5b6e);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+#about-overlay .cache-mgmt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--accent, #646cff);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.2);
+}
+
+#about-overlay .cache-mgmt-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.3);
+}
+
+/* 更新日志加载旋转器 */
+#about-overlay .changelog-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--line, #e2e2e6);
+    border-top-color: var(--accent, #646cff);
+    border-radius: 50%;
+    animation: changelog-spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes changelog-spin {
+    to { transform: rotate(360deg); }
+}
+
 /* 联系方式列表（无下划线） */
 #about-overlay .contact-list {
     padding-left: 1.2rem;
     margin: 1rem 0 1.8rem 0;
+    list-style: none;
+    padding-left: 0;
 }
 
 #about-overlay .contact-list li {
     margin: 0.5rem 0;
     color: var(--text, #1e1e2f);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#about-overlay .contact-icon {
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+#about-overlay .contact-sep {
+    color: var(--line, #e2e2e6);
+    font-weight: 300;
 }
 
 /* about 范围内的链接去除下划线 */
@@ -111,7 +289,7 @@
 
 #about-overlay .contact-list a {
     color: var(--accent, #646cff);
-    border-bottom: none;  /* 移除虚线装饰 */
+    border-bottom: none;
     transition: opacity 0.2s;
 }
 
@@ -133,16 +311,38 @@
     gap: 1rem;
     padding: 1rem 1.5rem;
     border-radius: 1rem;
-    background: var(--bg-card, #f8f9fc);
-    text-decoration: none;  /* 确保无下划线 */
+    background: var(--line, #f8f9fc);
+    text-decoration: none;
     transition: all 0.25s ease;
     border: 1px solid transparent;
 }
 
 #about-overlay .github-badge-container:hover {
-    background: var(--accent-light, #eef2ff);
+    background: var(--selection-bg, #eef2ff);
     border-color: var(--accent, #646cff);
     transform: translateY(-2px);
+}
+
+/* 深色模式 GitHub 托管按钮 */
+[data-theme="dark"] #about-overlay .github-badge-container {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] #about-overlay .github-badge-container:hover {
+    background: rgba(10, 132, 255, 0.15);
+    border-color: var(--accent, #0A84FF);
+}
+
+[data-theme="dark"] #about-overlay .github-icon-large {
+    fill: var(--text, #eeeeee);
+}
+
+[data-theme="dark"] #about-overlay .badge-line-1 {
+    color: var(--text, #eeeeee);
+}
+
+[data-theme="dark"] #about-overlay .badge-line-2 {
+    color: var(--text-soft, #aaaaaa);
 }
 
 #about-overlay .github-icon-large {
@@ -270,33 +470,82 @@
     color: var(--accent, #646cff);
 }
 
-/* about 页面的关闭按钮 - 覆盖全局 close-btn */
+/* 统一 close/back 按钮 - 所有弹窗共用 */
+#post-overlay .close-btn,
 #about-overlay .close-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     position: fixed;
     top: 1.2rem;
     left: 1.2rem;
-    background: rgba(var(--bg-rgb, 255,255,255), 0.7);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--line, #ddd);
-    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: white;
+    padding: 0.6rem 1.2rem;
     border-radius: 2rem;
+    border: none;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.85rem;
-    color: var(--text, #1e1e2f);
-    transition: all 0.2s;
-    z-index: 610;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 1001;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    user-select: none;
+    -webkit-user-select: none;
+    backdrop-filter: blur(8px);
 }
 
+#post-overlay .close-btn:hover,
 #about-overlay .close-btn:hover {
-    background: var(--accent, #646cff);
+    transform: scale(1.05) translateY(-1px);
+    opacity: 0.9;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 深色模式 close/back 按钮 */
+[data-theme="dark"] #post-overlay .close-btn,
+[data-theme="dark"] #about-overlay .close-btn {
+    background: var(--accent, #0A84FF);
     color: white;
-    border-color: var(--accent, #646cff);
-    transform: translateX(-3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* 深色模式 - 新元素适配 */
+[data-theme="dark"] #about-overlay .tech-item {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] #about-overlay .tech-item:hover {
+    background: rgba(10, 132, 255, 0.1);
+    border-color: var(--accent, #0A84FF);
+}
+
+[data-theme="dark"] #about-overlay .stat-card {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] #about-overlay .stat-icon {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] #about-overlay .about-meta-item {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] #about-overlay .cache-mgmt-btn {
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.25);
 }
 
 /* 响应式 */
+@media (max-width: 768px) {
+    #about-overlay .tech-stack {
+        grid-template-columns: 1fr 1fr;
+    }
+    #about-overlay .site-quick-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 600px) {
     #about-overlay .detail-container#about-content {
         padding: 1rem;
@@ -319,6 +568,15 @@
         width: 85px;
         height: 85px;
     }
+    #about-overlay .about-header-meta {
+        justify-content: center;
+    }
+    #about-overlay .tech-stack {
+        grid-template-columns: 1fr;
+    }
+    #about-overlay .site-quick-stats {
+        grid-template-columns: 1fr;
+    }
     #about-overlay .changelog-wrapper {
         padding-left: 1rem;
         margin-left: 0.3rem;
@@ -329,5 +587,8 @@
     #about-overlay .changelog-date {
         flex-direction: column;
         align-items: flex-start;
+    }
+    #about-overlay .contact-list li {
+        font-size: 0.85rem;
     }
 }
