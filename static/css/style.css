@@ -1,9 +1,11 @@
 :root {
     --bg: #ffffff;
+    --bg-rgb: 255, 255, 255;
     --text: #111111;
     --text-soft: #555555;
     --line: #efefef;
     --accent: #007AFF;
+    --accent-rgb: 0, 122, 255;
     --overlay-bg: rgba(255, 255, 255, 0.98);
     --container-width: 900px;
     --selection-bg: rgba(0, 122, 255, 0.15);
@@ -13,10 +15,12 @@
 
 [data-theme="dark"] {
     --bg: #0a0a0a;
+    --bg-rgb: 10, 10, 10;
     --text: #eeeeee;
     --text-soft: #aaaaaa;
     --line: #222222;
     --accent: #0A84FF;
+    --accent-rgb: 10, 132, 255;
     --overlay-bg: rgba(10, 10, 10, 0.98);
     --selection-bg: rgba(10, 132, 255, 0.3);
     --selection-color: #58a6ff;

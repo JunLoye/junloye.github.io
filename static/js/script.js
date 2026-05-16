@@ -72,7 +72,7 @@ async function fetchPosts() {
     if (!CONFIG.username || !CONFIG.repo) return;
 
     const CACHE_KEY = 'blog_posts_cache';
-    const CACHE_TIME = 5 * 60 * 1000; 
+    const CACHE_TIME = 5 * 60 * 1000;
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
     
     if (cached && (Date.now() - cached.time < CACHE_TIME)) {
@@ -81,7 +81,7 @@ async function fetchPosts() {
         renderPosts(displayIssues);
         updateSidebarStats(displayIssues.length);
         handleRouting();
-        return; 
+        return;
     }
 
     try {
@@ -94,12 +94,45 @@ async function fetchPosts() {
         const displayIssues = filterIssues(allIssues);
         localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data: allIssues }));
         
+        // 缓存文章列表到离线存储
+        if (typeof offlineStorage !== 'undefined') {
+            offlineStorage.cachePostList(allIssues);
+        }
+        
         renderPosts(displayIssues);
         updateSidebarStats(displayIssues.length);
         handleRouting();
         initTagCloud();
     } catch (e) {
         showNotification("文章列表同步失败", 'error');
+        // 离线时尝试从离线缓存加载列表
+        if (typeof offlineStorage !== 'undefined' && !navigator.onLine) {
+            const offlineList = offlineStorage.getPostList();
+            if (offlineList && offlineList.length > 0) {
+                allIssues = offlineList;
+                const displayIssues = filterIssues(allIssues);
+                renderPosts(displayIssues);
+                updateSidebarStats(displayIssues.length);
+                handleRouting();
+                initTagCloud();
+                offlineStorage.showOfflineNotice();
+                return;
+            }
+        }
+        // 尝试从常规缓存加载
+        if (cached && cached.data) {
+            allIssues = cached.data;
+            const displayIssues = filterIssues(allIssues);
+            renderPosts(displayIssues);
+            updateSidebarStats(displayIssues.length);
+            handleRouting();
+            initTagCloud();
+            if (!navigator.onLine) {
+                if (typeof offlineStorage !== 'undefined') {
+                    offlineStorage.showOfflineNotice();
+                }
+            }
+        }
     }
 }
 

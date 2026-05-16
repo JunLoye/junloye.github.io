@@ -1,3 +1,5 @@
+/* ===== 文章详情页样式（限定在.detail-post内） ===== */
+
 .argue-banner {
     background: #fff5e6; 
     border: 1px solid #ffcc80;
@@ -121,9 +123,68 @@
     .post-toc {
         display: none;
     }
-    .edit-btn {
+    .post-action-buttons {
         right: 20px !important;
     }
+}
+
+/* ===== 文章操作按钮组（编辑历史 + 纠错反馈） ===== */
+.post-action-buttons {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.history-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--line);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.history-toggle-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.history-toggle-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.history-toggle-text {
+    margin-left: 2px;
+}
+
+.history-toggle-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.8;
+    background: var(--bg);
+    color: var(--text-soft);
+    padding: 0 8px;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+.history-toggle-btn.active .history-toggle-count {
+    background: rgba(255,255,255,0.2);
+    color: white;
 }
 
 .progress-bar-container {
@@ -144,19 +205,19 @@
 }
 
 .edit-btn {
-    position: fixed;
-    top: 20px;
-    right: 30px;
+    display: inline-flex;
+    align-items: center;
     padding: 8px 16px;
     background: var(--line);
     color: var(--text);
     border: 1px solid var(--line);
     border-radius: 20px;
     cursor: pointer;
-    z-index: 1000;
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    text-decoration: none;
 }
 
 .edit-btn:hover {

@@ -1,4 +1,7 @@
-.detail-container#about-content {
+/* ===== About 页面样式 ===== */
+/* 所有规则限定在 about 上下文内，避免全局污染 */
+
+#about-overlay .detail-container#about-content {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
@@ -6,7 +9,7 @@
     position: relative;
 }
 
-.about-wrapper {
+#about-overlay .about-wrapper {
     background: rgba(var(--bg-rgb, 255,255,255), 0.7);
     backdrop-filter: blur(2px);
     border-radius: 2rem;
@@ -16,18 +19,18 @@
 }
 
 /* 头部区域 */
-.about-header-flex {
+#about-overlay .about-header-flex {
     display: flex;
     align-items: center;
     gap: 2rem;
     margin-bottom: 1rem;
 }
 
-.about-avatar-wrapper {
+#about-overlay .about-avatar-wrapper {
     flex-shrink: 0;
 }
 
-.about-avatar {
+#about-overlay .about-avatar {
     width: 110px;
     height: 110px;
     border-radius: 50%;
@@ -37,17 +40,17 @@
     transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
-.about-avatar:hover {
+#about-overlay .about-avatar:hover {
     transform: scale(1.05) rotate(1deg);
     border-color: var(--accent, #646cff);
     box-shadow: 0 20px 30px -12px rgba(0,0,0,0.25);
 }
 
-.about-title-group {
+#about-overlay .about-title-group {
     text-align: left;
 }
 
-.about-title-group h1 {
+#about-overlay .about-title-group h1 {
     font-size: 3rem;
     font-weight: 800;
     margin: 0;
@@ -58,20 +61,20 @@
     letter-spacing: -0.02em;
 }
 
-.subtitle {
+#about-overlay .subtitle {
     color: var(--text-soft, #5b5b6e);
     font-size: 1.1rem;
     margin-top: 0.3rem;
 }
 
-.divider {
+#about-overlay .divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--line, #e2e2e6), transparent);
     margin: 2rem 0;
 }
 
 /* 主要文本区域 */
-.markdown-body h3 {
+#about-overlay .markdown-body h3 {
     margin-top: 2rem;
     font-weight: 600;
     letter-spacing: -0.2px;
@@ -79,7 +82,7 @@
     display: inline-block;
 }
 
-.markdown-body h3::after {
+#about-overlay .markdown-body h3::after {
     content: '';
     position: absolute;
     bottom: -6px;
@@ -91,40 +94,40 @@
 }
 
 /* 联系方式列表（无下划线） */
-.contact-list {
+#about-overlay .contact-list {
     padding-left: 1.2rem;
     margin: 1rem 0 1.8rem 0;
 }
 
-.contact-list li {
+#about-overlay .contact-list li {
     margin: 0.5rem 0;
     color: var(--text, #1e1e2f);
 }
 
-/* 全局链接去除下划线 */
-a {
+/* about 范围内的链接去除下划线 */
+#about-overlay a {
     text-decoration: none;
 }
 
-.contact-list a {
+#about-overlay .contact-list a {
     color: var(--accent, #646cff);
     border-bottom: none;  /* 移除虚线装饰 */
     transition: opacity 0.2s;
 }
 
-.contact-list a:hover {
+#about-overlay .contact-list a:hover {
     opacity: 0.8;
 }
 
 /* GitHub footer 卡片 */
-.about-github-footer {
+#about-overlay .about-github-footer {
     margin: 2rem 0 1.5rem;
     padding: 0.2rem;
     border-radius: 1.2rem;
     background: linear-gradient(145deg, var(--line, #e2e2e6), transparent);
 }
 
-.github-badge-container {
+#about-overlay .github-badge-container {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -136,41 +139,41 @@ a {
     border: 1px solid transparent;
 }
 
-.github-badge-container:hover {
+#about-overlay .github-badge-container:hover {
     background: var(--accent-light, #eef2ff);
     border-color: var(--accent, #646cff);
     transform: translateY(-2px);
 }
 
-.github-icon-large {
+#about-overlay .github-icon-large {
     width: 42px;
     height: 42px;
     fill: var(--text, #1e1e2f);
 }
 
-.github-badge-text {
+#about-overlay .github-badge-text {
     display: flex;
     flex-direction: column;
     text-align: left;
 }
 
-.badge-line-1 {
+#about-overlay .badge-line-1 {
     font-weight: 700;
     color: var(--text, #1e1e2f);
     font-size: 1rem;
 }
 
-.badge-line-2 {
+#about-overlay .badge-line-2 {
     font-size: 0.7rem;
     color: var(--text-soft, #5b5b6e);
 }
 
 /* 更新日志区域 */
-.changelog-section {
+#about-overlay .changelog-section {
     margin-top: 2rem;
 }
 
-.changelog-loading {
+#about-overlay .changelog-loading {
     padding: 1.2rem;
     text-align: center;
     color: var(--text-soft, #5b5b6e);
@@ -178,7 +181,7 @@ a {
 }
 
 /* 时间轴 */
-.changelog-wrapper {
+#about-overlay .changelog-wrapper {
     margin-top: 1.2rem;
     margin-left: 0.8rem;
     border-left: 2px solid var(--line, #e2e2e6);
@@ -188,11 +191,11 @@ a {
     gap: 1.8rem;
 }
 
-.changelog-item {
+#about-overlay .changelog-item {
     position: relative;
 }
 
-.changelog-item::before {
+#about-overlay .changelog-item::before {
     content: '';
     position: absolute;
     left: -2.35rem;
@@ -205,12 +208,12 @@ a {
     transition: all 0.2s;
 }
 
-.changelog-item:hover::before {
+#about-overlay .changelog-item:hover::before {
     background: var(--accent, #646cff);
     transform: scale(1.2);
 }
 
-.changelog-date {
+#about-overlay .changelog-date {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -219,14 +222,14 @@ a {
     margin-bottom: 0.3rem;
 }
 
-.commit-date-text {
+#about-overlay .commit-date-text {
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--accent, #646cff);
     font-family: monospace;
 }
 
-.git-version-tag {
+#about-overlay .git-version-tag {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -240,19 +243,19 @@ a {
     transition: background 0.2s, color 0.2s;
 }
 
-.git-version-tag:hover {
+#about-overlay .git-version-tag:hover {
     background: var(--accent, #646cff);
     color: white !important;
 }
 
-.changelog-version {
+#about-overlay .changelog-version {
     font-weight: 700;
     font-size: 0.95rem;
     margin: 0.5rem 0 0.25rem 0;
     color: var(--text, #1e1e2f);
 }
 
-.changelog-desc {
+#about-overlay .changelog-desc {
     font-size: 0.85rem;
     line-height: 1.5;
     color: var(--text-soft, #5b5b6e);
@@ -261,13 +264,14 @@ a {
     border-left: 2px dotted var(--line, #e2e2e6);
 }
 
-/* 链接全局修复（再次确保无下划线） */
-.markdown-body a {
+/* about 范围内的链接样式 */
+#about-overlay .markdown-body a {
     text-decoration: none;
     color: var(--accent, #646cff);
 }
 
-.close-btn {
+/* about 页面的关闭按钮 - 覆盖全局 close-btn */
+#about-overlay .close-btn {
     position: fixed;
     top: 1.2rem;
     left: 1.2rem;
@@ -281,11 +285,11 @@ a {
     font-size: 0.85rem;
     color: var(--text, #1e1e2f);
     transition: all 0.2s;
-    z-index: 100;
+    z-index: 610;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.close-btn:hover {
+#about-overlay .close-btn:hover {
     background: var(--accent, #646cff);
     color: white;
     border-color: var(--accent, #646cff);
@@ -294,35 +298,35 @@ a {
 
 /* 响应式 */
 @media (max-width: 600px) {
-    .detail-container#about-content {
+    #about-overlay .detail-container#about-content {
         padding: 1rem;
     }
-    .about-wrapper {
+    #about-overlay .about-wrapper {
         padding: 1.2rem;
     }
-    .about-header-flex {
+    #about-overlay .about-header-flex {
         flex-direction: column;
         text-align: center;
         gap: 1rem;
     }
-    .about-title-group {
+    #about-overlay .about-title-group {
         text-align: center;
     }
-    .about-title-group h1 {
+    #about-overlay .about-title-group h1 {
         font-size: 2.4rem;
     }
-    .about-avatar {
+    #about-overlay .about-avatar {
         width: 85px;
         height: 85px;
     }
-    .changelog-wrapper {
+    #about-overlay .changelog-wrapper {
         padding-left: 1rem;
         margin-left: 0.3rem;
     }
-    .changelog-item::before {
+    #about-overlay .changelog-item::before {
         left: -1.5rem;
     }
-    .changelog-date {
+    #about-overlay .changelog-date {
         flex-direction: column;
         align-items: flex-start;
     }
