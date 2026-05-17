@@ -246,9 +246,8 @@
 #link-preview-card {
     position: fixed;
     z-index: 10001;
-    width: 550px;
-    max-height: 350px;
-    padding: 20px;
+    width: 440px;
+    max-height: 420px;
     background: var(--bg);
     border: 1px solid var(--line);
     border-radius: 14px;
@@ -259,7 +258,7 @@
     transition: opacity 0.2s ease, transform 0.2s ease;
     opacity: 0;
     transform: translateY(8px);
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 /* 黑暗模式适配 */
@@ -283,14 +282,50 @@
     transform: translateY(0);
 }
 
-#link-preview-card .preview-excerpt.markdown-body {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: var(--text-soft);
+#link-preview-card.active .preview-content {
+    animation: previewFadeIn 0.2s ease;
 }
 
-[data-theme='dark'] #link-preview-card .preview-excerpt.markdown-body {
-    color: #b0b0b0;
+@keyframes previewFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 所有预览内容的滚动容器 */
+#link-preview-card .preview-content {
+    padding: 18px;
+    overflow-y: auto;
+    max-height: 420px;
+}
+
+/* 预览中的 Markdown 渲染内容 - 覆盖全局 markdown-body 的大字号 */
+#link-preview-card .preview-excerpt.markdown-body,
+#link-preview-card .preview-excerpt.markdown-body p,
+#link-preview-card .preview-excerpt.markdown-body * {
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
+    color: var(--text-soft) !important;
+}
+
+#link-preview-card .preview-excerpt.markdown-body p {
+    margin: 0 0 6px 0 !important;
+}
+
+/* 限制摘要在预览中只显示最多 6 行 */
+#link-preview-card .preview-excerpt {
+    max-height: 160px;
+    overflow: hidden;
+}
+
+[data-theme='dark'] #link-preview-card .preview-excerpt.markdown-body,
+[data-theme='dark'] #link-preview-card .preview-excerpt.markdown-body p {
+    color: #b0b0b0 !important;
 }
 
 .preview-header {
@@ -300,31 +335,40 @@
     margin-bottom: 14px;
 }
 .preview-avatar {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     border: 1px solid var(--line);
+    flex-shrink: 0;
 }
 .preview-meta {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 .preview-author {
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .preview-date {
     font-size: 0.7rem;
     color: var(--text-soft);
 }
 .preview-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 900;
     line-height: 1.4;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .preview-footer {
     display: flex;
@@ -341,6 +385,284 @@
     background: var(--selection-bg);
     padding: 3px 10px;
     border-radius: 4px;
+}
+
+/* ===== 外部链接预览增强样式 ===== */
+
+/* 预览缩略图 */
+.preview-thumbnail {
+    width: calc(100% + 36px);
+    margin: -18px -18px 14px -18px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 14px 14px 0 0;
+    display: block;
+    background: var(--line);
+}
+
+/* 加载状态 */
+.preview-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    gap: 12px;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+}
+
+.preview-spinner-ring {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--line);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: preview-spin 0.8s linear infinite;
+}
+
+@keyframes preview-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 预览域名 */
+.preview-domain {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-domain-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    background: var(--line);
+}
+
+/* 错误状态 */
+.preview-error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.preview-error-state svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.4;
+}
+
+/* 外部链接默认图标（无缩略图时） */
+.preview-external-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-soft);
+}
+
+.preview-external-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* 预览尾部链接URL */
+.preview-url-path {
+    font-size: 0.7rem;
+    color: var(--text-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    direction: rtl;
+    text-align: left;
+}
+
+/* 预览标签颜色区分 */
+.preview-label.external {
+    background: rgba(255, 152, 0, 0.15);
+    color: #e65100;
+}
+
+[data-theme='dark'] .preview-label.external {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ffb74d;
+}
+
+.preview-label.internal {
+    background: var(--selection-bg);
+    color: var(--accent);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    #link-preview-card {
+        width: 300px;
+        max-height: 360px;
+    }
+    #link-preview-card .preview-content {
+        padding: 14px;
+        max-height: 360px;
+    }
+    .preview-thumbnail {
+        height: 100px;
+        margin: -14px -14px 10px -14px;
+        border-radius: 14px 14px 0 0;
+    }
+    .preview-title {
+        font-size: 1rem;
+    }
+    .preview-loading-state {
+        padding: 20px 14px;
+    }
+}
+
+/* ===== GitHub 预览专用样式 ===== */
+
+/* 仓库标题 */
+.gh-repo-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Issue/PR 标题 */
+.gh-issue-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 仓库描述 */
+.gh-desc {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin-bottom: 10px;
+    max-height: 44px;
+    overflow: hidden;
+}
+
+/* 统计行（星标/复刻/语言/许可证） */
+.gh-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+}
+
+.gh-stat {
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.gh-lang-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* 状态徽章 */
+.gh-state-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.gh-state-open {
+    background: rgba(35, 134, 54, 0.15);
+    color: #238636;
+}
+.gh-state-closed {
+    background: rgba(179, 41, 41, 0.15);
+    color: #da3633;
+}
+.gh-state-merged {
+    background: rgba(129, 67, 180, 0.15);
+    color: #8957e5;
+}
+[data-theme='dark'] .gh-state-open {
+    background: rgba(63, 185, 80, 0.2);
+    color: #3fb950;
+}
+[data-theme='dark'] .gh-state-closed {
+    background: rgba(255, 80, 80, 0.2);
+    color: #ff5050;
+}
+[data-theme='dark'] .gh-state-merged {
+    background: rgba(163, 113, 247, 0.2);
+    color: #a371f7;
+}
+
+/* 元数据行（状态徽章、评论数、编号） */
+.gh-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+/* 评论图标 */
+.gh-comment-count {
+    font-size: 0.8rem;
+}
+
+/* Issue/PR 正文预览 */
+.gh-body-preview {
+    max-height: 80px;
+    overflow: hidden;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* 标签行 */
+.gh-labels-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.gh-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .post-ref-link {
@@ -456,6 +778,14 @@
     border-color: var(--accent);
 }
 
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    gap: 12px;
+}
+
 .submit-btn, .login-btn {
     background: var(--text);
     color: var(--bg);
@@ -469,6 +799,71 @@
 
 .submit-btn:hover, .login-btn:hover {
     opacity: 0.9;
+}
+
+.logout-link {
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.logout-link:hover {
+    color: var(--accent);
+    background: var(--line);
+}
+
+.current-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.current-user-info img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    flex-shrink: 0;
+}
+
+.current-user-info span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+}
+
+.comment-preview-container {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg);
+}
+
+.comment-preview-container.show {
+    display: block;
+}
+
+.comment-preview-label {
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.comment-preview {
+    font-size: 0.9rem;
 }
 
 .empty-tip {
@@ -508,6 +903,46 @@
     
     .detail-header h1 {
         font-size: 1.5rem !important;
+    }
+
+    /* ===== 评论区移动端适配 ===== */
+    .comments-section {
+        padding: 30px 15px;
+    }
+
+    .comment-form textarea {
+        min-height: 100px;
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-actions .submit-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .form-actions .logout-link {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .comment-item {
+        gap: 10px;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .comment-body {
+        padding: 12px 14px;
+        font-size: 0.9rem;
     }
 }
 

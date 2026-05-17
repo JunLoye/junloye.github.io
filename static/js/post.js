@@ -514,15 +514,15 @@ function updateCommentPreview() {
     const previewArea = document.getElementById('comment-preview');
     const previewContainer = document.getElementById('comment-preview-container');
     
-    if (!textarea || !previewArea) return;
+    if (!textarea || !previewArea || !previewContainer) return;
     
     const content = textarea.value.trim();
     if (content) {
-        previewContainer.style.display = 'block';
+        previewContainer.classList.add('show');
         previewArea.innerHTML = parseEnhancedMarkdown(content);
         initLinkPreview();
     } else {
-        previewContainer.style.display = 'none';
+        previewContainer.classList.remove('show');
         previewArea.innerHTML = '';
     }
 }
@@ -558,23 +558,23 @@ async function renderCommentForm(title, issueNum) {
         }
 
         container.innerHTML = `
-            <div class="current-user-info" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <img src="${userAvatar}" style="width:24px; height:24px; border-radius:50%; border:1px solid var(--line);">
-                <span style="font-size:0.85rem; font-weight:600; color:var(--text-soft); display:inline-flex; align-items:center;">
+            <div class="current-user-info">
+                <img src="${userAvatar}" alt="avatar">
+                <span>
                     ${GITHUB_SVG} 以 <span style="color:var(--text); margin-left:4px;">${userLogin}</span> 的身份评论
                 </span>
             </div>
             
             <textarea id="comment-text" placeholder="撰写评论... (支持 Markdown)" oninput="updateCommentPreview()"></textarea>
             
-            <div id="comment-preview-container" style="display:none; margin-top:15px; padding:15px; border:1px solid var(--line); border-radius:12px; background:var(--bg);">
-                <div style="font-size:0.7rem; color:var(--accent); font-weight:800; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">Preview</div>
-                <div id="comment-preview" class="markdown-body" style="font-size:0.9rem;"></div>
+            <div id="comment-preview-container" class="comment-preview-container">
+                <div class="comment-preview-label">Preview</div>
+                <div id="comment-preview" class="markdown-body comment-preview"></div>
             </div>
 
-            <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <div class="form-actions">
                 <button onclick="submitComment('${title.replace(/'/g, "\\'")}', ${issueNum})" class="submit-btn">发表评论</button>
-                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:var(--text-soft); cursor:pointer; font-size:0.8rem;">注销登录</button>
+                <button onclick="logout()" class="logout-link">注销登录</button>
             </div>`;
     }
 }
@@ -752,6 +752,45 @@ function setupReferenceHighlighting() {
     handleHash();
 }
 
+/**
+ * 预览数据缓存：避免重复请求相同的链接
+ * key: url (内部文章用 "#NUM", 外部链接用完整URL)
+ * value: { data: OG数据|null, timestamp: number }
+ */
+const previewCache = new Map();
+const PREVIEW_CACHE_TTL = 30 * 60 * 1000; // 30 分钟
+
+/**
+ * 获取缓存中的预览数据
+ */
+function getPreviewCache(key) {
+    const entry = previewCache.get(key);
+    if (entry && Date.now() - entry.timestamp < PREVIEW_CACHE_TTL) {
+        return entry.data;
+    }
+    return undefined;
+}
+
+/**
+ * 设置预览数据缓存
+ */
+function setPreviewCache(key, data) {
+    previewCache.set(key, { data, timestamp: Date.now() });
+}
+
+/**
+ * 设置预览卡片内容（自动包裹 .preview-content，使样式和滚动统一）
+ */
+function setPreviewContent(card, html) {
+    card.innerHTML = '<div class="preview-content">' + html + '</div>';
+}
+
+/**
+ * 增强链接预览：支持内部文章链接、外部链接和引用链接
+ * - .post-ref-link (#N) → 渲染文章卡片预览（已有逻辑）
+ * - 外部 href 链接 → 渲染外部链接信息预览
+ * - .ref-link ([N]) → 滚动到引用位置
+ */
 function initLinkPreview() {
     let previewCard = document.getElementById('link-preview-card');
     if (!previewCard) {
@@ -760,62 +799,253 @@ function initLinkPreview() {
         document.body.appendChild(previewCard);
     }
 
-    const links = document.querySelectorAll('.post-ref-link');
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
 
+    // 1. 绑定内部文章链接：.post-ref-link (#N)
+    bindPostRefLinks(previewCard, issuesSource);
+
+    // 2. 绑定引用链接：.ref-link ([N])
+    bindRefLinks();
+
+    // 3. 绑定外部链接：正文与 References 中的普通 <a> 标签
+    bindExternalLinks(previewCard);
+}
+
+/**
+ * 绑定内部文章链接 `.post-ref-link`（#N 格式）
+ */
+function bindPostRefLinks(previewCard, issuesSource) {
+    const links = document.querySelectorAll('.post-ref-link');
     links.forEach(link => {
         if (link.dataset.previewBound) return;
         link.dataset.previewBound = "true";
 
         link.onmouseenter = (e) => {
             const num = parseInt(link.getAttribute('data-num'));
+            const cacheKey = '#' + num;
+
+            // 优先使用缓存
+            const cachedIssue = getPreviewCache(cacheKey);
+            if (cachedIssue) {
+                setPreviewContent(previewCard, renderPreviewFromIssue(cachedIssue));
+                positionPreviewCard(e.target, previewCard);
+                return;
+            }
+
             const targetIssue = issuesSource.find(i => i.number === num);
             
             if (targetIssue) {
-                previewCard.innerHTML = renderPreviewFromIssue(targetIssue);
+                setPreviewCache(cacheKey, targetIssue);
+                setPreviewContent(previewCard, renderPreviewFromIssue(targetIssue));
             } else if (typeof offlineStorage !== 'undefined') {
-                const cachedIssue = offlineStorage.getIssueData(num);
-                if (cachedIssue) {
-                    previewCard.innerHTML = renderPreviewFromIssue(cachedIssue);
+                const storedIssue = offlineStorage.getIssueData(num);
+                if (storedIssue) {
+                    setPreviewCache(cacheKey, storedIssue);
+                    setPreviewContent(previewCard, renderPreviewFromIssue(storedIssue));
                 }
             }
             
             if (previewCard.innerHTML) {
-                previewCard.style.display = 'block';
-                const rect = link.getBoundingClientRect();
-                const cardHeight = previewCard.offsetHeight;
-                let top = rect.top - cardHeight - 15;
-                if (top < 10) top = rect.bottom + 15;
-                let left = rect.left;
-                if (left + 420 > window.innerWidth) left = window.innerWidth - 440;
-                previewCard.style.top = `${top}px`;
-                previewCard.style.left = `${left}px`;
-                setTimeout(() => previewCard.classList.add('active'), 10);
+                positionPreviewCard(e.target, previewCard);
             }
         };
 
-        link.onmouseleave = () => {
-            previewCard.classList.remove('active');
-            setTimeout(() => {
-                if (!previewCard.classList.contains('active')) previewCard.style.display = 'none';
-            }, 200);
-        };
+        link.onmouseleave = () => hidePreviewCard(previewCard);
 
         link.onclick = (e) => {
             const href = link.getAttribute('href');
-            
             if (href && (href.includes('github.com') || href.startsWith('http'))) {
                 return;
             }
-            
             e.preventDefault();
             const num = parseInt(link.getAttribute('data-num'));
             if (!isNaN(num)) {
-                previewCard.style.display = 'none';
+                hidePreviewCardImmediate(previewCard);
                 openPost(num);
             }
         };
     });
+}
+
+/**
+ * 绑定引用链接 `.ref-link`（[N] 格式）- 平滑滚动到引用
+ */
+function bindRefLinks() {
+    document.querySelectorAll('.ref-link').forEach(link => {
+        if (link.dataset.previewBound) return;
+        link.dataset.previewBound = "true";
+
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            if (!href || !href.startsWith('#ref-')) return;
+            const target = document.querySelector(href);
+            if (target) {
+                // 高亮目标
+                document.querySelectorAll('.reference-item').forEach(el => el.classList.remove('highlight'));
+                target.classList.add('highlight');
+                setTimeout(() => target.classList.remove('highlight'), 3000);
+
+                // 平滑滚动
+                const overlay = document.getElementById('post-overlay');
+                if (overlay) {
+                    const targetTop = target.getBoundingClientRect().top + overlay.scrollTop - 100;
+                    overlay.scrollTo({ top: targetTop, behavior: 'smooth' });
+                } else {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    });
+}
+
+/**
+ * 绑定外部链接：文章正文和 References 中的普通 <a> 标签
+ * 策略：立即显示域名+图标基础预览，不发起网络请求（CORS 受限不可靠）
+ */
+function bindExternalLinks(previewCard) {
+    const container = document.getElementById('post-body-content');
+    const refContainer = document.getElementById('reference-content');
+    const allContainers = [];
+
+    if (container) allContainers.push(container);
+    if (refContainer) allContainers.push(refContainer);
+
+    allContainers.forEach(container => {
+        const links = container.querySelectorAll('a:not(.post-ref-link):not(.ref-link):not(.toc-link)');
+        links.forEach(link => {
+            if (link.dataset.previewBound) return;
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:')) return;
+
+            link.dataset.previewBound = "true";
+
+            link.onmouseenter = (e) => {
+                // 标记当前链接为活跃悬停，用于防止异步回调误更新
+                link.dataset.previewHover = "true";
+
+                // 直接显示域名+图标预览，零延迟零网络开销
+                setPreviewContent(previewCard, renderPreviewFromExternal(href));
+                positionPreviewCard(e.target, previewCard);
+
+                // 检测 GitHub 链接，异步获取富预览数据并升级预览卡片
+                const ghParsed = parseGitHubUrl(href);
+                if (ghParsed) {
+                    fetchGitHubPreviewData(ghParsed).then(result => {
+                        // 仅在用户仍悬停在此链接上时升级预览
+                        if (result && result.data && link.dataset.previewHover === "true") {
+                            setPreviewContent(previewCard, renderGitHubPreview(result.parsed, result.data));
+                            positionPreviewCard(e.target, previewCard);
+                        }
+                    });
+                }
+            };
+
+            link.onmouseleave = () => {
+                link.dataset.previewHover = "false";
+                hidePreviewCard(previewCard);
+            };
+        });
+    });
+}
+
+/**
+ * 定位预览卡片到目标元素旁边
+ * 自适应窗口边界，使用卡片实际宽度
+ */
+function positionPreviewCard(anchor, card) {
+    if (!card.innerHTML) return;
+    card.style.display = 'block';
+
+    // 先显示以获取实际尺寸，但保持透明
+    card.classList.add('active');
+    
+    const rect = anchor.getBoundingClientRect();
+    const cardWidth = card.offsetWidth;
+    const cardHeight = card.offsetHeight;
+
+    // 计算纵向位置：优先上方，空间不足则下方
+    let top = rect.top - cardHeight - 12;
+    if (top < 8) top = rect.bottom + 12;
+
+    // 计算横向位置：与链接左对齐，但不超出右边界
+    let left = Math.max(8, rect.left);
+    if (left + cardWidth > window.innerWidth - 8) {
+        left = window.innerWidth - cardWidth - 8;
+    }
+
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+}
+
+/**
+ * 隐藏预览卡片（带延迟动画）
+ */
+function hidePreviewCard(card) {
+    card.classList.remove('active');
+    setTimeout(() => {
+        if (!card.classList.contains('active')) card.style.display = 'none';
+    }, 200);
+}
+
+/**
+ * 立即隐藏预览卡片
+ */
+function hidePreviewCardImmediate(card) {
+    card.classList.remove('active');
+    card.style.display = 'none';
+}
+
+/**
+ * 渲染加载中状态
+ */
+function renderPreviewLoadingState() {
+    return `
+        <div class="preview-loading-state">
+            <div class="preview-spinner-ring"></div>
+            <span>加载预览中...</span>
+        </div>
+    `;
+}
+
+
+
+/**
+ * 渲染外部链接预览卡片
+ * 显示域名、favicon 和 URL 信息，零网络开销
+ * @param {string} url - 链接地址
+ */
+function renderPreviewFromExternal(url) {
+    let domain = '';
+    let pathInfo = '';
+    try {
+        const parsed = new URL(url);
+        domain = parsed.hostname.replace(/^www\./, '');
+        pathInfo = parsed.pathname.length > 1 ? parsed.pathname.substring(0, 60) : '/';
+        if (pathInfo.length >= 60) pathInfo += '...';
+    } catch {
+        domain = url;
+        pathInfo = url;
+    }
+
+    const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+    return `
+        <div class="preview-header">
+            <img src="${faviconUrl}" class="preview-avatar" alt="" onerror="this.style.display='none'">
+            <div class="preview-meta">
+                <span class="preview-author">${domain}</span>
+                <span class="preview-domain">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                    外部链接
+                </span>
+            </div>
+        </div>
+        <div class="preview-title" style="font-size:0.95rem; font-weight:600; color:var(--accent); word-break:break-all;">${url}</div>
+        <div class="preview-footer">
+            <span class="preview-label external">外部链接</span>
+            <span class="preview-url-path" title="${url}">${pathInfo}</span>
+        </div>
+    `;
 }
 
 /**
@@ -856,6 +1086,210 @@ function renderPreviewFromIssue(targetIssue) {
             <span class="preview-label">${label}</span>
         </div>
     `;
+}
+
+/**
+ * 解析 GitHub URL，提取 owner/repo/type/id 等结构化信息
+ * 支持的 URL 模式：
+ *   - github.com/owner/repo               → 仓库
+ *   - github.com/owner/repo/issues/N      → Issue
+ *   - github.com/owner/repo/pull/N        → PR
+ *   - github.com/owner/repo/discussions/N → Discussion
+ * @param {string} url
+ * @returns {{ owner, repo, type, id }|null}
+ */
+function parseGitHubUrl(url) {
+    try {
+        const parsed = new URL(url);
+        if (parsed.hostname !== 'github.com' && parsed.hostname !== 'www.github.com') return null;
+
+        const parts = parsed.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        if (parts.length < 2) return null;
+
+        const owner = parts[0];
+        const repo = parts[1];
+
+        if (parts.length === 2) {
+            return { owner, repo, type: 'repo', id: null };
+        }
+
+        const type = parts[2]; // issues, pull, discussions
+        const id = parts[3] ? parseInt(parts[3]) : null;
+        if (!id || isNaN(id)) return null;
+
+        // 标准化类型
+        let normType;
+        if (type === 'issues') normType = 'issue';
+        else if (type === 'pull') normType = 'pull';
+        else if (type === 'discussions') normType = 'discussion';
+        else return null;
+
+        return { owner, repo, type: normType, id };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * GitHub 预览数据缓存 key 生成
+ */
+function gitHubCacheKey(parsed) {
+    if (parsed.type === 'repo') return `gh:${parsed.owner}/${parsed.repo}`;
+    return `gh:${parsed.owner}/${parsed.repo}/${parsed.type}/${parsed.id}`;
+}
+
+/**
+ * 异步获取 GitHub 资源的预览数据（仓库、Issue、PR）
+ * 优先使用缓存，缓存未命中则调用 API
+ * @param {{ owner, repo, type, id }} parsed
+ * @returns {Promise<{ parsed, data }|null>}
+ */
+async function fetchGitHubPreviewData(parsed) {
+    const cacheKey = gitHubCacheKey(parsed);
+    const cached = getPreviewCache(cacheKey);
+    if (cached) return { parsed, data: cached };
+
+    try {
+        let data;
+        if (parsed.type === 'repo') {
+            const res = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`);
+            if (!res.ok) return null;
+            data = await res.json();
+        } else if (parsed.type === 'issue' || parsed.type === 'pull') {
+            const res = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/issues/${parsed.id}`);
+            if (!res.ok) return null;
+            data = await res.json();
+        } else {
+            return null;
+        }
+
+        setPreviewCache(cacheKey, data);
+        return { parsed, data };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * 渲染 GitHub 富预览卡片
+ * 根据类型（仓库 / Issue / PR）显示不同布局
+ * @param {{ owner, repo, type, id }} parsed
+ * @param {object} data - API 返回的数据
+ */
+function renderGitHubPreview(parsed, data) {
+    if (!data) {
+        return renderPreviewFromExternal(`https://github.com/${parsed.owner}/${parsed.repo}`);
+    }
+
+    const avatarUrl = `https://avatars.githubusercontent.com/${parsed.owner}?s=60`;
+
+    if (parsed.type === 'repo') {
+        const stars = data.stargazers_count != null ? data.stargazers_count.toLocaleString() : '';
+        const forks = data.forks_count != null ? data.forks_count.toLocaleString() : '';
+        const lang = data.language || '';
+        const desc = (data.description || '').substring(0, 200);
+        const license = data.license?.spdx_id || '';
+
+        return `
+            <div class="preview-header">
+                <img src="${avatarUrl}" class="preview-avatar" alt="">
+                <div class="preview-meta">
+                    <span class="preview-author">${parsed.owner}/${parsed.repo}</span>
+                    <span class="preview-date">${data.private ? '🔒 私有仓库' : '🌐 公开仓库'}</span>
+                </div>
+            </div>
+            <div class="preview-title gh-repo-title">${data.full_name}</div>
+            ${desc ? `<div class="preview-excerpt gh-desc">${escHtml(desc)}</div>` : ''}
+            <div class="gh-stats-row">
+                ${stars ? `<span class="gh-stat">⭐ ${stars}</span>` : ''}
+                ${forks ? `<span class="gh-stat">⑂ ${forks}</span>` : ''}
+                ${lang ? `<span class="gh-stat gh-lang"><span class="gh-lang-dot" style="background:${getLangColor(lang)}"></span>${escHtml(lang)}</span>` : ''}
+                ${license ? `<span class="gh-stat">${escHtml(license)}</span>` : ''}
+            </div>
+            <div class="preview-footer">
+                <span class="preview-label">GitHub 仓库</span>
+                <span class="preview-url-path" title="${data.html_url}">${parsed.owner}/${parsed.repo}</span>
+            </div>
+        `;
+    }
+
+    // Issue / PR
+    const isPR = parsed.type === 'pull' || (data.pull_request != null);
+    const state = data.state || 'open';
+    const merged = data.merged || data.pull_request?.merged_at != null;
+    const displayState = merged ? 'merged' : state;
+    const stateIcon = displayState === 'open' ? '🟢' : (displayState === 'merged' ? '🟣' : '🔴');
+    const stateLabel = isPR ? (displayState === 'open' ? 'Open PR' : displayState === 'merged' ? 'Merged' : 'Closed') : state;
+    const labels = (data.labels || []).slice(0, 3);
+    const date = data.created_at ? new Date(data.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+    const body = (data.body || '').substring(0, 300);
+    const comments = data.comments || 0;
+
+    return `
+        <div class="preview-header">
+            <img src="${avatarUrl}" class="preview-avatar" alt="">
+            <div class="preview-meta">
+                <span class="preview-author">${parsed.owner}/${parsed.repo}</span>
+                <span class="preview-date">${date}</span>
+            </div>
+        </div>
+        <div class="preview-title gh-issue-title">${isPR ? '🔀 ' : '📋 '}${escHtml(data.title || '')}</div>
+        <div class="gh-meta-row">
+            <span class="gh-state-badge gh-state-${displayState}">${stateIcon} ${stateLabel}</span>
+            ${comments > 0 ? `<span class="gh-stat gh-comment-count">💬 ${comments}</span>` : ''}
+            <span class="gh-stat">#${data.number}</span>
+        </div>
+        ${body ? `<div class="preview-excerpt gh-body-preview">${escHtml(body)}</div>` : ''}
+        ${labels.length ? `<div class="gh-labels-row">${labels.map(l => `<span class="gh-label" style="background:#${l.color || 'e0e0e0'}20;color:#${l.color || '666'}">${escHtml(l.name)}</span>`).join('')}</div>` : ''}
+        <div class="preview-footer">
+            <span class="preview-label">GitHub ${isPR ? 'PR' : 'Issue'}</span>
+            <span class="preview-url-path" title="${data.html_url || ''}">${parsed.owner}/${parsed.repo}#${data.number}</span>
+        </div>
+    `;
+}
+
+/**
+ * 简易 HTML 转义
+ */
+function escHtml(str) {
+    const el = document.createElement('div');
+    el.textContent = str;
+    return el.innerHTML;
+}
+
+/**
+ * 获取编程语言的显示颜色
+ */
+function getLangColor(lang) {
+    const colors = {
+        JavaScript: '#f1e05a',
+        TypeScript: '#3178c6',
+        Python: '#3572A5',
+        Go: '#00ADD8',
+        Rust: '#dea584',
+        Java: '#b07219',
+        'C++': '#f34b7d',
+        C: '#555555',
+        'C#': '#178600',
+        HTML: '#e34c26',
+        CSS: '#563d7c',
+        Ruby: '#701516',
+        PHP: '#4F5D95',
+        Swift: '#ffac45',
+        Kotlin: '#A97BFF',
+        Dart: '#00B4AB',
+        Lua: '#000080',
+        Shell: '#89e051',
+        Vue: '#41b883',
+        Scala: '#c22d40',
+        Haskell: '#5e5086',
+        Solidity: '#AA6746',
+        Elixir: '#6e4a7e',
+        Clojure: '#db5855',
+        Erlang: '#B83998',
+        Perl: '#0298c3',
+    };
+    return colors[lang] || '#6b7280';
 }
 
 function closePost() {
