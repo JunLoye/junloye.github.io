@@ -25,8 +25,28 @@ async function openAbout(pushState = true) {
     }, 50);
 
     // 填充统计数据和元信息
+    populateAboutMeta();
     populateAboutStats();
     fetchGitHubCommits();
+}
+
+function populateAboutMeta() {
+    // 从 CONFIG 动态填充 about 页面的标题和头像
+    if (typeof CONFIG !== 'undefined' && CONFIG.site) {
+        const aboutTitle = document.querySelector('.about-title-group h1');
+        if (aboutTitle && CONFIG.site.brand) {
+            aboutTitle.textContent = CONFIG.site.brand;
+        }
+        const aboutAvatar = document.querySelector('.about-avatar-wrapper img');
+        if (aboutAvatar && CONFIG.site.favicon) {
+            aboutAvatar.src = CONFIG.site.favicon.replace('.ico', '.png');
+        }
+        // 如果存在 owner 且与 brand 不同，可通过 config 设置 subtitle
+        const subtitle = document.querySelector('.subtitle');
+        if (subtitle && CONFIG.owner && CONFIG.site.brand) {
+            // 保留已有 subtitle，不做覆盖
+        }
+    }
 }
 
 function populateAboutStats() {
@@ -49,7 +69,8 @@ function populateAboutStats() {
     }
     
     // 运行天数
-    const startTime = new Date('2026-01-01');
+    const startDate = (typeof CONFIG !== 'undefined' && CONFIG.site && CONFIG.site.start_date) || '2026-01-01';
+    const startTime = new Date(startDate);
     const now = new Date();
     const days = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
     

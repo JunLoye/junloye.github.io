@@ -6,9 +6,31 @@ const offlineStorage = {
     POST_CACHE_KEY: 'blog_post_content_cache',
     LIST_CACHE_KEY: 'blog_posts_list_cache',
     ISSUE_CACHE_KEY: 'blog_post_issue_cache', // 原始Issue数据缓存
-    MAX_SIZE: 3 * 1024 * 1024, // 3MB
-    EXPIRY_TIME: 30 * 24 * 60 * 60 * 1000, // 30天
+    // 从 CONFIG.cache 获取，默认 3MB
+    _maxSizeMB: (typeof CONFIG !== 'undefined' && CONFIG.cache) ? CONFIG.cache.max_size_mb : 3,
+    // 从 CONFIG.cache 获取，默认 30天
+    _maxAgeDays: (typeof CONFIG !== 'undefined' && CONFIG.cache) ? CONFIG.cache.max_age_days : 30,
     _cachePref: localStorage.getItem('settings_cache_pref') || 'auto',
+
+    /**
+     * 获取最大缓存大小（字节），惰性读取 CONFIG
+     */
+    _getMaxSize() {
+        if (typeof CONFIG !== 'undefined' && CONFIG.cache && CONFIG.cache.max_size_mb) {
+            return CONFIG.cache.max_size_mb * 1024 * 1024;
+        }
+        return this._maxSizeMB * 1024 * 1024;
+    },
+
+    /**
+     * 获取缓存过期时间（毫秒），惰性读取 CONFIG
+     */
+    _getExpiryTime() {
+        if (typeof CONFIG !== 'undefined' && CONFIG.cache && CONFIG.cache.max_age_days) {
+            return CONFIG.cache.max_age_days * 24 * 60 * 60 * 1000;
+        }
+        return this._maxAgeDays * 24 * 60 * 60 * 1000;
+    },
 
     /**
      * 估算数据大小
@@ -37,7 +59,7 @@ const offlineStorage = {
         const now = Date.now();
         let changed = false;
         Object.keys(cacheObj).forEach(key => {
-            if (now - (cacheObj[key].timestamp || 0) > this.EXPIRY_TIME) {
+            if (now - (cacheObj[key].timestamp || 0) > this._getExpiryTime()) {
                 delete cacheObj[key];
                 changed = true;
             }
@@ -72,7 +94,7 @@ const offlineStorage = {
                 issue: issue,
                 timestamp: Date.now()
             };
-            this._cleanBySize(cached, this.MAX_SIZE);
+            this._cleanBySize(cached, this._getMaxSize());
             localStorage.setItem(this.ISSUE_CACHE_KEY, JSON.stringify(cached));
             return true;
         } catch (e) {
@@ -92,7 +114,7 @@ const offlineStorage = {
             if (!cached) return null;
             const item = cached[issueNumber];
             if (!item) return null;
-            if (Date.now() - (item.timestamp || 0) > this.EXPIRY_TIME) {
+            if (Date.now() - (item.timestamp || 0) > this._getExpiryTime()) {
                 delete cached[issueNumber];
                 localStorage.setItem(this.ISSUE_CACHE_KEY, JSON.stringify(cached));
                 return null;
@@ -166,7 +188,7 @@ const offlineStorage = {
             };
 
             // 检查大小限制
-            this._cleanBySize(cached, this.MAX_SIZE);
+            this._cleanBySize(cached, this._getMaxSize());
 
             localStorage.setItem(this.POST_CACHE_KEY, JSON.stringify(cached));
             return true;
@@ -190,7 +212,7 @@ const offlineStorage = {
             if (!post) return null;
 
             // 检查过期
-            if (Date.now() - (post.timestamp || 0) > this.EXPIRY_TIME) {
+            if (Date.now() - (post.timestamp || 0) > this._getExpiryTime()) {
                 delete cached[issueNumber];
                 localStorage.setItem(this.POST_CACHE_KEY, JSON.stringify(cached));
                 return null;
@@ -240,7 +262,7 @@ const offlineStorage = {
             if (!cached) return null;
 
             // 检查过期
-            if (Date.now() - (cached.timestamp || 0) > this.EXPIRY_TIME) {
+            if (Date.now() - (cached.timestamp || 0) > this._getExpiryTime()) {
                 localStorage.removeItem(this.LIST_CACHE_KEY);
                 return null;
             }

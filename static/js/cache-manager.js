@@ -77,7 +77,7 @@ function showCacheManager() {
                         </div>
                         <div class="cache-summary-info">
                             <span class="cache-summary-label">缓存限制</span>
-                            <span class="cache-summary-value">3 MB</span>
+                            <span class="cache-summary-value">${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_size_mb : 3} MB</span>
                             <span class="cache-summary-sub">离线文章缓存上限</span>
                         </div>
                     </div>
@@ -115,7 +115,7 @@ function showCacheManager() {
                     </div>
                     <div class="cache-note">
                         <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-                        <span>已读文章自动缓存，最多保存 3MB，超过 30 天自动清理</span>
+                        <span>已读文章自动缓存，最多保存 ${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_size_mb : 3}MB，超过 ${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_age_days : 30} 天自动清理</span>
                     </div>
                 </div>
 
@@ -147,7 +147,7 @@ function showCacheManager() {
                     </div>
                     <div class="cache-note">
                         <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-                        <span>文章编辑历史自动缓存，最多保存 30 天</span>
+                        <span>文章编辑历史自动缓存，最多保存 ${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_age_days : 30} 天</span>
                     </div>
                 </div>
 

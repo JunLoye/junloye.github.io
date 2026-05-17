@@ -479,56 +479,6 @@
     flex-shrink: 0;
 }
 
-/* ===== 颜色选择器 ===== */
-#settings-overlay .settings-color-picker {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-}
-
-#settings-overlay .color-option {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0;
-    outline: none;
-}
-
-#settings-overlay .color-option:hover {
-    transform: scale(1.15);
-}
-
-#settings-overlay .color-option.active {
-    border-color: var(--text);
-    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px currentColor;
-}
-
-#settings-overlay .color-option-custom {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px dashed var(--text-soft);
-    background: var(--bg);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-soft);
-    transition: all 0.2s ease;
-    padding: 0;
-    outline: none;
-}
-
-#settings-overlay .color-option-custom:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    transform: scale(1.15);
-}
 
 /* ===== 调试子选项 ===== */
 #settings-overlay #settings-debug-sub-options {
@@ -576,16 +526,6 @@
         justify-content: center;
         padding: 6px 8px;
         font-size: 0.7rem;
-    }
-
-    #settings-overlay .settings-color-picker {
-        gap: 4px;
-    }
-
-    #settings-overlay .color-option,
-    #settings-overlay .color-option-custom {
-        width: 24px;
-        height: 24px;
     }
 
     #settings-overlay .settings-debug-actions {
@@ -649,6 +589,3 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-[data-theme="dark"] #settings-overlay .color-option.active {
-    border-color: rgba(255, 255, 255, 0.8);
-}

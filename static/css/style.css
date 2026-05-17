@@ -33,6 +33,32 @@ html { scroll-behavior: smooth; }
 ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
 * { box-sizing: border-box; }
 
+/* 除文章界面外禁止选择文本和复制 */
+body {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* 文章内容区域允许选择文本 */
+#post-overlay,
+#post-body-content,
+.detail-container,
+.detail-post,
+#content-area,
+.markdown-body,
+.overlay .markdown-body,
+.comment-form textarea,
+#search-overlay-input,
+.search-overlay-input,
+input, textarea, [contenteditable] {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+}
+
 body, nav, .post-card, .music-player, .playlist-menu, footer, .markdown-body {
     transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
@@ -383,7 +409,7 @@ nav {
 
 #theme-toggle-btn {
     position: fixed;
-    bottom: 25px;
+    bottom: 30px;
     left: 25px;
     width: 48px;
     height: 48px;
@@ -792,10 +818,24 @@ mark.search-highlight {
 .search-overlay-result .result-tag {
     font-size: 0.65rem;
     font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 3px;
+    padding: 2px 8px;
+    border-radius: 12px;
     background: var(--selection-bg);
     color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.search-overlay-result .result-tag:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(var(--accent-rgb, 0, 122, 255), 0.2);
+}
+
+[data-theme="dark"] .search-overlay-result .result-tag:hover {
+    box-shadow: 0 2px 8px rgba(var(--accent-rgb, 10, 132, 255), 0.3);
 }
 
 .search-overlay-result mark {
@@ -917,8 +957,9 @@ mark.search-highlight {
     #settings-overlay .close-btn {
         top: 12px;
         left: 12px;
-        padding: 6px 12px;
-        font-size: 0.75rem;
+        padding: 5px 10px;
+        font-size: 0.72rem;
+        border-radius: 1.2rem;
     }
     
     #notification-container {
@@ -935,7 +976,7 @@ mark.search-highlight {
     }
 
     #theme-toggle-btn {
-        bottom: 18px;
+        bottom: 30px;
         left: 15px;
         width: 40px;
         height: 40px;
@@ -944,6 +985,21 @@ mark.search-highlight {
     #theme-toggle-btn svg {
         width: 18px;
         height: 18px;
+    }
+    
+    /* 移动端隐藏在线状态指示器 */
+    #network-status-indicator {
+        display: none !important;
+    }
+    
+    /* 移动端隐藏发布按钮 */
+    .nav-item[onclick*="openPublishModal"] {
+        display: none !important;
+    }
+    
+    /* 移动端隐藏引用功能 */
+    .quote-this-btn {
+        display: none !important;
     }
     
     .post-action-buttons {
@@ -964,6 +1020,39 @@ mark.search-highlight {
     
     .history-toggle-text {
         display: none;
+    }
+
+    /* 移动端隐藏导航文字标签，仅保留图标 */
+    .nav-item .nav-text,
+    .nav-right a.nav-item .nav-text {
+        display: none;
+    }
+    
+    /* 移动端隐藏文章卡片摘要 */
+    .post-card-summary {
+        display: none;
+    }
+    
+    /* 移动端隐藏文章标签 */
+    .post-card-tags {
+        display: none;
+    }
+    
+    /* 移动端 GitHub 登录按钮仅显示图标 */
+    #login-text {
+        display: none;
+    }
+    
+    #github-login-btn {
+        padding: 6px !important;
+        border-radius: 50% !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    
+    #github-login-btn .nav-icon {
+        width: 18px !important;
+        height: 18px !important;
     }
 
     .donation-section {
@@ -1203,69 +1292,36 @@ mark.search-highlight {
     }
 }
 
-/* 标签云容器布局优化 */
+/* ===== 标签云全新样式 - pill/badge 风格，匹配网站卡片式设计 ===== */
 #tag-cloud {
-    padding: 8px 0;
-}
-
-.tag-cloud-items {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px 16px;
-    padding: 8px 0;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* 经典标签云样式 - 无背景框，强调字体变化 */
-.tag-cloud-item {
-    display: inline-block;
-    padding: 4px 0;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    line-height: 1.3;
-    color: var(--text-soft);
+.tag-cloud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
-/* 标签文章计数样式 */
-.tag-count {
-    font-size: 0.7rem;
-    opacity: 0.7;
-    margin-left: 2px;
-    font-weight: normal;
-}
-
-/* 标签悬停效果 */
-.tag-cloud-item:hover {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    transform: translateY(-1px);
-}
-
-/* 当前激活的标签样式 */
-.tag-cloud-item.active {
-    color: var(--accent);
-    font-weight: 700;
-    border-bottom-color: var(--accent);
-}
-
-/* 重置筛选按钮样式 */
+/* 全部文章 / 重置按钮 */
 .tag-cloud-reset {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 4px 8px;
-    font-size: 0.8rem;
-    font-weight: 500;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: var(--text-soft);
     background: var(--line);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
-    margin-bottom: 12px;
+    white-space: nowrap;
 }
 
 .tag-cloud-reset:hover {
@@ -1274,45 +1330,103 @@ mark.search-highlight {
     transform: translateY(-1px);
 }
 
-.tag-cloud-reset svg {
-    width: 14px;
-    height: 14px;
-}
-
-/* 无标签时的友好提示 */
-.tag-cloud-empty {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-soft);
-    font-size: 0.85rem;
-}
-
 /* 当前筛选状态指示器 */
 .filter-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: var(--line);
+    gap: 6px;
+    background: var(--selection-bg);
     border-radius: 20px;
-    padding: 4px 12px;
-    margin-bottom: 16px;
-    font-size: 0.75rem;
-    color: var(--text-soft);
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    border: 1px solid rgba(var(--accent-rgb, 0, 122, 255), 0.15);
+    white-space: nowrap;
 }
 
 .filter-indicator .tag-name {
-    color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .filter-indicator .clear-filter {
     cursor: pointer;
     color: var(--text-soft);
     transition: color 0.2s;
+    font-size: 0.8rem;
+    line-height: 1;
+    margin-left: 2px;
 }
 
 .filter-indicator .clear-filter:hover {
     color: var(--accent);
+}
+
+/* 标签容器 - 弹性换行布局 */
+.tag-cloud-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 2px 0;
+}
+
+/* Pill/Badge 风格标签项 */
+.tag-cloud-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 10px;
+    background: var(--line);
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-soft);
+    line-height: 1.3;
+    border: none;
+    user-select: none;
+}
+
+.tag-cloud-item:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--accent-rgb, 0, 122, 255), 0.2);
+}
+
+/* 当前激活的标签样式 */
+.tag-cloud-item.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(var(--accent-rgb, 0, 122, 255), 0.25);
+}
+
+/* 标签文章计数 */
+.tag-count {
+    font-size: 0.6rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* 无标签时的友好提示 */
+.tag-cloud-empty {
+    text-align: center;
+    padding: 16px 8px;
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] .tag-cloud-item:hover,
+[data-theme="dark"] .tag-cloud-item.active {
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb, 10, 132, 255), 0.3);
 }
 
 /* ===== 缓存加载提示样式 ===== */

@@ -20,34 +20,28 @@ async function openPost(num, pushState = true) {
         return;
     }
 
-    // 尝试从列表源查找Issue
     const issuesSource = (typeof allIssues !== 'undefined') ? allIssues : [];
     let issue = issuesSource.find(i => i.number === num);
 
-    // 如果列表中没有，尝试从缓存或单独API获取
     if (!issue) {
         await ensureConfig();
         const owner = typeof CONFIG !== 'undefined' ? CONFIG.username : '';
         const repo = typeof CONFIG !== 'undefined' ? CONFIG.repo : '';
 
-        // 1. 尝试从离线缓存获取
         if (typeof offlineStorage !== 'undefined') {
             const cachedIssue = offlineStorage.getIssueData(num);
             if (cachedIssue) {
                 issue = cachedIssue;
-                // 将缓存的issue也加入allIssues以便预览等功能工作（避免重复）
                 if (typeof allIssues !== 'undefined' && !allIssues.some(i => i.number === num)) {
                     allIssues.push(cachedIssue);
                 }
             }
         }
 
-        // 2. 在线时尝试从GitHub API单独获取
         if (!issue && owner && repo && navigator.onLine) {
             if (typeof offlineStorage !== 'undefined') {
                 issue = await offlineStorage.fetchAndCacheIssue(num, owner, repo);
             } else {
-                // 没有offlineStorage时的备用方案
                 try {
                     const url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`;
                     const res = await fetch(url);
@@ -63,7 +57,6 @@ async function openPost(num, pushState = true) {
             }
         }
 
-        // 3. 完全无法获取时，显示提示
         if (!issue) {
             area.innerHTML = `
                 <div class="detail-header" style="text-align:center; padding: 60px 20px;">
@@ -90,11 +83,20 @@ async function openPost(num, pushState = true) {
     }
 
     const owner = (typeof CONFIG !== 'undefined') ? CONFIG.owner : 'Blog';
-    document.title = `${issue.title} | ` + owner;
+    // 优先使用 CONFIG.site.title 中的品牌名
+    const titleBrand = (typeof CONFIG !== 'undefined' && CONFIG.site && CONFIG.site.brand)
+        ? CONFIG.site.brand
+        : owner;
+    document.title = `${issue.title} | ` + titleBrand;
 
-    const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover) 
-        ? CONFIG.defaultCover 
+    const defaultCover = (typeof CONFIG !== 'undefined' && CONFIG.defaultCover)
+        ? CONFIG.defaultCover
         : 'https://github.githubassets.com/images/modules/open_graph/github-octocat.png';
+    
+    // 默认站点标题（用于 document.title），从 CONFIG.site 读取
+    const siteOwner = (typeof CONFIG !== 'undefined' && CONFIG.site && CONFIG.site.brand)
+        ? CONFIG.site.brand
+        : (CONFIG.owner || 'Blog');
 
     const coverMatch = issue.body?.match(/\[Cover\]\s*(http\S+)/);
     const cover = coverMatch ? coverMatch[1] : defaultCover;
@@ -156,12 +158,10 @@ async function openPost(num, pushState = true) {
 
     const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    // 功能开关
     const features = CONFIG.features || {};
-    const shareEnabled = features.share !== false; // 默认true
-    const donationEnabled = features.donation !== false; // 默认true
+    const shareEnabled = features.share !== false;
+    const donationEnabled = features.donation !== false;
     
-    // 分享按钮HTML
     let shareButtonsHtml = '';
     if (shareEnabled) {
         shareButtonsHtml = `
@@ -190,7 +190,6 @@ async function openPost(num, pushState = true) {
     </div>`;
     }
     
-    // 打赏部分HTML
     let donationSectionHtml = '';
     if (donationEnabled) {
         donationSectionHtml = `
@@ -243,13 +242,11 @@ async function openPost(num, pushState = true) {
     overlay.scrollTop = 0;
     document.body.style.overflow = 'hidden';
 
-    // 检查是否为反馈贴
     const isFeedback = issue.labels.some(l => l.name === '反馈');
     let feedbackCardHtml = '';
     let coverImgHtml = '';
 
     if (isFeedback) {
-        // 获取作者名和创建时间
         const authorName = issue.user?.login || '匿名用户';
         const createDate = new Date(issue.created_at).toLocaleString('zh-CN', {
             year: 'numeric',
@@ -273,10 +270,8 @@ async function openPost(num, pushState = true) {
                 </div>
             </div>
         `;
-        // 反馈贴：不显示封面
         coverImgHtml = '';
     } else {
-        // 普通帖子：正常显示封面
         coverImgHtml = `<img src="${cover}" class="detail-hero-img" style="height: 280px; width: 100%; object-fit: cover; margin-bottom: 25px;" onerror="this.onerror=null; this.src='${defaultCover}';">`;
     }
 
@@ -308,7 +303,6 @@ async function openPost(num, pushState = true) {
             <div id="comments-list" style="margin-top: 30px;">加载评论中...</div>
         </div>`;
     
-    // 缓存文章到离线存储
     if (typeof offlineStorage !== 'undefined') {
         const metadata = {
             title: issue.title,
@@ -317,7 +311,6 @@ async function openPost(num, pushState = true) {
             url: `${window.location.origin}/?post=${num}`
         };
         offlineStorage.cachePost(num, issue, htmlContent, metadata);
-        // 同时缓存原始Issue数据，以便离线时直接打开
         offlineStorage.cacheIssueData(num, issue);
     }
     
@@ -346,7 +339,6 @@ async function openPost(num, pushState = true) {
         setupReferenceHighlighting();
         initLinkPreview();
         loadComments(issue.title, issue.number);
-        // 加载历史记录
         loadPostHistory(num);
     }, 400);
 
@@ -366,41 +358,24 @@ function setupQuoteAction(postNum) {
     const postBody = document.getElementById('post-body-content');
     if (!postBody) return;
 
+    // 标记可引用的段落，右键菜单会检测这些元素
     const targets = postBody.querySelectorAll('p, li, blockquote, pre');
     targets.forEach(el => {
-        // 跳过太短的元素（少于15个字符）或纯空白元素
         const textContent = el.textContent.replace(/\s+/g, ' ').trim();
         if (textContent.length < 15 || textContent === postBody.textContent?.trim()) return;
 
         el.style.position = 'relative';
         el.classList.add('quotable-item');
-
-        const quoteBtn = document.createElement('button');
-        quoteBtn.className = 'quote-this-btn';
-        quoteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg><span>引用</span>';
-        quoteBtn.title = '引用此段到评论';
-        
-        quoteBtn.onclick = (e) => {
-            e.stopPropagation();
-            const text = el.innerText.replace(/引用/g, '').trim();
-            
-            // 视觉反馈动画
-            quoteBtn.classList.add('quote-flash');
-            setTimeout(() => quoteBtn.classList.remove('quote-flash'), 600);
-            
-            quoteToComment(text, postNum);
-        };
-
-        el.appendChild(quoteBtn);
     });
+
+    // 存储当前文章编号，供右键菜单使用
+    window._currentQuotePostNum = postNum;
 }
 
 function quoteToComment(text, postNum) {
     const textarea = document.getElementById('comment-text');
     
-    // 检查评论表单是否存在
     if (!textarea) {
-        // 尝试滚动到评论区域并显示登录提示
         const formArea = document.getElementById('comment-form-area');
         if (formArea) {
             formArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -409,13 +384,11 @@ function quoteToComment(text, postNum) {
         return;
     }
 
-    // 清理文本：移除多余空白、截断过长的引用
     const cleanedText = text
         .replace(/\s+/g, ' ')
         .replace(/^引用\s*/g, '')
         .trim();
     
-    // 如果文本太长，截断并添加省略号
     const maxQuoteLen = 500;
     const finalText = cleanedText.length > maxQuoteLen
         ? cleanedText.substring(0, maxQuoteLen) + '...'
@@ -432,23 +405,17 @@ function quoteToComment(text, postNum) {
         textarea.value = quoteBlock;
     }
     
-    // 更新预览
     if (typeof updateCommentPreview === 'function') {
         updateCommentPreview();
     }
     
-    // 平滑滚动到评论框并聚焦
     setTimeout(() => {
         textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
         textarea.focus();
         
-        // 触发输入事件以便任何绑定监听器响应
         const inputEvent = new Event('input', { bubbles: true });
         textarea.dispatchEvent(inputEvent);
     }, 100);
-    
-    // 显示成功提示
-    showNotification('已引用选定内容，可直接发表评论', 'success');
 }
 
 function parseEnhancedMarkdown(rawMarkdown) {
@@ -893,11 +860,16 @@ function renderPreviewFromIssue(targetIssue) {
 
 function closePost() {
     const urlParams = new URLSearchParams(window.location.search);
-    const owner = (typeof CONFIG !== 'undefined') ? CONFIG.owner : 'Blog';
+    const closeBrand = (typeof CONFIG !== 'undefined' && CONFIG.site && CONFIG.site.brand)
+        ? CONFIG.site.brand
+        : (CONFIG.owner || 'Blog');
+    const titlePrefix = (typeof CONFIG !== 'undefined' && CONFIG.site && CONFIG.site.title_prefix)
+        ? CONFIG.site.title_prefix
+        : 'Blog';
     
     // 检查是否匹配 ?post=NUM 参数
     if (urlParams.has('post')) {
-        history.pushState({}, "Blog |" + owner, window.location.pathname);
+        history.pushState({}, titlePrefix + ' ' + closeBrand, window.location.pathname);
     }
     
     const area = document.getElementById('content-area');
@@ -909,7 +881,7 @@ function closePost() {
     const historyModal = document.getElementById('history-modal');
     
     if (!area) return;
-    document.title = "Blog |" + owner;
+    document.title = titlePrefix + ' ' + closeBrand;
     area.classList.remove('show');
     area.style.opacity = "0";
     area.style.transform = "translateY(20px)";

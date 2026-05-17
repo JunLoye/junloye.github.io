@@ -158,9 +158,11 @@ async function uploadCoverToGithub(file, token) {
     const ext = file.name ? file.name.split('.').pop().toLowerCase() : 'png';
     const fileName = `img_${timestamp}.${ext}`;
     
-    const imgPath = `images/blog_${timestamp}/${fileName}`;
-    const targetRepo = CONFIG.username + '/' + CONFIG.repo; 
-    const targetBranch = "image";
+    const imgBranch = (CONFIG.images && CONFIG.images.branch) || 'image';
+    const imgPrefix = (CONFIG.images && CONFIG.images.path_prefix) || 'images/blog_';
+    const imgPath = `${imgPrefix}${timestamp}/${fileName}`;
+    const targetRepo = CONFIG.username + '/' + CONFIG.repo;
+    const targetBranch = imgBranch;
     const apiUrl = `https://api.github.com/repos/${targetRepo}/contents/${imgPath}`;
 
     const res = await fetch(apiUrl, {
@@ -182,7 +184,7 @@ async function uploadCoverToGithub(file, token) {
         throw new Error(`GitHub 上传失败: ${errorDetail.message || res.statusText}`);
     }
 
-    return `https://raw.githubusercontent.com/${targetRepo}/${targetBranch}/${imgPath}`;
+    return `https://raw.githubusercontent.com/${targetRepo}/${imgBranch}/${imgPath}`;
 }
 
 async function publishNewPost(e) {

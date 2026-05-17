@@ -26,6 +26,7 @@ window.addEventListener('load', async () => {
 
     applyFeatureFlags();
     initAnnouncement();
+    applySiteConfig();
 
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -41,6 +42,8 @@ window.addEventListener('load', async () => {
     setTimeout(checkLatency, 1000);
     
     initContextMenu();
+    initCopyProtection();
+
 
     // 网络状态变化时重新加载
     window.addEventListener('online', () => {
@@ -133,6 +136,89 @@ function applyFeatureFlags() {
     console.log('功能开关已应用:', features);
 }
 
+/**
+ * 应用站点配置（从 CONFIG.site 读取站点标识、元信息等）
+ */
+function applySiteConfig() {
+    if (!CONFIG.site) return;
+
+    // 设置页面标题：优先使用完整的 title，否则组合 title_prefix + brand
+    if (CONFIG.site.title) {
+        document.title = CONFIG.site.title;
+    } else if (CONFIG.site.title_prefix && CONFIG.site.brand) {
+        document.title = CONFIG.site.title_prefix + ' ' + CONFIG.site.brand;
+    } else if (CONFIG.site.brand) {
+        document.title = 'Blog | ' + CONFIG.site.brand;
+    }
+
+    // 设置 meta description
+    if (CONFIG.site.description) {
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.content = CONFIG.site.description;
+        }
+    }
+
+    // 设置 favicon
+    if (CONFIG.site.favicon) {
+        let faviconLink = document.querySelector('link[rel="icon"]');
+        if (faviconLink) {
+            faviconLink.href = CONFIG.site.favicon;
+        }
+    }
+
+    // 设置 Google 站点验证
+    if (CONFIG.site.google_verification) {
+        let metaVerify = document.querySelector('meta[name="google-site-verification"]');
+        if (!metaVerify) {
+            metaVerify = document.createElement('meta');
+            metaVerify.name = 'google-site-verification';
+            document.head.appendChild(metaVerify);
+        }
+        metaVerify.content = CONFIG.site.google_verification;
+    }
+
+    // 设置品牌名
+    if (CONFIG.site.brand) {
+        const brandEl = document.querySelector('.brand');
+        if (brandEl) brandEl.textContent = CONFIG.site.brand;
+    }
+
+    // 更新 footer 版权信息
+    if (CONFIG.site.copyright) {
+        const footerP = document.querySelector('footer p');
+        if (footerP) {
+            const year = new Date().getFullYear();
+            footerP.innerHTML = `© <span id="year">${year}</span> ${CONFIG.site.copyright}`;
+        }
+    }
+
+    // 更新上下文菜单"项目源码"链接
+    if (CONFIG.site.source_url) {
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            if (item.textContent.includes('项目源码') || item.textContent.includes('项目源碼')) {
+                item.onclick = function() { window.open(CONFIG.site.source_url); };
+            }
+        });
+    }
+
+    // 更新搜索框占位符
+    if (CONFIG.search) {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && CONFIG.search.placeholder) {
+            searchInput.placeholder = CONFIG.search.placeholder;
+            searchInput.title = `按 Ctrl+K 搜索`;
+        }
+        const searchKbd = document.querySelector('.search-kbd');
+        if (searchKbd && CONFIG.search.kbd_hint) {
+            searchKbd.textContent = CONFIG.search.kbd_hint;
+        }
+    }
+
+    console.log('站点配置已应用');
+}
+
 // 显示加载提示
 function showCacheLoadingNotice() {
     const container = document.getElementById('post-list-container');
@@ -157,7 +243,8 @@ async function fetchPosts() {
     if (!CONFIG.username || !CONFIG.repo) return;
 
     const CACHE_KEY = 'blog_posts_cache';
-    const CACHE_TIME = 5 * 60 * 1000;
+    const cacheTtl = (CONFIG.cache && CONFIG.cache.posts_cache_ttl_minutes) || 5;
+    const CACHE_TIME = cacheTtl * 60 * 1000;
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
     
     // 离线时立即使用任何可用缓存
@@ -312,7 +399,9 @@ function renderPosts(posts, highlightTerm = "") {
         }
         
         const filteredLabels = issue.labels.filter(l => l.name !== '反馈');
-        const tagsHtml = filteredLabels.map(l => `<span class="post-tag">${l.name}</span>`).join('');
+        const tagsHtml = filteredLabels.map(l =>
+            `<span class="post-tag" onclick="event.stopPropagation(); filterByTag('${escapeXML(l.name).replace(/'/g, "\\'")}')" title="筛选「${l.name}」标签的文章">${l.name}</span>`
+        ).join('');
         
         return `
             <div class="post-card" onclick="openPost(${issue.number})">
@@ -460,7 +549,8 @@ async function fetchGitHubStars() {
     const cached = localStorage.getItem('github_stars_cache');
     if (cached) {
         const { count, time } = JSON.parse(cached);
-        if (Date.now() - time < 3600000) { // 1小时缓存
+        const starsTtl = (CONFIG.cache && CONFIG.cache.stars_cache_ttl_hours) || 1;
+        if (Date.now() - time < starsTtl * 3600000) {
             starsEl.textContent = `${count} ★`;
             return;
         }
@@ -500,7 +590,8 @@ async function fetchLatestVersion() {
 }
 
 function updateBlogRunTime() {
-    const startTime = new Date('2026-01-01');
+    const startDate = (CONFIG.site && CONFIG.site.start_date) || '2026-01-01';
+    const startTime = new Date(startDate);
     const now = new Date();
     const days = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
     const sidebarEl = document.getElementById('sidebar-run-time');
@@ -550,14 +641,42 @@ window.onkeydown = (e) => {
         if (typeof closeSettings === 'function') closeSettings();
         if (typeof closePublishModal === 'function') closePublishModal();
         if (typeof closeFriends === 'function') closeFriends();
-        const menu = document.getElementById('custom-context-menu');
-        if (menu) menu.style.display = 'none';
+        if (typeof hideContextMenu === 'function') hideContextMenu();
     }
 };
+
+function hideContextMenu() {
+    const menu = document.getElementById('custom-context-menu');
+    if (!menu) return;
+    menu.classList.add('hiding');
+    setTimeout(() => {
+        menu.style.display = 'none';
+        menu.classList.remove('hiding');
+    }, 200);
+}
+
+/**
+ * 初始化复制保护：除文章界面外禁止复制
+ */
+function initCopyProtection() {
+    document.addEventListener('copy', (e) => {
+        const postOverlay = document.getElementById('post-overlay');
+        const isPostVisible = postOverlay && postOverlay.style.display === 'block';
+        
+        // 仅在浏览器默认行为中，非文章区域禁止复制
+        // 实际上 CSS user-select 已阻止选择，此事件作为额外保护
+        const selection = window.getSelection().toString().trim();
+        if (selection && !isPostVisible) {
+            e.preventDefault();
+            showNotification('仅允许在文章界面内复制内容', 'warning');
+        }
+    });
+}
 
 function initContextMenu() {
     const menu = document.getElementById('custom-context-menu');
     const textGroup = document.getElementById('menu-text-group');
+    const quoteAction = document.getElementById('menu-quote-action');
     if (!menu) return;
 
     // 如果设置了禁用右键菜单，则跳过初始化并阻止自定义菜单出现
@@ -575,24 +694,101 @@ function initContextMenu() {
         }
 
         e.preventDefault();
+        // 如果菜单已经显示，先隐藏
+        if (menu.style.display === 'block') {
+            hideContextMenu();
+        }
+
         lastSelectedText = window.getSelection().toString().trim();
         textGroup.style.display = lastSelectedText.length > 0 ? 'block' : 'none';
 
+        // 检测右键是否发生在文章内容区域内，显示"引用到评论"
+        const postBody = document.getElementById('post-body-content');
+        const isInPost = postBody && postBody.contains(e.target);
+        const isQuotable = e.target.closest && e.target.closest('.quotable-item');
+        if (quoteAction) {
+            quoteAction.style.display = (lastSelectedText.length > 0 && isInPost && isQuotable) ? 'flex' : 'none';
+        }
+
         let x = e.clientX, y = e.clientY;
         menu.style.display = 'block';
+        menu.classList.remove('hiding');
         if (x + menu.offsetWidth > window.innerWidth) x -= menu.offsetWidth;
         if (y + menu.offsetHeight > window.innerHeight) y -= menu.offsetHeight;
         menu.style.left = `${x}px`;
         menu.style.top = `${y}px`;
     });
 
+    // 点击菜单项时隐藏菜单
+    menu.addEventListener('click', (e) => {
+        // 仅当点击的是菜单项（而非分隔符等）时隐藏
+        const item = e.target.closest('.menu-item');
+        if (item) {
+            setTimeout(hideContextMenu, 100);
+        }
+    });
+
     document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target)) menu.style.display = 'none';
+        if (!menu.contains(e.target)) hideContextMenu();
     });
     
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') menu.style.display = 'none';
+        if (e.key === 'Escape') hideContextMenu();
     });
+}
+
+/**
+ * 右键菜单"引用到评论"功能
+ * 将选中的文本引用到文章评论区
+ */
+function quoteSelectedText() {
+    if (!lastSelectedText || typeof window._currentQuotePostNum === 'undefined') return;
+    
+    const cleanedText = lastSelectedText
+        .replace(/\s+/g, ' ')
+        .replace(/^引用\s*/g, '')
+        .trim();
+    
+    const maxQuoteLen = 500;
+    const finalText = cleanedText.length > maxQuoteLen
+        ? cleanedText.substring(0, maxQuoteLen) + '...'
+        : cleanedText;
+    
+    const quotedLine = `> ${finalText}`;
+    const refLine = `> #${window._currentQuotePostNum}`;
+    const quoteBlock = `${quotedLine}\n${refLine}\n\n`;
+    
+    const textarea = document.getElementById('comment-text');
+    
+    if (!textarea) {
+        const formArea = document.getElementById('comment-form-area');
+        if (formArea) {
+            formArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        showNotification("请先登录 GitHub 以启用引用评论功能", "error");
+        return;
+    }
+    
+    const currentText = textarea.value;
+    if (currentText.trim()) {
+        textarea.value = currentText + '\n\n' + quoteBlock;
+    } else {
+        textarea.value = quoteBlock;
+    }
+    
+    if (typeof updateCommentPreview === 'function') {
+        updateCommentPreview();
+    }
+    
+    setTimeout(() => {
+        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        textarea.focus();
+        
+        const inputEvent = new Event('input', { bubbles: true });
+        textarea.dispatchEvent(inputEvent);
+    }, 100);
+    
+    showNotification('已引用选中内容到评论框', 'success');
 }
 
 /**
@@ -723,61 +919,61 @@ function generateTagCloud(issues) {
     
     const sortedTags = Object.entries(tagCount)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 25);
+        .slice(0, 30); // 增加显示数量到30个
     
     if (sortedTags.length === 0) {
         tagCloudContainer.innerHTML = '<div class="tag-cloud-empty">✨ 暂无标签，发布文章时添加标签吧</div>';
         return;
     }
     
-    // 计算字体大小范围（基于文章数量）
-    const maxCount = sortedTags[0][1];
-    const minCount = sortedTags[sortedTags.length - 1][1];
-    const minFontSize = 0.8;
-    const maxFontSize = 1.6;
+    // 是否为当前激活的标签
+    const isFiltering = currentTagFilter !== null;
     
-    // 生成标签HTML
+    // 生成标签HTML - 统一 pill 风格，不再使用字体大小变化
     const tagsHtml = sortedTags.map(([tag, count]) => {
-        // 根据文章数量计算字体大小
-        let fontSize = minFontSize;
-        if (maxCount !== minCount) {
-            fontSize = minFontSize + (maxFontSize - minFontSize) * (count - minCount) / (maxCount - minCount);
-        }
-        
-        // 是否为当前激活的标签
         const isActive = currentTagFilter === tag;
         const activeClass = isActive ? 'active' : '';
         
-        // 使用标签名称生成稳定的颜色（柔和色调）
+        // 使用标签名称生成稳定的柔和色调（用于非 active 状态下的 hover 辅助）
         const hue = (tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360);
-        const color = `hsl(${hue}, 65%, 55%)`;
+        const hslColor = `hsl(${hue}, 55%, 50%)`;
         
         return `
             <span class="tag-cloud-item ${activeClass}"
-                  style="font-size: ${fontSize}rem;"
                   data-tag="${escapeXML(tag)}"
                   onclick="filterByTag('${escapeXML(tag).replace(/'/g, "\\'")}')"
-                  title="点击筛选「${tag}」标签的文章">
-                ${escapeXML(tag)}
-                <span class="tag-count">(${count})</span>
+                  title="点击筛选「${tag}」标签的文章（${count}篇）">
+                <span class="tag-label">${escapeXML(tag)}</span>
+                <span class="tag-count">${count}</span>
             </span>
         `;
     }).join('');
     
-    // 添加重置按钮和筛选指示器
-    const filterIndicator = currentTagFilter ? `
-        <div class="filter-indicator">
-            <span>📌 当前筛选：</span>
-            <span class="tag-name">${escapeXML(currentTagFilter)}</span>
-            <span class="clear-filter" onclick="clearTagFilter()" title="清除筛选">✕</span>
-        </div>
-    ` : '';
+    // 筛选指示器 + 控制按钮行
+    let controlHtml = '';
+    if (isFiltering) {
+        controlHtml = `
+            <div class="tag-cloud-header">
+                <div class="filter-indicator">
+                    <span class="tag-name">${escapeXML(currentTagFilter)}</span>
+                    <span class="clear-filter" onclick="clearTagFilter()" title="清除筛选">✕</span>
+                </div>
+                <button class="tag-cloud-reset" onclick="clearTagFilter()" title="显示全部文章">
+                    全部文章
+                </button>
+            </div>
+        `;
+    } else {
+        controlHtml = `
+            <div class="tag-cloud-header">
+                <span style="font-size:0.7rem;color:var(--text-soft);font-weight:600;">点击标签筛选文章</span>
+                <span style="font-size:0.65rem;color:var(--text-soft);opacity:0.6;">${sortedTags.length} 个标签</span>
+            </div>
+        `;
+    }
     
     tagCloudContainer.innerHTML = `
-        <div class="tag-cloud-reset" onclick="clearTagFilter()" title="显示全部文章">
-            全部文章
-        </div>
-        ${filterIndicator}
+        ${controlHtml}
         <div class="tag-cloud-items">
             ${tagsHtml}
         </div>
@@ -787,6 +983,7 @@ function generateTagCloud(issues) {
 function filterByTag(tagName) {
     if (!allIssues || allIssues.length === 0) return;
     
+    // 如果点击已经激活的标签，取消筛选
     if (currentTagFilter === tagName) {
         clearTagFilter();
         return;
@@ -800,15 +997,14 @@ function filterByTag(tagName) {
     });
     
     renderPosts(filteredIssues, tagName);
-    
     generateTagCloud(allIssues);
+    updateSidebarStats(filteredIssues.length);
     
+    // 平滑滚动到文章列表
     const container = document.getElementById('post-list-container');
     if (container) {
         container.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    
-    updateSidebarStats(filteredIssues.length);
 }
 
 function clearTagFilter() {
@@ -818,9 +1014,7 @@ function clearTagFilter() {
     
     const displayIssues = filterIssues(allIssues);
     renderPosts(displayIssues);
-    
     generateTagCloud(allIssues);
-    
     updateSidebarStats(displayIssues.length);
     
     const container = document.getElementById('post-list-container');

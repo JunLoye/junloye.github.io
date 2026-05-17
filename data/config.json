@@ -1,11 +1,26 @@
 {
+  "site": {
+    "title": "Blog | Jun Loye",
+    "brand": "JUN LOYE",
+    "description": "Jun Loye 的个人博客，分享编程技术、生活点滴与思考。涵盖技术、算法与数据结构等内容",
+    "copyright": "JUN LOYE",
+    "google_verification": "fJ753iyaVnQymPQwrMoRVIqYPbswugSIkqtD1DwmEFg",
+    "start_date": "2026-01-01",
+    "favicon": "/image/favicon.ico",
+    "source_url": "https://github.com/JunLoye/junloye.github.io",
+    "title_prefix": "Blog |"
+  },
+
   "owner": "Jun Loye",
   "username": "JunLoye",
   "repo": "junloye.github.io",
   "branch": "main",
+
   "clientId": "Ov23licJrsWm5hKFYAxj",
   "proxyUrl": "https://github-oauth-worker.loyejun.workers.dev",
+
   "defaultCover": "https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
+
   "nodes": [
     {
       "name": "GitHub",
@@ -24,7 +39,7 @@
       "url": "https://api.github.com"
     }
   ],
-  
+
   "worker_url": "https://discussions.loyejun.workers.dev/",
   "client_id": "Ov23liNHVCD2Mdupm4U4",
 
@@ -48,5 +63,22 @@
     "content": "欢迎访问我的博客！本站基于GitHub Issues构建，支持评论和分享功能。",
     "show_close": true,
     "expires": "2026-12-31"
+  },
+
+  "cache": {
+    "max_size_mb": 3,
+    "max_age_days": 30,
+    "posts_cache_ttl_minutes": 5,
+    "stars_cache_ttl_hours": 1
+  },
+
+  "images": {
+    "branch": "image",
+    "path_prefix": "images/blog_"
+  },
+
+  "search": {
+    "placeholder": "搜索文章...",
+    "kbd_hint": "⌘K"
   }
 }

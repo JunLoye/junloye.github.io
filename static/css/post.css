@@ -478,78 +478,7 @@
     padding: 20px 0;
 }
 
-.quotable-item:hover .quote-this-btn {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.quote-this-btn {
-    position: absolute;
-    right: -70px;
-    top: 4px;
-    padding: 3px 10px;
-    font-size: 0.7rem;
-    background: var(--bg);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 6px;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
-    z-index: 5;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-
-.quote-this-btn:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-    transform: translateX(0) scale(1.05);
-    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
-}
-
-.quote-this-btn svg {
-    vertical-align: middle;
-}
-
-/* 引用成功闪光动画 */
-.quote-flash {
-    animation: quotePulse 0.6s ease;
-}
-
-@keyframes quotePulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
-    50% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(var(--accent-rgb), 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
-}
-
-/* 引用引用块时有偏移调整 */
-blockquote.quotable-item .quote-this-btn {
-    right: -65px;
-    top: 8px;
-}
-
 @media (max-width: 768px) {
-    .quotable-item {
-        position: relative !important;
-    }
-    .quote-this-btn {
-        position: static;
-        opacity: 1;
-        transform: none;
-        margin: 4px 0 4px auto;
-        display: inline-flex;
-        font-size: 0.65rem;
-        padding: 2px 8px;
-        float: right;
-    }
-    
     .detail-post,
     .detail-container,
     #content-area,

@@ -12,7 +12,6 @@ const SETTINGS_KEYS = {
     CONTEXT_MENU: 'settings_context_menu',
     THEME_MODE: 'settings_theme_mode',
     BORDER_RADIUS: 'settings_border_radius',
-    ACCENT_COLOR: 'settings_accent_color',
     SMOOTH_SCROLL: 'settings_smooth_scroll',
     POST_LAYOUT: 'settings_post_layout',
     DEBUG_NETWORK: 'settings_debug_network',
@@ -28,7 +27,6 @@ const SETTINGS_DEFAULTS = {
     CONTEXT_MENU: 'true',
     THEME_MODE: 'manual',
     BORDER_RADIUS: 'rounded',
-    ACCENT_COLOR: '#0a84ff',
     SMOOTH_SCROLL: 'true',
     POST_LAYOUT: 'grid',
     DEBUG_NETWORK: 'false',
@@ -125,12 +123,6 @@ function settingsLoadState() {
     const borderRadius = settingsGet(SETTINGS_KEYS.BORDER_RADIUS);
     document.querySelectorAll('#settings-content .segmented-option[data-radius]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.radius === borderRadius);
-    });
-
-    // 强调色
-    const accentColor = settingsGet(SETTINGS_KEYS.ACCENT_COLOR);
-    document.querySelectorAll('#settings-content .color-option').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.color === accentColor);
     });
 
     // 字体
@@ -289,38 +281,6 @@ function settingsSetBorderRadius(radius) {
     }
 }
 
-function settingsSetAccentColor(color) {
-    settingsSet(SETTINGS_KEYS.ACCENT_COLOR, color);
-
-    // 更新 UI 状态
-    document.querySelectorAll('#settings-content .color-option').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.color === color);
-    });
-
-    // 应用到页面
-    document.documentElement.style.setProperty('--accent', color);
-
-    // 计算 RGB 值用于透明度
-    const r = parseInt(color.slice(1, 3), 16);
-    const g = parseInt(color.slice(3, 5), 16);
-    const b = parseInt(color.slice(5, 7), 16);
-    document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
-
-    if (typeof showNotification === 'function') {
-        showNotification('强调色已更新', 'success');
-    }
-}
-
-function settingsPickCustomColor() {
-    const input = document.createElement('input');
-    input.type = 'color';
-    input.value = settingsGet(SETTINGS_KEYS.ACCENT_COLOR);
-    input.addEventListener('input', (e) => {
-        settingsSetAccentColor(e.target.value);
-    });
-    input.click();
-}
-
 // ===== 字体设置 =====
 function settingsChangeFont() {
     const select = document.getElementById('settings-font-family');
@@ -471,7 +431,7 @@ function settingsUpdateCacheStats() {
                 <div style="font-size: 0.72rem; color: var(--text-soft); margin-top: 4px;">缓存条目</div>
             </div>
             <div class="settings-cache-card" style="flex: 1; min-width: 120px; background: var(--selection-bg); border-radius: 10px; padding: 12px; text-align: center;">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent);">3 MB</div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent);">${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_size_mb : 3} MB</div>
                 <div style="font-size: 0.72rem; color: var(--text-soft); margin-top: 4px;">缓存上限</div>
             </div>
         </div>
@@ -509,7 +469,7 @@ function settingsUpdateCacheStats() {
         </div>
         <div class="settings-cache-note" style="padding: 0 18px 12px; font-size: 0.72rem; color: var(--text-soft); display: flex; align-items: center; gap: 6px;">
             <svg viewBox="0 0 24 24" width="14" height="14" style="flex-shrink: 0;"><path fill="currentColor" d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-            <span>已读文章自动缓存，最多保存 3MB，超过 30 天自动清理</span>
+            <span>已读文章自动缓存，最多保存 ${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_size_mb : 3}MB，超过 ${typeof CONFIG !== 'undefined' && CONFIG.cache ? CONFIG.cache.max_age_days : 30} 天自动清理</span>
         </div>
     `;
 }
@@ -1059,10 +1019,6 @@ function settingsResetAll() {
     // 重置圆角
     document.documentElement.style.removeProperty('--card-radius');
 
-    // 重置强调色
-    document.documentElement.style.removeProperty('--accent');
-    document.documentElement.style.removeProperty('--accent-rgb');
-
     // 重置平滑滚动
     document.documentElement.style.scrollBehavior = '';
 
@@ -1130,16 +1086,6 @@ function settingsApplySaved() {
             savedRadius === 'square' ? '4px' :
             savedRadius === 'pill' ? '24px' : '12px'
         );
-    }
-
-    // 应用强调色
-    const savedAccent = settingsGet(SETTINGS_KEYS.ACCENT_COLOR);
-    if (savedAccent && savedAccent !== SETTINGS_DEFAULTS.ACCENT_COLOR) {
-        document.documentElement.style.setProperty('--accent', savedAccent);
-        const r = parseInt(savedAccent.slice(1, 3), 16);
-        const g = parseInt(savedAccent.slice(3, 5), 16);
-        const b = parseInt(savedAccent.slice(5, 7), 16);
-        document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
     }
 
     // 应用平滑滚动

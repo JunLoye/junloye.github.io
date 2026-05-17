@@ -85,7 +85,7 @@
 
 .back-to-top {
     position: fixed;
-    bottom: 40px;
+    bottom: 30px;
     right: 30px;
     width: 45px;
     height: 45px;
@@ -112,9 +112,9 @@
 }
 
 .back-to-top:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
     transform: translateY(-5px);
 }
 
@@ -130,38 +130,7 @@
     gap: 15px;
 }
 
-/* 标签云特定样式 */
-#tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.tag-item {
-    display: inline-block;
-    padding: 4px 10px;
-    background: var(--line);
-    color: var(--text-soft);
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.tag-item:hover {
-    background: var(--accent);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 122, 255, 0.2);
-}
-
-.tag-item.tag-active {
-    background: var(--accent);
-    color: white;
-    font-weight: 700;
-}
+/* 标签云样式已迁移至 style.css */
 
 @media (max-width: 1024px) {
     .sidebar-info {
@@ -173,7 +142,7 @@
     }
 
     .back-to-top {
-        bottom: 90px;
+        bottom: 30px;
         right: 20px;
         width: 40px;
         height: 40px;

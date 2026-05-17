@@ -1,10 +1,15 @@
-/**
- * 搜索模块 - 支持全屏搜索覆盖层
- * 使用 Ctrl+K / Cmd+K 或点击搜索框触发
- */
-
-// ===== 搜索覆盖层 =====
 let searchOverlayCreated = false;
+
+// 本地 escapeXML 确保独立可用
+function escapeXML(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&' + 'amp;')
+        .replace(/</g, '&' + 'lt;')
+        .replace(/>/g, '&' + 'gt;')
+        .replace(/"/g, '&' + 'quot;')
+        .replace(/'/g, '&' + '#x27;');
+}
 
 function createSearchOverlay() {
     if (searchOverlayCreated) return;
@@ -35,13 +40,11 @@ function createSearchOverlay() {
 
     document.body.appendChild(overlay);
 
-    // 输入事件
     const input = document.getElementById('search-overlay-input');
     input.addEventListener('input', (e) => {
         performSearchOverlay(e.target.value);
     });
 
-    // 键盘事件
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const results = document.querySelectorAll('.search-overlay-result');
@@ -59,7 +62,6 @@ function createSearchOverlay() {
         }
     });
 
-    // 结果导航（上/下箭头）
     const body = document.getElementById('search-overlay-body');
     body.addEventListener('keydown', (e) => {
         const results = Array.from(body.querySelectorAll('.search-overlay-result'));
@@ -81,7 +83,6 @@ function createSearchOverlay() {
         }
     });
 
-    // 点击overlay背景关闭
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             closeSearchOverlay();
@@ -95,12 +96,10 @@ function openSearchOverlay() {
     if (!overlay) return;
 
     overlay.style.display = 'flex';
-    // 触发动画
     requestAnimationFrame(() => {
         overlay.classList.add('active');
     });
 
-    // 聚焦输入框
     setTimeout(() => {
         const input = document.getElementById('search-overlay-input');
         if (input) {
@@ -146,14 +145,15 @@ function performSearchOverlay(term) {
                 <svg viewBox="0 0 24 24">
                     <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14z"/>
                 </svg>
-                <span>${term ? '未找到相关文章 😅' : '输入关键词开始搜索'}</span>
+                <span>${term ? '未找到相关文章' : '输入关键词开始搜索'}</span>
             </div>
         `;
         return;
     }
 
-    // 过滤文章
-    const filtered = allIssues.filter(issue => {
+    // 使用 filterIssues 排除反馈/非作者/已关闭后搜索
+    const searchPool = typeof filterIssues === 'function' ? filterIssues(allIssues) : allIssues;
+    const filtered = searchPool.filter(issue => {
         const titleMatch = issue.title.toLowerCase().includes(term);
         const bodyMatch = (issue.body || "").toLowerCase().includes(term);
         const tagMatch = issue.labels.some(l => l.name.toLowerCase().includes(term));
@@ -166,21 +166,19 @@ function performSearchOverlay(term) {
                 <svg viewBox="0 0 24 24">
                     <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                <span>未找到相关文章 😅</span>
-                <span style="font-size:0.8rem;">试试其他关键词</span>
+                <span>未找到相关文章</span>
+                <span style="font-size:0.8rem;color:var(--text-soft);">试试其他关键词</span>
             </div>
         `;
         return;
     }
 
-    // 高亮关键词
     const highlightTerm = (text) => {
         if (!text) return '';
         const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
         return text.replace(regex, '<mark>$1</mark>');
     };
 
-    // 生成结果列表 - 优先标题匹配和标签匹配
     const sorted = [...filtered].sort((a, b) => {
         const aTitle = a.title.toLowerCase().includes(term);
         const bTitle = b.title.toLowerCase().includes(term);
@@ -190,19 +188,18 @@ function performSearchOverlay(term) {
 
     body.innerHTML = sorted.map(issue => {
         const snippet = getSearchSnippet(issue, term);
-        const tags = issue.labels.filter(l => l.name !== '反馈').map(l =>
-            `<span class="result-tag">${highlightTerm(l.name)}</span>`
-        ).join('');
+        const tags = issue.labels.filter(l => l.name !== '反馈').map(l => {
+            const highlightedName = highlightTerm(l.name);
+            return `<span class="result-tag" onclick="event.stopPropagation(); closeSearchOverlay(); setTimeout(() => filterByTag('${escapeXML(l.name).replace(/'/g, "\\'")}'), 150);" title="筛选「${l.name}」标签的文章">${highlightedName}</span>`;
+        }).join('');
         const date = new Date(issue.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
 
-        // 使用 marked 渲染 markdown 片段
         let snippetHtml = '';
         if (snippet) {
             snippetHtml = snippet;
             if (typeof marked !== 'undefined') {
                 try {
                     snippetHtml = marked.parse(snippet);
-                    // 保留高亮标记
                     snippetHtml = snippetHtml.replace(/<mark>/g, '​<mark>').replace(/<\/mark>/g, '</mark>​');
                 } catch (e) {
                     snippetHtml = snippet;
@@ -223,10 +220,20 @@ function performSearchOverlay(term) {
         `;
     }).join('');
 
-    // 显示结果计数
     const counter = document.createElement('div');
-    counter.style.cssText = 'padding: 8px 20px; font-size: 0.75rem; color: var(--text-soft); border-bottom: 1px solid var(--line);';
-    counter.textContent = `找到 ${filtered.length} 篇相关文章`;
+    counter.style.cssText = 'padding: 8px 20px; font-size: 0.75rem; color: var(--text-soft); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between;';
+    
+    // 统计有多少个匹配标签被搜索到
+    const matchedTags = [...new Set(filtered.flatMap(issue =>
+        issue.labels.filter(l => l.name !== '反馈' && l.name.toLowerCase().includes(term)).map(l => l.name)
+    ))];
+    
+    let tagHint = '';
+    if (matchedTags.length > 0) {
+        tagHint = `<span style="font-size:0.65rem;color:var(--accent);">标签匹配: ${matchedTags.join(', ')}</span>`;
+    }
+    
+    counter.innerHTML = `<span>找到 ${filtered.length} 篇相关文章</span>${tagHint}`;
     body.insertBefore(counter, body.firstChild);
 }
 
@@ -237,19 +244,15 @@ function getSearchSnippet(issue, term) {
     
     if (idx === -1) return '';
 
-    // 提取匹配位置周围的文本（约100个字符）
     const start = Math.max(0, idx - 40);
     const end = Math.min(body.length, idx + term.length + 60);
     let snippet = body.substring(start, end);
     
-    // 添加省略号
     if (start > 0) snippet = '...' + snippet;
     if (end < body.length) snippet = snippet + '...';
     
-    // 高亮关键词
     const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     
-    // Strip markdown-ish formatting for snippet
     snippet = snippet.replace(/\[Cover\]\s*http\S+/g, '')
                      .replace(/\[Summary\]|\[Content\]|\[References\]/g, '')
                      .replace(/^[-*]\s+/gm, '')
@@ -262,28 +265,24 @@ function getSearchSnippet(issue, term) {
     return snippet.replace(regex, '<mark>$1</mark>');
 }
 
-// ===== 导航栏搜索框（保持原有行为，但点击聚焦时打开覆盖层） =====
 const searchInputEl = document.getElementById('search-input');
 
 if (searchInputEl) {
     const searchContainer = searchInputEl.closest('.search-container');
     const searchKbd = document.querySelector('.search-kbd');
 
-    // 直接点击导航栏搜索框改为打开覆盖层
     searchInputEl.addEventListener('focus', (e) => {
         e.preventDefault();
         searchInputEl.blur();
         openSearchOverlay();
     });
 
-    // 点击搜索容器也打开覆盖层
     searchContainer?.addEventListener('click', (e) => {
         if (e.target !== searchInputEl && e.target !== searchContainer) return;
         e.preventDefault();
         openSearchOverlay();
     });
 
-    // Ctrl+K / Cmd+K 快捷键打开覆盖层
     document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
@@ -292,7 +291,6 @@ if (searchInputEl) {
     });
 }
 
-// ===== 内联搜索功能（从右键菜单调用） =====
 function searchInPage() {
     if (typeof lastSelectedText === 'undefined' || !lastSelectedText) return;
     openSearchOverlay();
@@ -305,7 +303,6 @@ function searchInPage() {
     }, 200);
 }
 
-// ===== 标签筛选跳转到搜索 =====
 function filterByTag(tagName) {
     openSearchOverlay();
     setTimeout(() => {
