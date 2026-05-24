@@ -954,7 +954,8 @@ mark.search-highlight {
 
     #post-overlay .close-btn,
     #about-overlay .close-btn,
-    #settings-overlay .close-btn {
+    #settings-overlay .close-btn,
+    #archive-overlay .close-btn {
         top: 12px;
         left: 12px;
         padding: 5px 10px;

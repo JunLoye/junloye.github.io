@@ -530,7 +530,8 @@ async function initAllTemplates() {
         loadTemplate('about-overlay', 'components/about.html'),
         loadTemplate('post-overlay', 'components/post.html'),
         loadTemplate('publish-modal', 'components/publish.html'),
-        loadTemplate('settings-overlay', 'components/settings.html')
+        loadTemplate('settings-overlay', 'components/settings.html'),
+        loadTemplate('archive-overlay', 'components/archive.html')
     ]);
     templatesLoaded = true;
     if (typeof initPublishForm === 'function') initPublishForm();
@@ -641,6 +642,7 @@ window.onkeydown = (e) => {
         if (typeof closeSettings === 'function') closeSettings();
         if (typeof closePublishModal === 'function') closePublishModal();
         if (typeof closeFriends === 'function') closeFriends();
+        if (typeof closeArchive === 'function') closeArchive();
         if (typeof hideContextMenu === 'function') hideContextMenu();
     }
 };
@@ -1026,6 +1028,10 @@ function clearTagFilter() {
 function initTagCloud() {
     if (allIssues && allIssues.length > 0) {
         generateTagCloud(allIssues);
+    }
+    // 文章列表刷新时同步清除归档缓存，确保数据始终最新
+    if (typeof clearArchiveCache === 'function') {
+        clearArchiveCache();
     }
 }
 

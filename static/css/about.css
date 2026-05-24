@@ -444,7 +444,8 @@
 /* 统一 close/back 按钮 - 所有弹窗共用 */
 #post-overlay .close-btn,
 #about-overlay .close-btn,
-#settings-overlay .close-btn {
+#settings-overlay .close-btn,
+#archive-overlay .close-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -470,7 +471,8 @@
 
 #post-overlay .close-btn:hover,
 #about-overlay .close-btn:hover,
-#settings-overlay .close-btn:hover {
+#settings-overlay .close-btn:hover,
+#archive-overlay .close-btn:hover {
     background: var(--text);
     color: var(--bg);
     border-color: var(--text);
@@ -480,14 +482,16 @@
 
 #post-overlay .close-btn:active,
 #about-overlay .close-btn:active,
-#settings-overlay .close-btn:active {
+#settings-overlay .close-btn:active,
+#archive-overlay .close-btn:active {
     transform: scale(0.96);
 }
 
 /* 深色模式 close/back 按钮 */
 [data-theme="dark"] #post-overlay .close-btn,
 [data-theme="dark"] #about-overlay .close-btn,
-[data-theme="dark"] #settings-overlay .close-btn {
+[data-theme="dark"] #settings-overlay .close-btn,
+[data-theme="dark"] #archive-overlay .close-btn {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.12);
     color: #f5f5f7;
@@ -496,7 +500,8 @@
 
 [data-theme="dark"] #post-overlay .close-btn:hover,
 [data-theme="dark"] #about-overlay .close-btn:hover,
-[data-theme="dark"] #settings-overlay .close-btn:hover {
+[data-theme="dark"] #settings-overlay .close-btn:hover,
+[data-theme="dark"] #archive-overlay .close-btn:hover {
     background: #f5f5f7;
     color: #1c1c1e;
     border-color: #f5f5f7;

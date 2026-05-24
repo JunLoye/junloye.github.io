@@ -924,8 +924,11 @@ function bindExternalLinks(previewCard) {
                 // 标记当前链接为活跃悬停，用于防止异步回调误更新
                 link.dataset.previewHover = "true";
 
-                // 直接显示域名+图标预览，零延迟零网络开销
-                setPreviewContent(previewCard, renderPreviewFromExternal(href));
+                // 获取链接文本内容（去除两端空白）
+                const linkText = (link.textContent || '').trim();
+
+                // 直接显示域名+图标+标题预览，零延迟零网络开销
+                setPreviewContent(previewCard, renderPreviewFromExternal(href, linkText));
                 positionPreviewCard(e.target, previewCard);
 
                 // 检测 GitHub 链接，异步获取富预览数据并升级预览卡片
@@ -935,6 +938,29 @@ function bindExternalLinks(previewCard) {
                         // 仅在用户仍悬停在此链接上时升级预览
                         if (result && result.data && link.dataset.previewHover === "true") {
                             setPreviewContent(previewCard, renderGitHubPreview(result.parsed, result.data));
+                            positionPreviewCard(e.target, previewCard);
+                        }
+                    });
+                }
+
+                // 检测百度百科链接，异步获取富预览数据
+                const bbParsed = parseBaiduBaikeUrl(href);
+                if (bbParsed) {
+                    // 先显示基础预览中的站点名称
+                    fetchBaiduBaikePreviewData(bbParsed).then(result => {
+                        if (result && result.data && link.dataset.previewHover === "true") {
+                            setPreviewContent(previewCard, renderBaiduBaikePreview(result.parsed, result.data));
+                            positionPreviewCard(e.target, previewCard);
+                        }
+                    });
+                }
+
+                // 检测 Fandom 链接，异步获取富预览数据
+                const fdParsed = parseFandomUrl(href);
+                if (fdParsed) {
+                    fetchFandomPreviewData(fdParsed).then(result => {
+                        if (result && result.data && link.dataset.previewHover === "true") {
+                            setPreviewContent(previewCard, renderFandomPreview(result.parsed, result.data));
                             positionPreviewCard(e.target, previewCard);
                         }
                     });
@@ -1012,10 +1038,11 @@ function renderPreviewLoadingState() {
 
 /**
  * 渲染外部链接预览卡片
- * 显示域名、favicon 和 URL 信息，零网络开销
+ * 显示域名、favicon、链接标题和 URL 信息，零网络开销
  * @param {string} url - 链接地址
+ * @param {string} linkText - 链接文本（作为标题显示）
  */
-function renderPreviewFromExternal(url) {
+function renderPreviewFromExternal(url, linkText) {
     let domain = '';
     let pathInfo = '';
     try {
@@ -1027,6 +1054,9 @@ function renderPreviewFromExternal(url) {
         domain = url;
         pathInfo = url;
     }
+
+    // 判断链接文本是否有效（非空且不是纯粹的 URL 重复）
+    const hasValidText = linkText && linkText.length > 0 && linkText !== url;
 
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
     return `
@@ -1040,7 +1070,8 @@ function renderPreviewFromExternal(url) {
                 </span>
             </div>
         </div>
-        <div class="preview-title" style="font-size:0.95rem; font-weight:600; color:var(--accent); word-break:break-all;">${url}</div>
+        ${hasValidText ? `<div class="preview-title preview-link-title">${escHtml(linkText)}</div>` : ''}
+        <div class="preview-url-display${hasValidText ? '' : ' preview-title'}">${url}</div>
         <div class="preview-footer">
             <span class="preview-label external">外部链接</span>
             <span class="preview-url-path" title="${url}">${pathInfo}</span>
@@ -1290,6 +1321,234 @@ function getLangColor(lang) {
         Perl: '#0298c3',
     };
     return colors[lang] || '#6b7280';
+}
+
+/* ==================== 百度百科链接预览 ==================== */
+
+/**
+ * 解析百度百科 URL，提取词条标题和 ID
+ * 支持的 URL 模式：
+ *   - baike.baidu.com/item/<title>
+ *   - baike.baidu.com/item/<title>/<id>
+ *   - baike.baidu.com/view/<id>.htm
+ * @param {string} url
+ * @returns {{ title: string|null, lemmaId: string|null }|null}
+ */
+function parseBaiduBaikeUrl(url) {
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.replace(/^www\./, '');
+        if (host !== 'baike.baidu.com') return null;
+
+        const path = parsed.pathname;
+
+        // Handle /view/<id>.htm
+        const viewMatch = path.match(/\/view\/(\d+)\.htm/);
+        if (viewMatch) {
+            return { title: null, lemmaId: viewMatch[1] };
+        }
+
+        // Handle /item/<title>[/<id>]
+        const itemMatch = path.match(/\/item\/([^\/]+)(?:\/(\d+))?/);
+        if (itemMatch) {
+            const title = decodeURIComponent(itemMatch[1]);
+            const lemmaId = itemMatch[2] || null;
+            return { title, lemmaId };
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * 异步获取百度百科词条预览数据
+ * 使用百度百科的公开 API 获取词条摘要和封面图
+ * @param {{ title: string|null, lemmaId: string|null }} parsed
+ * @returns {Promise<{ parsed, data }|null>}
+ */
+async function fetchBaiduBaikePreviewData(parsed) {
+    const cacheKey = `baike:${parsed.lemmaId || parsed.title || 'unknown'}`;
+    const cached = getPreviewCache(cacheKey);
+    if (cached) return { parsed, data: cached };
+
+    try {
+        let data = null;
+
+        // 优先使用 lemmaId 调用 API
+        if (parsed.lemmaId) {
+            const res = await fetch(`https://baike.baidu.com/api/lemma?lemmaId=${parsed.lemmaId}`);
+            if (res.ok) data = await res.json();
+        }
+
+        // 未获取到数据且有标题时，尝试用标题搜索
+        if (!data && parsed.title) {
+            const res = await fetch(`https://baike.baidu.com/api/lemma?title=${encodeURIComponent(parsed.title)}`);
+            if (res.ok) data = await res.json();
+        }
+
+        if (!data) return null;
+
+        // 提取关键数据并缓存
+        const previewData = {
+            title: data.title || data.lemmaTitle || parsed.title || '百度百科',
+            description: data.summary || data.abstract || data.desc || '',
+            coverUrl: data.coverUrl || data.coverImage || data.img || data.cover_img || '',
+            lemmaId: data.lemmaId || parsed.lemmaId
+        };
+
+        setPreviewCache(cacheKey, previewData);
+        return { parsed, data: previewData };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * 渲染百度百科词条预览卡片
+ * @param {{ title: string|null, lemmaId: string|null }} parsed
+ * @param {object|null} data
+ */
+function renderBaiduBaikePreview(parsed, data) {
+    if (!data) {
+        const title = parsed.title || '百度百科词条';
+        return renderPreviewFromExternal(`https://baike.baidu.com/item/${encodeURIComponent(title)}`, title);
+    }
+
+    const avatarUrl = 'https://www.google.com/s2/favicons?domain=baike.baidu.com&sz=32';
+    const title = data.title || parsed.title || '百度百科词条';
+    const desc = (data.description || '').substring(0, 300);
+    const coverImg = data.coverUrl || '';
+
+    return `
+        <div class="preview-header">
+            <img src="${avatarUrl}" class="preview-avatar" alt="" onerror="this.style.display='none'">
+            <div class="preview-meta">
+                <span class="preview-author">baike.baidu.com</span>
+                <span class="preview-domain">百度百科</span>
+            </div>
+        </div>
+        ${coverImg ? `<div class="preview-cover-img"><img src="${coverImg}" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"></div>` : ''}
+        <div class="preview-title">${escHtml(title)}</div>
+        ${desc ? `<div class="preview-excerpt">${escHtml(desc)}</div>` : ''}
+        <div class="preview-footer">
+            <span class="preview-label baike">百度百科</span>
+            <span class="preview-url-path" title="https://baike.baidu.com/item/${encodeURIComponent(title)}">${escHtml(title)}</span>
+        </div>
+    `;
+}
+
+/* ==================== Fandom 链接预览 ==================== */
+
+/**
+ * 解析 Fandom URL，提取 wiki 子域名和页面标题
+ * 支持的 URL 模式：
+ *   - <subdomain>.fandom.com/wiki/<title>
+ *   - <subdomain>.fandom.com/<lang>/wiki/<title>
+ * @param {string} url
+ * @returns {{ wiki: string, title: string, lang: string|null }|null}
+ */
+function parseFandomUrl(url) {
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.replace(/^www\./, '');
+
+        // 匹配 *.fandom.com
+        const match = host.match(/^(.+?)\.fandom\.com$/);
+        if (!match) return null;
+
+        const wiki = match[1];
+        const path = parsed.pathname;
+
+        // 处理 /<lang>/wiki/<title> 或 /wiki/<title>
+        const titleMatch = path.match(/\/(?:([a-z]{2})\/)?wiki\/(.+)/);
+        if (!titleMatch) return null;
+
+        const lang = titleMatch[1] || null;
+        const title = decodeURIComponent(titleMatch[2]);
+
+        return { wiki, title, lang };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * 异步获取 Fandom 页面的预览数据
+ * 使用 Fandom 的 MediaWiki API（支持 CORS）
+ * @param {{ wiki: string, title: string, lang: string|null }} parsed
+ * @returns {Promise<{ parsed, data }|null>}
+ */
+async function fetchFandomPreviewData(parsed) {
+    const cacheKey = `fandom:${parsed.wiki}/${parsed.title}`;
+    const cached = getPreviewCache(cacheKey);
+    if (cached) return { parsed, data: cached };
+
+    try {
+        const apiUrl = `https://${parsed.wiki}.fandom.com/api.php?action=query&prop=extracts|pageimages|info&exintro&explaintext&exlimit=1&pithumbsize=300&titles=${encodeURIComponent(parsed.title)}&format=json&origin=*`;
+
+        const res = await fetch(apiUrl);
+        if (!res.ok) return null;
+
+        const json = await res.json();
+        const pages = json.query?.pages;
+        if (!pages) return null;
+
+        const pageId = Object.keys(pages)[0];
+        if (pageId === '-1') return null; // 页面不存在
+
+        const page = pages[pageId];
+        const previewData = {
+            title: page.title || parsed.title,
+            description: (page.extract || '').substring(0, 500),
+            thumbnail: page.thumbnail?.source || '',
+            pageUrl: page.fullurl || `https://${parsed.wiki}.fandom.com/wiki/${encodeURIComponent(page.title || parsed.title)}`,
+            pageId: pageId
+        };
+
+        setPreviewCache(cacheKey, previewData);
+        return { parsed, data: previewData };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * 渲染 Fandom 页面预览卡片
+ * @param {{ wiki: string, title: string, lang: string|null }} parsed
+ * @param {object|null} data
+ */
+function renderFandomPreview(parsed, data) {
+    if (!data) {
+        return renderPreviewFromExternal(
+            `https://${parsed.wiki}.fandom.com/wiki/${encodeURIComponent(parsed.title)}`,
+            parsed.title
+        );
+    }
+
+    const avatarUrl = `https://www.google.com/s2/favicons?domain=${parsed.wiki}.fandom.com&sz=32`;
+    const title = data.title || parsed.title;
+    const desc = (data.description || '').substring(0, 400);
+    const thumbnail = data.thumbnail || '';
+    const wikiDisplay = parsed.wiki.charAt(0).toUpperCase() + parsed.wiki.slice(1).replace(/-/g, ' ');
+
+    return `
+        <div class="preview-header">
+            <img src="${avatarUrl}" class="preview-avatar" alt="" onerror="this.style.display='none'">
+            <div class="preview-meta">
+                <span class="preview-author">${escHtml(wikiDisplay)} Wiki</span>
+                <span class="preview-domain">Fandom</span>
+            </div>
+        </div>
+        ${thumbnail ? `<div class="preview-cover-img"><img src="${thumbnail}" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"></div>` : ''}
+        <div class="preview-title">${escHtml(title)}</div>
+        ${desc ? `<div class="preview-excerpt">${escHtml(desc)}</div>` : ''}
+        <div class="preview-footer">
+            <span class="preview-label fandom">Fandom</span>
+            <span class="preview-url-path" title="${escHtml(data.pageUrl || '')}">${escHtml(wikiDisplay)} Wiki</span>
+        </div>
+    `;
 }
 
 function closePost() {

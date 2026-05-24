@@ -1,0 +1,359 @@
+/* ===== 归档页面 (Archive) 样式 ===== */
+
+/* 覆盖层容器 */
+#archive-overlay .detail-container#archive-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    color: var(--text, #1e1e2f);
+    position: relative;
+}
+
+#archive-overlay .archive-wrapper {
+    background: var(--bg);
+    border-radius: 2rem;
+    padding: 2rem 1.8rem;
+    box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+/* 头部区域 */
+#archive-overlay .archive-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+#archive-overlay .archive-header-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--line, #e2e2e6);
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+
+#archive-overlay .archive-header-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--accent, #646cff);
+}
+
+#archive-overlay .archive-header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, var(--text, #1e1e2f) 0%, var(--accent, #646cff) 80%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
+}
+
+#archive-overlay .archive-subtitle {
+    color: var(--text-soft, #5b5b6e);
+    font-size: 0.9rem;
+    margin: 0.2rem 0 0 0;
+}
+
+/* 统计卡片区域 */
+#archive-overlay .archive-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+#archive-overlay .archive-stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 12px;
+    background: var(--line, #e2e2e6);
+    border-radius: 14px;
+    transition: all 0.25s ease;
+    text-align: center;
+}
+
+#archive-overlay .archive-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+#archive-overlay .archive-stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent, #646cff);
+    line-height: 1.2;
+}
+
+#archive-overlay .archive-stat-label {
+    font-size: 0.7rem;
+    color: var(--text-soft, #5b5b6e);
+    font-weight: 500;
+}
+
+/* 时间轴 */
+#archive-overlay .archive-timeline {
+    margin-top: 0.5rem;
+}
+
+/* 年份分组 */
+#archive-overlay .archive-year-group {
+    margin-bottom: 2rem;
+}
+
+#archive-overlay .archive-year-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent, #646cff);
+}
+
+#archive-overlay .archive-year-badge {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent, #646cff);
+    letter-spacing: -0.03em;
+}
+
+#archive-overlay .archive-year-count {
+    font-size: 0.75rem;
+    color: var(--text-soft, #5b5b6e);
+    background: var(--line, #e2e2e6);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+/* 月度分组 */
+#archive-overlay .archive-month-group {
+    margin-left: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+#archive-overlay .archive-month-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-soft, #5b5b6e);
+}
+
+#archive-overlay .archive-month-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent, #646cff);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* 文章条目 */
+#archive-overlay .archive-post-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-left: 1.5rem;
+    margin-bottom: 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+#archive-overlay .archive-post-item:hover {
+    background: var(--line, #e2e2e6);
+    border-left-color: var(--accent, #646cff);
+    transform: translateX(4px);
+}
+
+#archive-overlay .archive-post-date {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-soft, #5b5b6e);
+    font-family: monospace;
+    white-space: nowrap;
+    min-width: 42px;
+    flex-shrink: 0;
+}
+
+#archive-overlay .archive-post-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text, #1e1e2f);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#archive-overlay .archive-post-item:hover .archive-post-title {
+    color: var(--accent, #646cff);
+}
+
+#archive-overlay .archive-post-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    max-width: 200px;
+    overflow: hidden;
+}
+
+#archive-overlay .archive-post-tag {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--line, #e2e2e6);
+    color: var(--text-soft, #5b5b6e);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#archive-overlay .archive-post-item:hover .archive-post-tag {
+    background: var(--accent, #646cff);
+    color: white;
+}
+
+/* 加载动画 */
+#archive-overlay .archive-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 3rem 0;
+    color: var(--text-soft, #5b5b6e);
+    font-size: 0.85rem;
+}
+
+#archive-overlay .archive-spinner {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--line, #e2e2e6);
+    border-top-color: var(--accent, #646cff);
+    border-radius: 50%;
+    animation: archive-spin 0.8s linear infinite;
+}
+
+@keyframes archive-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 空状态 */
+#archive-overlay .archive-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-soft, #5b5b6e);
+}
+
+#archive-overlay .archive-empty svg {
+    opacity: 0.2;
+    margin-bottom: 1rem;
+}
+
+#archive-overlay .archive-empty h3 {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text, #1e1e2f);
+    margin-bottom: 0.3rem;
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] #archive-overlay .archive-header-icon {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] #archive-overlay .archive-stat-card {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] #archive-overlay .archive-stat-card:hover {
+    background: rgba(10, 132, 255, 0.1);
+}
+
+[data-theme="dark"] #archive-overlay .archive-year-count {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] #archive-overlay .archive-post-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] #archive-overlay .archive-post-item:hover .archive-post-tag {
+    background: var(--accent, #0A84FF);
+    color: white;
+}
+
+[data-theme="dark"] #archive-overlay .archive-post-tag {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    #archive-overlay .archive-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    #archive-overlay .archive-stat-card {
+        padding: 12px 8px;
+    }
+
+    #archive-overlay .archive-stat-value {
+        font-size: 1.2rem;
+    }
+
+    #archive-overlay .archive-post-tags {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    #archive-overlay .detail-container#archive-content {
+        padding: 1rem;
+    }
+
+    #archive-overlay .archive-wrapper {
+        padding: 1.2rem;
+    }
+
+    #archive-overlay .archive-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.8rem;
+    }
+
+    #archive-overlay .archive-header h1 {
+        font-size: 1.5rem;
+    }
+
+    #archive-overlay .archive-month-group {
+        margin-left: 0.5rem;
+    }
+
+    #archive-overlay .archive-post-item {
+        margin-left: 0.5rem;
+        padding: 8px 10px;
+        flex-wrap: wrap;
+    }
+
+    #archive-overlay .archive-post-date {
+        min-width: 36px;
+        font-size: 0.65rem;
+    }
+
+    #archive-overlay .archive-post-title {
+        font-size: 0.8rem;
+    }
+}

@@ -132,6 +132,72 @@
 
 /* 标签云样式已迁移至 style.css */
 
+/* 归档侧边栏卡片 */
+.archive-sidebar-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.archive-sidebar-card:hover {
+    background: var(--line);
+    transform: translateX(4px);
+}
+
+.archive-sidebar-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--line);
+    border-radius: 10px;
+    flex-shrink: 0;
+    color: var(--accent);
+    transition: all 0.25s ease;
+}
+
+.archive-sidebar-card:hover .archive-sidebar-icon {
+    background: var(--accent);
+    color: white;
+}
+
+.archive-sidebar-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.archive-sidebar-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.archive-sidebar-desc {
+    font-size: 0.65rem;
+    color: var(--text-soft);
+}
+
+[data-theme="dark"] .archive-sidebar-icon {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .archive-sidebar-card:hover .archive-sidebar-icon {
+    background: var(--accent, #0A84FF);
+    color: white;
+}
+
+[data-theme="dark"] .archive-sidebar-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
 @media (max-width: 1024px) {
     .sidebar-info {
         display: none;
